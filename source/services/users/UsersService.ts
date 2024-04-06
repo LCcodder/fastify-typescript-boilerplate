@@ -26,7 +26,42 @@ export class UsersService implements IUsersService {
                 
                 return resolve(createdUser as unknown as User)
             } catch (_error) {
-                console.log(_error)
+                return reject(UserExceptions.ServiceUnavailable)
+            }
+        })
+    }
+
+    public getUserById(id: string) {
+        return new Promise( async (
+            resolve: (state: User) => void,
+            reject: (exception: 
+                | typeof UserExceptions.ServiceUnavailable
+                | typeof UserExceptions.NotFound
+            ) => void
+        ) => {
+            try {
+                const user = await this.User.findById(id)
+                if (!user) return reject(UserExceptions.NotFound)
+                return resolve(user as unknown as User)
+            } catch (_error) {
+                return reject(UserExceptions.ServiceUnavailable)
+            }
+        })
+    }
+
+    public getUserByEmail(email: string) {
+        return new Promise( async (
+            resolve: (state: User) => void,
+            reject: (exception: 
+                | typeof UserExceptions.ServiceUnavailable
+                | typeof UserExceptions.NotFound
+            ) => void
+        ) => {
+            try {
+                const user = await this.User.findOne({ email })
+                if (!user) return reject(UserExceptions.NotFound)
+                return resolve(user as unknown as User)
+            } catch (_error) {
                 return reject(UserExceptions.ServiceUnavailable)
             }
         })

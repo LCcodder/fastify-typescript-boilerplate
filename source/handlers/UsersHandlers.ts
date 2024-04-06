@@ -1,8 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { IUsersService } from "../services/users/IUsersService";
 import { User, UserWithoutMetadata } from "../actors/User";
-import { UsersService } from "../services/users/UsersService";
-import { Exception } from "../utils/Exception";
 import { UserExceptions } from "../services/users/UserExceptions";
 import { AddUserSchema, GetUserByIdSchema } from "./schemas/UserSchemas";
 
@@ -14,7 +12,7 @@ export const handleUserRoutes = (server: FastifyInstance, usersService: IUsersSe
             400: typeof UserExceptions.AlreadyExists,
             503: typeof UserExceptions.ServiceUnavailable
         }
-    }>("/users", {schema: AddUserSchema}, async (request, reply) => {
+    }>("/users/create", {schema: AddUserSchema}, async (request, reply) => {
         try {
             const insertData: UserWithoutMetadata = request.body
             const state = await usersService.createUser(insertData) as User
@@ -32,13 +30,16 @@ export const handleUserRoutes = (server: FastifyInstance, usersService: IUsersSe
     server.get<{
         Params: { id: string },
         Reply: {
+            200: User,
             404: typeof UserExceptions.NotFound,
             503: typeof UserExceptions.ServiceUnavailable
         }
-    }>("/users", {schema: GetUserByIdSchema}, async (request, reply) => {
+    }>("/users/:id", {schema: GetUserByIdSchema}, async (request, reply) => {
         try {
-            
-        } catch (exception: unknown) {
+            const id: string = request.params.id
+            const user = await usersService.getUserById(id) as User
+            reply.code(200).send(user)
+        } catch (exception: unknown) { 
             reply.code(
                 (exception as typeof UserExceptions.NotFound 
                     | typeof UserExceptions.ServiceUnavailable

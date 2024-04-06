@@ -8,4 +8,6 @@ export declare type User = {
     __v: number
 }
 
+export declare type UserCredentials = Pick<User, "email" | "password">
+
 export declare type UserWithoutMetadata = Omit<User, "createdAt" | "_id" | "__v">
