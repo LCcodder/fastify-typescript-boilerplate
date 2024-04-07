@@ -1,8 +1,9 @@
-import { Schema } from "mongoose";
+import { Schema } from "mongoose"
 
 export const noteSchema = new Schema({
-    // stands for default mongo _id
-    authorId: String,
+    authorUsername: String,
+    collaborators: Array<String>,
     title: String,
     content: String,
-}, { timestamps: true });
+    tags: String
+}, { timestamps: true })

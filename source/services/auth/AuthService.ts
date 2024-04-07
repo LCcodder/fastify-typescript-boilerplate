@@ -18,10 +18,10 @@ export class AuthService implements IAuthService {
             ) => void
         ) => {
             try {
-                const foundUser = await this.usersService.getUserByEmail(email) as User
+                const foundUser = await this.usersService.getUser("email", email) as User
                 if (foundUser.password === password) {
                     return resolve([
-                        generateToken(foundUser._id.toString(), foundUser.email),
+                        generateToken(foundUser._id.toString(), foundUser.email, foundUser.username),
                         CONFIG.jwtExpiration
                     ])
                 }

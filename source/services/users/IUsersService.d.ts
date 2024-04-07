@@ -9,17 +9,21 @@ export declare interface IUsersService {
         | typeof UserExceptions.ServiceUnavailable
     >;
 
+    getUser<TKey extends keyof UserWithoutMetadata>(
+        key: TKey, 
+        value: UserWithoutMetadata[TKey]
+    ): Promise<
+        | User
+        | typeof UserExceptions.ServiceUnavailable
+        | typeof UserExceptions.NotFound  
+    >
+
     getUserById(id: string): Promise<
         | User
         | typeof UserExceptions.ServiceUnavailable
         | typeof UserExceptions.NotFound  
     >
 
-    getUserByEmail(email: string): Promise<
-        | User
-        | typeof UserExceptions.ServiceUnavailable
-        | typeof UserExceptions.NotFound  
-    >
 
   // updateUser(updateData: DeepPartial<User>): Promise<User | {
   //     statusCode: 503,

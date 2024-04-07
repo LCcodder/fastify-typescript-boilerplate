@@ -31,6 +31,28 @@ export class UsersService implements IUsersService {
         })
     }
 
+    public getUser<TKey extends keyof UserWithoutMetadata>(key: TKey, value: UserWithoutMetadata[TKey]) {
+        return new Promise( async (
+            resolve: (state: User) => void,
+            reject: (exception: 
+                | typeof UserExceptions.ServiceUnavailable
+                | typeof UserExceptions.NotFound
+            ) => void
+        ) => {
+            try {
+                let query: Record<string, UserWithoutMetadata[TKey]> = {}
+                query[key] = value
+
+                const user = await this.User.findOne(query)
+                
+                if (!user) return reject(UserExceptions.NotFound)
+                return resolve(user as unknown as User)
+            } catch (_error) {
+                return reject(UserExceptions.ServiceUnavailable)
+            }
+        })
+    }
+    
     public getUserById(id: string) {
         return new Promise( async (
             resolve: (state: User) => void,
@@ -49,21 +71,39 @@ export class UsersService implements IUsersService {
         })
     }
 
-    public getUserByEmail(email: string) {
-        return new Promise( async (
-            resolve: (state: User) => void,
-            reject: (exception: 
-                | typeof UserExceptions.ServiceUnavailable
-                | typeof UserExceptions.NotFound
-            ) => void
-        ) => {
-            try {
-                const user = await this.User.findOne({ email })
-                if (!user) return reject(UserExceptions.NotFound)
-                return resolve(user as unknown as User)
-            } catch (_error) {
-                return reject(UserExceptions.ServiceUnavailable)
-            }
-        })
-    }
+    // public getUserByEmail(email: string) {
+    //     return new Promise( async (
+    //         resolve: (state: User) => void,
+    //         reject: (exception: 
+    //             | typeof UserExceptions.ServiceUnavailable
+    //             | typeof UserExceptions.NotFound
+    //         ) => void
+    //     ) => {
+    //         try {
+    //             const user = await this.User.findOne({ email })
+    //             if (!user) return reject(UserExceptions.NotFound)
+    //             return resolve(user as unknown as User)
+    //         } catch (_error) {
+    //             return reject(UserExceptions.ServiceUnavailable)
+    //         }
+    //     })
+    // }
+
+    // public getUserByUsername(username: string) {
+    //     return new Promise( async (
+    //         resolve: (state: User) => void,
+    //         reject: (exception: 
+    //             | typeof UserExceptions.ServiceUnavailable
+    //             | typeof UserExceptions.NotFound
+    //         ) => void
+    //     ) => {
+    //         try {
+    //             const user = await this.User.findOne({ username })
+    //             if (!user) return reject(UserExceptions.NotFound)
+    //             return resolve(user as unknown as User)
+    //         } catch (_error) {
+    //             return reject(UserExceptions.ServiceUnavailable)
+    //         }
+    //     })
+    // }
 }

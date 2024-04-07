@@ -19,11 +19,11 @@ export const AddUserSchema: FastifySchema = {
     }
 }
 
-export const GetUserByIdSchema: FastifySchema = {
+export const GetUserByUsernameSchema: FastifySchema = {
     params: {
         type: 'object',
         properties: {
-            id: {
+            username: {
                 type: 'string'
             }
         }
