@@ -1,5 +1,5 @@
 import { User } from "../../actors/User";
-import { generateToken } from "../../auth/jwt/TokenGeneration";
+import { generateToken } from "../../auth/jwt/TokenGenerator";
 import { Exception } from "../../utils/Exception";
 import { IUsersService } from "../users/IUsersService";
 import { AuthExceptions } from "./AuthExceptions";
@@ -19,13 +19,19 @@ export class AuthService implements IAuthService {
         ) => {
             try {
                 const foundUser = await this.usersService.getUser("email", email) as User
-                if (foundUser.password === password) {
-                    return resolve([
-                        generateToken(foundUser._id.toString(), foundUser.email, foundUser.username),
-                        CONFIG.jwtExpiration
-                    ])
+                if (foundUser.password !== password) {
+                    return reject(AuthExceptions.WrongCredentials)  
                 }
-                return reject(AuthExceptions.WrongCredentials)
+
+                const token = generateToken(foundUser.email, foundUser.username)
+                await this.usersService.updateUserByUsername(foundUser.username, {
+                    validToken: token
+                })
+
+                return resolve([
+                    token,
+                    CONFIG.jwtExpiration
+                ]) 
             } catch (error) {
                 return (error as Exception).statusCode === 404 ? 
                     reject(AuthExceptions.WrongCredentials) :

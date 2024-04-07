@@ -1,6 +1,6 @@
 import { FastifySchema } from "fastify"
 
-export const AddUserSchema: FastifySchema = {
+export const RegisterUserSchema: FastifySchema = {
     body: {
         type: 'object',
         properties: {
@@ -13,9 +13,19 @@ export const AddUserSchema: FastifySchema = {
                 type: 'string',
                 minLength: 8,
                 maxLength: 32
+            },
+            username: {
+                type: 'string',
+                minLength: 4,
+                maxLength: 32
+            },
+            personalColor: {
+                type: 'string',
+                minLength: 7,
+                maxLength: 7
             }
         },
-        required: ['email', 'password'],
+        required: ['email', 'password', 'username', 'personalColor'],
     }
 }
 
@@ -49,10 +59,15 @@ export const UpdateUserSchema: FastifySchema = {
                 minLength: 8,
                 maxLength: 60
             },
-            password: {
+            username: {
                 type: 'string',
-                minLength: 8,
+                minLength: 4,
                 maxLength: 32
+            },
+            personalColor: {
+                type: 'string',
+                minLength: 7,
+                maxLength: 7
             }
         }
     }

@@ -9,7 +9,6 @@ export declare type Note = {
     createdAt: Date
     updatedAt: Date
     _id: ObjectId
-    __v: number
 }
 
-export declare type NoteWithoutMetadata = Omit<Note, "createdAt" | "updatedAt" | "_id" | "__v">
+export declare type NoteWithoutMetadata = Omit<Note, "createdAt" | "updatedAt" | "_id">

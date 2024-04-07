@@ -1,5 +1,4 @@
-import { User, UserWithoutMetadata } from "../../actors/User";
-import { DeepPartial } from "../../utils/DeepPartial";
+import { User, UserUpdate, UserWithoutMetadata } from "../../actors/User";
 import { UserExceptions } from "./UserExceptions";
 
 export declare interface IUsersService {
@@ -18,18 +17,9 @@ export declare interface IUsersService {
         | typeof UserExceptions.NotFound  
     >
 
-    getUserById(id: string): Promise<
+    updateUserByUsername(username: string, updateData: UserUpdate): Promise<
         | User
         | typeof UserExceptions.ServiceUnavailable
         | typeof UserExceptions.NotFound  
     >
-
-
-  // updateUser(updateData: DeepPartial<User>): Promise<User | {
-  //     statusCode: 503,
-  //     message: 'Cannot get user, service unavalable'
-  // } | {
-  //     statusCode: 404,
-  //     message: 'User not found'
-  // }>
 }

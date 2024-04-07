@@ -6,4 +6,4 @@ export const noteSchema = new Schema({
     title: String,
     content: String,
     tags: String
-}, { timestamps: true })
+}, { timestamps: true, versionKey: false })

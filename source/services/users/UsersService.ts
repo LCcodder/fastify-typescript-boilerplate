@@ -1,10 +1,20 @@
-import mongoose, { ObjectId } from "mongoose";
-import { User, UserWithoutMetadata } from "../../actors/User";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../actors/User";
 import { IUsersService } from "./IUsersService";
 import { UserExceptions } from "./UserExceptions";
 import { UserModel } from "../../database/ModelsFactory";
 
 export class UsersService implements IUsersService {
+    /**
+     * @mutable Mutates initial
+     * @param user `User` to omit
+     * @returns User without sensetive data such as `passoword` and `validToken`
+     */
+    public static omitSensetiveData(user: User): UserWithoutSensetives {
+        user.password = undefined
+        user.validToken = undefined
+        return user
+    }
+
     constructor(private User: UserModel) {}
 
     public createUser(user: UserWithoutMetadata) {
@@ -16,16 +26,23 @@ export class UsersService implements IUsersService {
             ) => void
         ) => {
             try {
-                const foundUser = await this.User.findOne({
+                const foundUserWithEmail = await this.User.findOne({
                     email: user.email
                 })
-                if (foundUser) {
+                const foundUserWithUsername = await this.User.findOne({
+                    username: user.username
+                })
+                if (foundUserWithEmail || foundUserWithUsername) {
                     return reject(UserExceptions.AlreadyExists)
                 }
-                const createdUser = await this.User.create(user)
+                const createdUser = await this.User.create({
+                    ...user,
+                    validToken: null
+                })
                 
                 return resolve(createdUser as unknown as User)
             } catch (_error) {
+                console.log(_error)
                 return reject(UserExceptions.ServiceUnavailable)
             }
         })
@@ -44,17 +61,17 @@ export class UsersService implements IUsersService {
                 query[key] = value
 
                 const user = await this.User.findOne(query)
-                
                 if (!user) return reject(UserExceptions.NotFound)
+
                 return resolve(user as unknown as User)
             } catch (_error) {
                 return reject(UserExceptions.ServiceUnavailable)
             }
         })
     }
-    
-    public getUserById(id: string) {
-        return new Promise( async (
+
+    public updateUserByUsername(username: string, updateData: UserUpdate) {
+        return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
                 | typeof UserExceptions.ServiceUnavailable
@@ -62,48 +79,19 @@ export class UsersService implements IUsersService {
             ) => void
         ) => {
             try {
-                const user = await this.User.findById(id)
-                if (!user) return reject(UserExceptions.NotFound)
-                return resolve(user as unknown as User)
+                const foundUser = await this.User.findOne({ username })
+                if (!foundUser) {
+                    return reject(UserExceptions.NotFound)
+                }
+
+                const state = await this.User.updateOne({ username }, updateData)
+                
+                const updatedUser = await this.User.findOne({ username })
+                return resolve(updatedUser as unknown as User)
             } catch (_error) {
+                console.log(_error)
                 return reject(UserExceptions.ServiceUnavailable)
             }
         })
     }
-
-    // public getUserByEmail(email: string) {
-    //     return new Promise( async (
-    //         resolve: (state: User) => void,
-    //         reject: (exception: 
-    //             | typeof UserExceptions.ServiceUnavailable
-    //             | typeof UserExceptions.NotFound
-    //         ) => void
-    //     ) => {
-    //         try {
-    //             const user = await this.User.findOne({ email })
-    //             if (!user) return reject(UserExceptions.NotFound)
-    //             return resolve(user as unknown as User)
-    //         } catch (_error) {
-    //             return reject(UserExceptions.ServiceUnavailable)
-    //         }
-    //     })
-    // }
-
-    // public getUserByUsername(username: string) {
-    //     return new Promise( async (
-    //         resolve: (state: User) => void,
-    //         reject: (exception: 
-    //             | typeof UserExceptions.ServiceUnavailable
-    //             | typeof UserExceptions.NotFound
-    //         ) => void
-    //     ) => {
-    //         try {
-    //             const user = await this.User.findOne({ username })
-    //             if (!user) return reject(UserExceptions.NotFound)
-    //             return resolve(user as unknown as User)
-    //         } catch (_error) {
-    //             return reject(UserExceptions.ServiceUnavailable)
-    //         }
-    //     })
-    // }
 }
