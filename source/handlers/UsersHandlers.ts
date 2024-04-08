@@ -1,12 +1,22 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { IUsersService } from "../services/users/IUsersService";
 import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../actors/User";
 import { UserExceptions } from "../services/users/UserExceptions";
-import { RegisterUserSchema, GetUserByUsernameSchema, UpdateUserSchema } from "./schemas/UserSchemas";
+import { RegisterUserSchema, GetUserByUsernameSchema, UpdateUserSchema } from "./validation/UserSchemas";
 import { UsersService } from "../services/users/UsersService";
+import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
+import { extractToken } from "../utils/TokenExtractor";
 
 
-export const handleUserRoutes = (server: FastifyInstance, usersService: IUsersService) => {
+export const handleUserRoutes = (
+    server: FastifyInstance, 
+    usersService: IUsersService, 
+    // auth prehandler, which have to be generated in main.ts file
+    authentification: (request: FastifyRequest, 
+        reply: FastifyReply, 
+        done: HookHandlerDoneFunction
+    ) => void
+) => {
     server.post<{
         Body: UserWithoutMetadata,
         Reply: {
@@ -19,40 +29,63 @@ export const handleUserRoutes = (server: FastifyInstance, usersService: IUsersSe
             const insertData: UserWithoutMetadata = request.body
             const state = await usersService.createUser(insertData) as User
             reply.code(201).send(state)
-        } catch (exception: unknown) {
+        } catch (exception: any) {
             reply.code(
-                (exception as typeof UserExceptions.AlreadyExists 
-                    | typeof UserExceptions.ServiceUnavailable
-                ).statusCode
-            ).send(exception as any)
+                exception.statusCode
+            ).send(exception)
         }
     })
 
-    server.get<{}>("/users/me", {preHandler: (request, reply, done) => {done()}}, () => {})
+    server.get<{
+        Reply: {
+            200: UserWithoutSensetives,
+            404: typeof UserExceptions.NotFound,
+            503: typeof UserExceptions.ServiceUnavailable,
+        }
+    }>("/users/me", {
+        preHandler: authentification
+    }, async (request, reply) => {
+        try {
+            const payload = extractJwtPayload(
+                extractToken(request)
+            )
+            let user = await usersService.getUser("email", payload.email) as User
+            UsersService.omitSensetiveData(user)
+
+            reply.code(200).send(user)
+        } catch (exception: any) {
+            reply.code(
+                exception.statusCode
+            ).send(exception)
+        }
+    })
 
     server.patch<{
-        Params: {username: string},
         Body: Omit<UserUpdate, "password" | "validToken">,
         Reply: {
             200: UserWithoutSensetives,
             404: typeof UserExceptions.NotFound,
-            503: typeof UserExceptions.ServiceUnavailable
+            503: typeof UserExceptions.ServiceUnavailable,
+            400: typeof UserExceptions.AlreadyExists
         }
-    }>("/users/:username", {
+    }>("/users/me", {
         schema: UpdateUserSchema,
+        preHandler: authentification
     }, async (request, reply) => {
         try {
-            const username: string = request.params.username
+            const payload = extractJwtPayload(
+                extractToken(request)
+            )
             const updateData = request.body
-            let updatedUser = await usersService.updateUserByUsername(username, updateData) as User
+
+            let updatedUser = await usersService.updateUserByEmail(payload.email, updateData) as User
             UsersService.omitSensetiveData(updatedUser)
+
             reply.code(200).send(updatedUser)
-        } catch (exception: unknown) {
+        } catch (exception: any) {
             reply.code(
-                (exception as typeof UserExceptions.NotFound 
-                    | typeof UserExceptions.ServiceUnavailable
-                ).statusCode
-            ).send(exception as any)
+                exception.statusCode
+            ).send(exception)
         }
     })
 
@@ -69,12 +102,10 @@ export const handleUserRoutes = (server: FastifyInstance, usersService: IUsersSe
             let user = await usersService.getUser("username", username) as User
             UsersService.omitSensetiveData(user)
             reply.code(200).send(user)
-        } catch (exception: unknown) { 
+        } catch (exception: any) { 
             reply.code(
-                (exception as typeof UserExceptions.NotFound 
-                    | typeof UserExceptions.ServiceUnavailable
-                ).statusCode
-            ).send(exception as any)
+                exception.statusCode
+            ).send(exception)
         }
     })
 }

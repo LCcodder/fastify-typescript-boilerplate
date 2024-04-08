@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { IAuthService } from "../services/auth/IAuthService";
 import { UserCredentials, UserWithoutMetadata } from "../actors/User";
 import { AuthExceptions } from "../services/auth/AuthExceptions";
-import { AuthUserSchema } from "./schemas/AuthSchemas";
+import { AuthUserSchema } from "./validation/AuthSchemas";
 
 export const handleAuthRoutes = (server: FastifyInstance, authService: IAuthService) => {
     server.post<{
@@ -25,12 +25,10 @@ export const handleAuthRoutes = (server: FastifyInstance, authService: IAuthServ
                 token,
                 expiresIn
             })
-        } catch (exception: unknown) {
+        } catch (exception: any) {
             reply.code(
-                (exception as typeof AuthExceptions.WrongCredentials
-                    | typeof AuthExceptions.ServiceUnavailable
-                ).statusCode
-            ).send(exception as any)
+                exception.statusCode
+            ).send(exception)
         }
     })
 }

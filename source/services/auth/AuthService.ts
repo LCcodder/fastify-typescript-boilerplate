@@ -23,8 +23,8 @@ export class AuthService implements IAuthService {
                     return reject(AuthExceptions.WrongCredentials)  
                 }
 
-                const token = generateToken(foundUser.email, foundUser.username)
-                await this.usersService.updateUserByUsername(foundUser.username, {
+                const token = generateToken(foundUser.email)
+                await this.usersService.updateUserByEmail(email, {
                     validToken: token
                 })
 

@@ -17,9 +17,10 @@ export declare interface IUsersService {
         | typeof UserExceptions.NotFound  
     >
 
-    updateUserByUsername(username: string, updateData: UserUpdate): Promise<
+    updateUserByEmail(email: string, updateData: UserUpdate): Promise<
         | User
         | typeof UserExceptions.ServiceUnavailable
         | typeof UserExceptions.NotFound  
+        | typeof UserExceptions.AlreadyExists
     >
 }

@@ -40,25 +40,12 @@ export const GetUserByUsernameSchema: FastifySchema = {
     }
 }
 
-export const GetMyProfileSchema: FastifySchema = {
-    
-}
+export const GetMyProfileSchema: FastifySchema = {}
 
 export const UpdateUserSchema: FastifySchema = {
-    params: {
-        type: 'object',
-        properties: {
-            id: {type: 'string'}
-        }
-    },
     body: {
         type: 'object',
         properties: {
-            email: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 60
-            },
             username: {
                 type: 'string',
                 minLength: 4,

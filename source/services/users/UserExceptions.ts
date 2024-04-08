@@ -1,7 +1,7 @@
 export const UserExceptions = {
     AlreadyExists: {
         statusCode: 400,
-        message: "User alredy exists"
+        message: "User already exists"
     },
 
     ServiceUnavailable: {

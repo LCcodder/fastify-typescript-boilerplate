@@ -10,9 +10,13 @@ export class UsersService implements IUsersService {
      * @returns User without sensetive data such as `passoword` and `validToken`
      */
     public static omitSensetiveData(user: User): UserWithoutSensetives {
-        user.password = undefined
-        user.validToken = undefined
-        return user
+        try {
+            user.password = undefined
+            user.validToken = undefined
+            return user
+        } catch(_error) {
+            return user
+        }
     }
 
     constructor(private User: UserModel) {}
@@ -70,23 +74,28 @@ export class UsersService implements IUsersService {
         })
     }
 
-    public updateUserByUsername(username: string, updateData: UserUpdate) {
+    public updateUserByEmail(email: string, updateData: UserUpdate) {
         return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
                 | typeof UserExceptions.ServiceUnavailable
                 | typeof UserExceptions.NotFound
+                | typeof UserExceptions.AlreadyExists
             ) => void
         ) => {
             try {
-                const foundUser = await this.User.findOne({ username })
-                if (!foundUser) {
+                // checking if username is unique
+                if (updateData.username && await this.User.findOne({username: updateData.username})) {
+                    return reject(UserExceptions.AlreadyExists)
+                }
+
+                const state = await this.User.updateOne({ email }, updateData)
+                // if user not found - raise error
+                if (!state.matchedCount) {
                     return reject(UserExceptions.NotFound)
                 }
 
-                const state = await this.User.updateOne({ username }, updateData)
-                
-                const updatedUser = await this.User.findOne({ username })
+                const updatedUser = await this.User.findOne({ email })
                 return resolve(updatedUser as unknown as User)
             } catch (_error) {
                 console.log(_error)

@@ -13,7 +13,7 @@ export declare type User = {
 }
 
 export declare type UserUpdate = DeepPartial<
-    Omit<User, "updatedAt" | "createdAt" | "_id">
+    Omit<User, "updatedAt" | "createdAt" | "_id" | "email">
 >
 export declare type UserCredentials = Pick<User, "email" | "password">
 export declare type UserWithoutSensetives = Omit<User, "validToken" | "password">
