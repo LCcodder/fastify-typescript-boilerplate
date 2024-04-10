@@ -18,3 +18,23 @@ export const AuthUserSchema: FastifySchema = {
         required: ['email', 'password'],
     }
 }
+
+
+export const ChangePasswordSchema: FastifySchema = {
+    body: {
+        type: 'object',
+        properties: {
+            oldPassword: {
+                type: 'string',
+                minLength: 8,
+                maxLength: 32
+            },
+            newPassword: {
+                type: 'string',
+                minLength: 8,
+                maxLength: 32
+            }
+        },
+        required: ['oldPassword', 'newPassword']
+    }
+}

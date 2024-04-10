@@ -1,7 +1,7 @@
 export const AuthExceptions = {
     WrongCredentials: {
         statusCode: 400,
-        message: "Wrong email or password"
+        message: "Wrong credentials"
     },
     ServiceUnavailable: {
         statusCode: 503,

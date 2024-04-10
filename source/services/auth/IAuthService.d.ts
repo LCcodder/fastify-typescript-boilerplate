@@ -6,4 +6,10 @@ export declare interface IAuthService {
         | typeof AuthExceptions.WrongCredentials
         | typeof AuthExceptions.ServiceUnavailable
     >
+
+    changePassword(login: string, oldPassword: string, newPassword: string): Promise<
+        | { success: true }
+        | typeof AuthExceptions.WrongCredentials
+        | typeof AuthExceptions.ServiceUnavailable 
+    >
 }

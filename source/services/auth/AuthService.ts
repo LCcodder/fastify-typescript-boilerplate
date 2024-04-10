@@ -41,4 +41,33 @@ export class AuthService implements IAuthService {
             }
         })
     }
+
+    public changePassword(login: string, oldPassword: string, newPassword: string) {
+        return new Promise(async (
+            resolve: (state: { success: true }) => void,
+            reject: (exception: 
+                | typeof AuthExceptions.WrongCredentials
+                | typeof AuthExceptions.ServiceUnavailable    
+            ) => void
+        ) => {
+            try {
+                const foundUser = await this.usersService.getUser("login", login) as User
+                const passwordIsValid = await bcrypt.compare(oldPassword, foundUser.password)
+                if (!passwordIsValid) {
+                    return reject(AuthExceptions.WrongCredentials)  
+                }
+                const newHashedPassword = await bcrypt.hash(newPassword, 4)
+                await this.usersService.updateUserByLogin(login, {
+                    password: newHashedPassword,
+                    validToken: null
+                })
+
+                return resolve({ success: true })
+            } catch (error) {
+                return (error as Exception).statusCode === 404 ? 
+                    reject(AuthExceptions.WrongCredentials) :
+                    reject(AuthExceptions.ServiceUnavailable)
+            }
+        })
+    }
 }

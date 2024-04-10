@@ -31,7 +31,7 @@ const authentification = authentificationFactory(usersService)
 const authService = new AuthService(usersService)
 
 handleUserRoutes(server, usersService, authentification)
-handleAuthRoutes(server, authService)
+handleAuthRoutes(server, authService, authentification)
 
 
 

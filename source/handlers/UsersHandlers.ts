@@ -12,7 +12,7 @@ export const handleUserRoutes = (
     server: FastifyInstance, 
     usersService: IUsersService, 
     // auth prehandler, which have to be generated in main.ts file
-    authentification: (
+    authentificate: (
         request: FastifyRequest, 
         reply: FastifyReply, 
         done: HookHandlerDoneFunction
@@ -46,7 +46,7 @@ export const handleUserRoutes = (
             503: typeof UserExceptions.ServiceUnavailable,
         }
     }>("/users/me", {
-        preHandler: authentification
+        preHandler: authentificate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -73,7 +73,7 @@ export const handleUserRoutes = (
         }
     }>("/users/me", {
         schema: UpdateUserSchema,
-        preHandler: authentification
+        preHandler: authentificate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(

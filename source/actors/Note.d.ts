@@ -1,7 +1,7 @@
 import { ObjectId } from "mongoose"
 
 export declare type Note = {
-    authorUsername: string
+    author: string
     collaborators: string[]
     title: string
     content: string
