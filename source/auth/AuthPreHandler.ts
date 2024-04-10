@@ -31,7 +31,7 @@ async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFuncti
 
     // checking if token is actual
     try {
-        const foundUser = await usersService.getUser("email", payload.email) as User
+        const foundUser = await usersService.getUser("login", payload.login) as User
         if (foundUser.validToken !== token) {
             reply.code(401).send(UserExceptions.NotAuthorized)
             return

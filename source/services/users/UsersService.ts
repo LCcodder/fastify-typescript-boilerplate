@@ -2,6 +2,7 @@ import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "..
 import { IUsersService } from "./IUsersService";
 import { UserExceptions } from "./UserExceptions";
 import { UserModel } from "../../database/ModelsFactory";
+import bcrypt from 'bcrypt'
 
 export class UsersService implements IUsersService {
     /**
@@ -33,16 +34,19 @@ export class UsersService implements IUsersService {
                 const foundUserWithEmail = await this.User.findOne({
                     email: user.email
                 })
-                const foundUserWithUsername = await this.User.findOne({
-                    username: user.username
+                const foundUserWithLogin = await this.User.findOne({
+                    login: user.login
                 })
-                if (foundUserWithEmail || foundUserWithUsername) {
+                if (foundUserWithEmail || foundUserWithLogin) {
                     return reject(UserExceptions.AlreadyExists)
                 }
-                const createdUser = await this.User.create({
+
+                let creationData: UserWithoutMetadata & {validToken?: string} = {
                     ...user,
                     validToken: null
-                })
+                }
+                creationData.password = await bcrypt.hash(creationData.password, 4)
+                const createdUser = await this.User.create(creationData)
                 
                 return resolve(createdUser as unknown as User)
             } catch (_error) {
@@ -53,7 +57,7 @@ export class UsersService implements IUsersService {
     }
 
     public getUser<TKey extends keyof UserWithoutMetadata>(key: TKey, value: UserWithoutMetadata[TKey]) {
-        return new Promise( async (
+        return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
                 | typeof UserExceptions.ServiceUnavailable
@@ -74,28 +78,22 @@ export class UsersService implements IUsersService {
         })
     }
 
-    public updateUserByEmail(email: string, updateData: UserUpdate) {
+    public updateUserByLogin(login: string, updateData: UserUpdate) {
         return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
                 | typeof UserExceptions.ServiceUnavailable
                 | typeof UserExceptions.NotFound
-                | typeof UserExceptions.AlreadyExists
             ) => void
         ) => {
             try {
-                // checking if username is unique
-                if (updateData.username && await this.User.findOne({username: updateData.username})) {
-                    return reject(UserExceptions.AlreadyExists)
-                }
-
-                const state = await this.User.updateOne({ email }, updateData)
+                const state = await this.User.updateOne({ login }, updateData)
                 // if user not found - raise error
                 if (!state.matchedCount) {
                     return reject(UserExceptions.NotFound)
                 }
 
-                const updatedUser = await this.User.findOne({ email })
+                const updatedUser = await this.User.findOne({ login })
                 return resolve(updatedUser as unknown as User)
             } catch (_error) {
                 console.log(_error)

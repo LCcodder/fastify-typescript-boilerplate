@@ -16,7 +16,7 @@ export const handleAuthRoutes = (server: FastifyInstance, authService: IAuthServ
         try {
             const credentials: UserCredentials = request.body
             
-            const [token, expiresIn] = await authService.authorizateAndGetToken(
+            const [token, expiresIn] = await authService.authorizeAndGetToken(
                 credentials.email, 
                 credentials.password
             ) as [string, string]

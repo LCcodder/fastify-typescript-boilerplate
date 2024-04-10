@@ -5,11 +5,12 @@ import { IUsersService } from "../users/IUsersService";
 import { AuthExceptions } from "./AuthExceptions";
 import { IAuthService } from "./IAuthService";
 import { CONFIG } from "../../config/ServerConfiguration";
+import bcrypt from 'bcrypt'
 
 export class AuthService implements IAuthService {
     constructor(private usersService: IUsersService) {}
 
-    public authorizateAndGetToken(email: string, password: string) {
+    public authorizeAndGetToken(email: string, password: string) {
         return new Promise(async (
             resolve: (state: [string, string]) => void,
             reject: (exception:
@@ -19,12 +20,13 @@ export class AuthService implements IAuthService {
         ) => {
             try {
                 const foundUser = await this.usersService.getUser("email", email) as User
-                if (foundUser.password !== password) {
+                const passwordIsValid = await bcrypt.compare(password, foundUser.password)
+                if (!passwordIsValid) {
                     return reject(AuthExceptions.WrongCredentials)  
                 }
 
-                const token = generateToken(foundUser.email)
-                await this.usersService.updateUserByEmail(email, {
+                const token = generateToken(foundUser.login)
+                await this.usersService.updateUserByLogin(foundUser.login, {
                     validToken: token
                 })
 

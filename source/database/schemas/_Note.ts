@@ -1,7 +1,8 @@
 import { Schema } from "mongoose"
 
 export const noteSchema = new Schema({
-    authorUsername: String,
+    authorEmail: String,
+    // also emails
     collaborators: Array<String>,
     title: String,
     content: String,

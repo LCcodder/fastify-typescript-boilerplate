@@ -4,6 +4,11 @@ export const RegisterUserSchema: FastifySchema = {
     body: {
         type: 'object',
         properties: {
+            login: {
+                type: 'string',
+                minLength: 4,
+                maxLength: 16
+            },
             email: {
                 type: 'string',
                 minLength: 8,
@@ -29,18 +34,18 @@ export const RegisterUserSchema: FastifySchema = {
     }
 }
 
-export const GetUserByUsernameSchema: FastifySchema = {
+export const GetUserSchema: FastifySchema = {
     params: {
         type: 'object',
         properties: {
-            username: {
+            login: {
                 type: 'string'
             }
-        }
+        },
+        required: ['login']
+        
     }
 }
-
-export const GetMyProfileSchema: FastifySchema = {}
 
 export const UpdateUserSchema: FastifySchema = {
     body: {
