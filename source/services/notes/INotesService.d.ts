@@ -8,15 +8,15 @@ export interface INotesService {
         | typeof NoteExceptions.ServiceUnavailable
     >
 
-    getNote(authorLogin: string, title: string): Promise<
+    getNote(login: string, title: string): Promise<
         | Note
         | typeof NoteExceptions.NotFound
         | typeof NoteExceptions.ServiceUnavailable
     >
 
-    deleteNote(): Promise<
-        | { success: true }
-        | typeof NoteExceptions.NotFound
+    deleteNote(authorLogin: string, title: string): Promise<
+        | { foundAndDeleted: boolean }
+        | typeof NoteExceptions.AcessRestricted
         | typeof NoteExceptions.ServiceUnavailable
     >
 

@@ -3,5 +3,6 @@ export declare type Config = {
     mongodbConnectionString: string,
     jwtSecret: string,
     // in '*h' format
-    jwtExpiration: string
+    jwtExpiration: string,
+    log: () => void
 }

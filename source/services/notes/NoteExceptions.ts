@@ -7,5 +7,8 @@ export const NoteExceptions = {
     },
     NotFound: {
         
+    },
+    AcessRestricted: {
+        
     }
 } as const

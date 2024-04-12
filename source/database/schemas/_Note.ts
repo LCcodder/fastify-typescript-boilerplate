@@ -4,7 +4,13 @@ export const noteSchema = new Schema({
     // will be login
     author: String,
     // also login
-    collaborators: Array<String>,
+    collaborators: [
+        {
+            login: String,
+            // write or read
+            role: String
+        }
+    ],
     title: String,
     content: String,
     tags: String
