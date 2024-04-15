@@ -1,4 +1,4 @@
-export declare type Config = {
+export declare interface Config {
     port: number,
     mongodbConnectionString: string,
     jwtSecret: string,

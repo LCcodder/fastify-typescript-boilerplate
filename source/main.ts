@@ -10,6 +10,7 @@ import { logRequestMetadata } from './hooks/onRequestLogger'
 import { logResponseMetadata } from './hooks/onResponseLogger'
 import { authentificationFactory } from './auth/AuthPreHandler'
 
+CONFIG.log()
 
 const server = fastify({
     ignoreDuplicateSlashes: true,
@@ -22,7 +23,7 @@ server.addHook('onRequest', logRequestMetadata)
 server.addHook('onResponse', logResponseMetadata)
 
 mongoose.connect('mongodb://127.0.0.1:27017/NodeNotes').then(_ => {
-    console.log(`[DATABASE] Connected at host , ready to use\n`)
+    console.log(`[INFO] Database connected at host ${CONFIG.mongodbConnectionString}, ready to use\n`)
 })
 const models = modelsFactory(mongoose)
 
@@ -45,5 +46,5 @@ server.listen({
         process.exit(1)
     }
 
-    console.log(`[LISTENING] At address ${address}\n`)
+    console.log(`[INFO] Listening at address ${address}\n`)
 })

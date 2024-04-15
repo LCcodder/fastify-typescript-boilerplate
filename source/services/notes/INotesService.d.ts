@@ -15,12 +15,16 @@ export interface INotesService {
     >
 
     deleteNote(authorLogin: string, title: string): Promise<
-        | { foundAndDeleted: boolean }
-        | typeof NoteExceptions.AcessRestricted
+        | { success: true }
+        | typeof NoteExceptions.NotFound
         | typeof NoteExceptions.ServiceUnavailable
     >
 
-    updateNote(authorLogin: string, title: string, updateData: any): void
+    updateNote(authorLogin: string, title: string, updateData: any): Promise<
+        | Note
+        | typeof NoteExceptions.NotFound
+        | typeof NoteExceptions.ServiceUnavailable
+    >
 
     getMyNotes(authorLogin: string): void
     getCollaboratedNotes(login: string): void

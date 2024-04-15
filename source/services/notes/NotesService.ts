@@ -17,7 +17,8 @@ export class NotesService implements INotesService {
         ) => {
             try {
                 const foundNoteWithSameName = await this.Note.findOne({
-                    title: note.title
+                    title: note.title,
+                    author: note.author
                 })
                 if (foundNoteWithSameName) {
                     return reject(NoteExceptions.AlreadyExists)
@@ -42,14 +43,14 @@ export class NotesService implements INotesService {
         ) => {
             try {
                 
-                const foundNotes = await this.Note.find({$or: [
+                const foundNote = await this.Note.findOne({$or: [
                     { author: login, title },
                     { collaborators: login, title }
                 ]})
-                if (!foundNotes.length) {
+                if (!foundNote) {
                     return reject(NoteExceptions.NotFound)
                 }
-                const foundNote = foundNotes[0]
+                
 
                 return resolve(foundNote as unknown as Note)
 
@@ -62,23 +63,23 @@ export class NotesService implements INotesService {
 
     public deleteNote(authorLogin: string, title: string) {
         return new Promise(async(
-            resolve: (state: { foundAndDeleted: boolean }) => void,
+            resolve: (state: { success: true }) => void,
             reject: (exception: 
-                | typeof NoteExceptions.AcessRestricted
+                | typeof NoteExceptions.NotFound
                 | typeof NoteExceptions.ServiceUnavailable
             ) => void
         ) => {
             try {
                 const foundNote = await this.Note.findOne({ title })
                 if (!foundNote) {
-                    return resolve({foundAndDeleted: false})
+                    return resolve({ success: true })
                 }
                 if (foundNote.author !== authorLogin) {
                     return reject(NoteExceptions.AcessRestricted)
                 }
                 await foundNote.deleteOne({ author: authorLogin, title })
 
-                return resolve({foundAndDeleted: true})
+                return resolve({ success: true })
             } catch (_error) {
                 return reject(NoteExceptions.ServiceUnavailable)
             }
@@ -90,14 +91,28 @@ export class NotesService implements INotesService {
             resolve: (state: Note) => void,
             reject: (exception:
                 | typeof NoteExceptions.NotFound
-                | typeof NoteExceptions.AcessRestricted
                 | typeof NoteExceptions.ServiceUnavailable
             ) => void
         ) => {
             try {
-                
-                const state = await this.Note.updateOne()
-                
+                const state = await this.Note.updateOne({
+                    $or: [
+                        {
+                            title,
+                            author: login
+                        },
+                        {
+                            title,
+                            collaborators: login
+                        }
+                    ]
+                }, updateData)
+                if (!state.matchedCount) {
+                    return reject(NoteExceptions.NotFound)
+                }
+
+                const updatedNote = await this.Note.findOne({ title })
+                return resolve(updatedNote as unknown as Note)
             } catch (_error) {
                 return reject(NoteExceptions.ServiceUnavailable)
             }

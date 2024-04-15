@@ -1,13 +1,8 @@
 import { ObjectId } from "mongoose"
 
-export declare type Collaborator = {
-    login: string,
-    role: 'write' | 'read'
-}
-
 export declare type Note = {
     author: string
-    collaborators: Collaborator[]
+    collaborators: string[]
     title: string
     content: string
     tags: string[]
