@@ -28,9 +28,12 @@ export const RegisterUserSchema: FastifySchema = {
                 type: 'string',
                 minLength: 7,
                 maxLength: 7
+            },
+            isCollaborating: {
+                type: 'boolean'
             }
         },
-        required: ['email', 'password', 'username', 'personalColor'],
+        required: ['email', 'password', 'username', 'personalColor', 'isCollaborating'],
     }
 }
 
@@ -60,6 +63,9 @@ export const UpdateUserSchema: FastifySchema = {
                 type: 'string',
                 minLength: 7,
                 maxLength: 7
+            },
+            isCollaborating: {
+                type: 'boolean'
             }
         }
     }

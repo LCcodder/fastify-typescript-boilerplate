@@ -7,6 +7,7 @@ export declare type User = {
     password: string
     username: string
     personalColor: string
+    isCollaborating: boolean
     validToken: string | null
     createdAt: string
     updatedAt: Date

@@ -8,6 +8,6 @@ export const userSchema = new Schema({
     username: String,
     // #8d62b5 - for example
     personalColor: String,
-
+    isCollaborating: Boolean,
     validToken: String
 }, { timestamps: true, versionKey: false })

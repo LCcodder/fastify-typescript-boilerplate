@@ -1,13 +1,20 @@
 export const NoteExceptions = {
-    AlreadyExists: {
+    NoteAlreadyExists: {
+
+    },
+    NoteNotFound: {
+        
+    },
+    CollaboratorAlreadyInNote: {
+
+    },
+    CollaboratorNotFound: {
 
     },
     ServiceUnavailable: {
 
     },
-    NotFound: {
-        
-    },
+
     AcessRestricted: {
         
     }
