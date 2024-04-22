@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { IUsersService } from "../services/users/IUsersService";
 import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../actors/User";
-import { UserExceptions } from "../services/users/UserExceptions";
+import { USER_EXCEPTIONS } from "../services/users/UserExceptions";
 import { RegisterUserSchema, GetUserSchema, UpdateUserSchema } from "./validation/UserSchemas";
 import { UsersService } from "../services/users/UsersService";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
@@ -22,8 +22,8 @@ export const handleUserRoutes = (
         Body: UserWithoutMetadata,
         Reply: {
             201: User,
-            400: typeof UserExceptions.AlreadyExists,
-            503: typeof UserExceptions.ServiceUnavailable
+            400: typeof USER_EXCEPTIONS.AlreadyExists,
+            503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
     }>("/users/create", {schema: RegisterUserSchema}, async (request, reply) => {
         try {
@@ -42,8 +42,8 @@ export const handleUserRoutes = (
     server.get<{
         Reply: {
             200: UserWithoutSensetives,
-            404: typeof UserExceptions.NotFound,
-            503: typeof UserExceptions.ServiceUnavailable,
+            404: typeof USER_EXCEPTIONS.NotFound,
+            503: typeof USER_EXCEPTIONS.ServiceUnavailable,
         }
     }>("/users/me", {
         preHandler: authentificate
@@ -68,8 +68,8 @@ export const handleUserRoutes = (
         Body: Omit<UserUpdate, "password" | "validToken">,
         Reply: {
             200: UserWithoutSensetives,
-            404: typeof UserExceptions.NotFound,
-            503: typeof UserExceptions.ServiceUnavailable
+            404: typeof USER_EXCEPTIONS.NotFound,
+            503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
     }>("/users/me", {
         schema: UpdateUserSchema,
@@ -96,8 +96,8 @@ export const handleUserRoutes = (
         Params: { login: string },
         Reply: {
             200: UserWithoutSensetives,
-            404: typeof UserExceptions.NotFound,
-            503: typeof UserExceptions.ServiceUnavailable
+            404: typeof USER_EXCEPTIONS.NotFound,
+            503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
     }>("/users/:login", {schema: GetUserSchema}, async (request, reply) => {
         try {

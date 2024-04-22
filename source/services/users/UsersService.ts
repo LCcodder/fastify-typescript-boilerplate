@@ -1,6 +1,6 @@
 import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../actors/User";
 import { IUsersService } from "./IUsersService";
-import { UserExceptions } from "./UserExceptions";
+import { USER_EXCEPTIONS } from "./UserExceptions";
 import { UserModel } from "../../database/ModelsFactory";
 import bcrypt from 'bcrypt'
 
@@ -26,8 +26,8 @@ export class UsersService implements IUsersService {
         return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
-                | typeof UserExceptions.ServiceUnavailable
-                | typeof UserExceptions.AlreadyExists 
+                | typeof USER_EXCEPTIONS.ServiceUnavailable
+                | typeof USER_EXCEPTIONS.AlreadyExists 
             ) => void
         ) => {
             try {
@@ -38,7 +38,7 @@ export class UsersService implements IUsersService {
                     login: user.login
                 })
                 if (foundUserWithEmail || foundUserWithLogin) {
-                    return reject(UserExceptions.AlreadyExists)
+                    return reject(USER_EXCEPTIONS.AlreadyExists)
                 }
 
                 let creationData: UserWithoutMetadata & {validToken?: string} = {
@@ -51,7 +51,7 @@ export class UsersService implements IUsersService {
                 return resolve(createdUser as unknown as User)
             } catch (_error) {
                 console.log(_error)
-                return reject(UserExceptions.ServiceUnavailable)
+                return reject(USER_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -60,8 +60,8 @@ export class UsersService implements IUsersService {
         return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
-                | typeof UserExceptions.ServiceUnavailable
-                | typeof UserExceptions.NotFound
+                | typeof USER_EXCEPTIONS.ServiceUnavailable
+                | typeof USER_EXCEPTIONS.NotFound
             ) => void
         ) => {
             try {
@@ -69,11 +69,11 @@ export class UsersService implements IUsersService {
                 query[key] = value
 
                 const user = await this.User.findOne(query)
-                if (!user) return reject(UserExceptions.NotFound)
+                if (!user) return reject(USER_EXCEPTIONS.NotFound)
 
                 return resolve(user as unknown as User)
             } catch (_error) {
-                return reject(UserExceptions.ServiceUnavailable)
+                return reject(USER_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -82,22 +82,22 @@ export class UsersService implements IUsersService {
         return new Promise(async (
             resolve: (state: User) => void,
             reject: (exception: 
-                | typeof UserExceptions.ServiceUnavailable
-                | typeof UserExceptions.NotFound
+                | typeof USER_EXCEPTIONS.ServiceUnavailable
+                | typeof USER_EXCEPTIONS.NotFound
             ) => void
         ) => {
             try {
                 const state = await this.User.updateOne({ login }, updateData)
                 // if user not found - raise error
                 if (!state.matchedCount) {
-                    return reject(UserExceptions.NotFound)
+                    return reject(USER_EXCEPTIONS.NotFound)
                 }
 
                 const updatedUser = await this.User.findOne({ login })
                 return resolve(updatedUser as unknown as User)
             } catch (_error) {
                 console.log(_error)
-                return reject(UserExceptions.ServiceUnavailable)
+                return reject(USER_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }

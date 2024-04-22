@@ -4,20 +4,20 @@ import { extractJwtPayload } from "./jwt/PayloadExtractor";
 import { validateSignature } from "./jwt/SignatureValidator";
 import { IUsersService } from "../services/users/IUsersService";
 import { User } from "../actors/User";
-import { UserExceptions } from "../services/users/UserExceptions";
+import { USER_EXCEPTIONS } from "../services/users/UserExceptions";
 
 export const authentificationFactory = (usersService: IUsersService) => 
 async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
     const token = extractToken(request)
     if (!token) {
-        reply.code(401).send(UserExceptions.NotAuthorized)
+        reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
         return
     }
 
     // validating jwt signature
     const isValid = validateSignature(token)
     if (!isValid) {
-        reply.code(401).send(UserExceptions.NotAuthorized)
+        reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
         return
     }
 
@@ -25,7 +25,7 @@ async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFuncti
     // extracting payload and validating
     const payload = extractJwtPayload(token)
     if (!payload) {
-        reply.code(401).send(UserExceptions.NotAuthorized)
+        reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
         return
     }
 
@@ -33,16 +33,16 @@ async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFuncti
     try {
         const foundUser = await usersService.getUser("login", payload.login) as User
         if (foundUser.validToken !== token) {
-            reply.code(401).send(UserExceptions.NotAuthorized)
+            reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
             return
         }
         // throwing an error if user is not found or if service is unavailable 
     } catch (exception: unknown) {
-        if ((exception as typeof UserExceptions.ServiceUnavailable).statusCode === 503) {
-            reply.code(503).send(UserExceptions.ServiceUnavailable)
+        if ((exception as typeof USER_EXCEPTIONS.ServiceUnavailable).statusCode === 503) {
+            reply.code(503).send(USER_EXCEPTIONS.ServiceUnavailable)
             return
         }
-        reply.code(401).send(UserExceptions.NotAuthorized)
+        reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
         return
     }
     

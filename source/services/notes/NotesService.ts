@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 import { NoteWithoutMetadata, Note } from "../../actors/Note";
 import { User } from "../../actors/User";
 import { NoteModel } from "../../database/ModelsFactory";
-import { Exception } from "../../utils/Exception";
 import { IUsersService } from "../users/IUsersService";
 import { INotesService } from "./INotesService";
-import { NoteExceptions } from "./NoteExceptions";
+import { NOTE_EXCEPTIONS } from "./NoteExceptions";
 
 export class NotesService implements INotesService {
     constructor(
@@ -17,14 +16,14 @@ export class NotesService implements INotesService {
         return new Promise(async(
             resolve: (state: Note) => void,
             reject: (exception: 
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
             ) => void
         ) => {
             try {
                 const createdNote = await this.Note.create(note)
                 resolve(createdNote as unknown as Note)
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -33,8 +32,8 @@ export class NotesService implements INotesService {
         return new Promise(async(
             resolve: (state: Note) => void,
             reject: (exception: 
-                | typeof NoteExceptions.NoteNotFound
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
             ) => void
         ) => {
             try {
@@ -45,13 +44,13 @@ export class NotesService implements INotesService {
                     { collaborators: login, _id }
                 ]})
                 if (!foundNote) {
-                    return reject(NoteExceptions.NoteNotFound)
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
                 
 
                 return resolve(foundNote as unknown as Note)
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
 
         })
@@ -61,8 +60,9 @@ export class NotesService implements INotesService {
         return new Promise(async(
             resolve: (state: { success: true }) => void,
             reject: (exception: 
-                | typeof NoteExceptions.NoteNotFound
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.AcessRestricted
             ) => void
         ) => {
             try {
@@ -70,16 +70,16 @@ export class NotesService implements INotesService {
 
                 const foundNote = await this.Note.findOne({ _id })
                 if (!foundNote) {
-                    return reject(NoteExceptions.NoteNotFound)
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
                 if (foundNote.author !== authorLogin) {
-                    return reject(NoteExceptions.AcessRestricted)
+                    return reject(NOTE_EXCEPTIONS.AcessRestricted)
                 }
                 await foundNote.deleteOne({ author: authorLogin, _id })
                 
                 return resolve({ success: true })
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -92,8 +92,8 @@ export class NotesService implements INotesService {
         return new Promise(async (
             resolve: (state: Note) => void,
             reject: (exception:
-                | typeof NoteExceptions.NoteNotFound
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
             ) => void
         ) => {
             try {
@@ -113,13 +113,13 @@ export class NotesService implements INotesService {
                 }, updateData)
                 
                 if (!state.matchedCount) {
-                    return reject(NoteExceptions.NoteNotFound)
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
 
                 const updatedNote = await this.Note.findOne({ _id })
                 return resolve(updatedNote as unknown as Note)
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -127,7 +127,7 @@ export class NotesService implements INotesService {
     public getMyNotes(authorLogin: string) {
         return new Promise(async (
             resolve: (state: Note[]) => void,
-            reject: (exception: typeof NoteExceptions.ServiceUnavailable) => void
+            reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
                 const foundNotes = await this.Note.find({
@@ -135,7 +135,7 @@ export class NotesService implements INotesService {
                 })
                 return resolve(foundNotes as unknown as Note[])
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -143,7 +143,7 @@ export class NotesService implements INotesService {
     public getCollaboratedNotes(login: string) {
         return new Promise(async (
             resolve: (state: Note[]) => void,
-            reject: (exception: typeof NoteExceptions.ServiceUnavailable) => void
+            reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
                 const foundNotes = await this.Note.find({
@@ -151,7 +151,7 @@ export class NotesService implements INotesService {
                 })
                 return resolve(foundNotes as unknown as Note[])
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -160,10 +160,10 @@ export class NotesService implements INotesService {
         return new Promise(async (
             resolve: (state: { success: true }) => void,
             reject: (exception: 
-                | typeof NoteExceptions.CollaboratorAlreadyInNote
-                | typeof NoteExceptions.CollaboratorNotFound
-                | typeof NoteExceptions.NoteNotFound
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.CollaboratorAlreadyInNote
+                | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
             ) => void
         ) => {
             try {
@@ -175,7 +175,7 @@ export class NotesService implements INotesService {
                 ) as unknown as User
                 
                 if (!foundCollaborator || !foundCollaborator.isCollaborating) {
-                    return reject(NoteExceptions.CollaboratorNotFound)
+                    return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
 
                 const state = await this.Note.updateOne({
@@ -186,16 +186,16 @@ export class NotesService implements INotesService {
                 })
 
                 if (!state.matchedCount) {
-                    return reject(NoteExceptions.NoteNotFound)
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
 
                 if (!state.modifiedCount) {
-                    return reject(NoteExceptions.CollaboratorAlreadyInNote)
+                    return reject(NOTE_EXCEPTIONS.CollaboratorAlreadyInNote)
                 }
 
                 return resolve({ success: true })
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
@@ -204,9 +204,9 @@ export class NotesService implements INotesService {
         return new Promise(async (
             resolve: (state: { success: true }) => void,
             reject: (exception: 
-                | typeof NoteExceptions.CollaboratorNotFound
-                | typeof NoteExceptions.NoteNotFound
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
             ) => void
         ) => {
             try {
@@ -222,39 +222,52 @@ export class NotesService implements INotesService {
                 })
 
                 if (!state.matchedCount) {
-                    return reject(NoteExceptions.NoteNotFound)
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
 
                 if (!state.modifiedCount) {
-                    return reject(NoteExceptions.CollaboratorNotFound)
+                    return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
 
                 return resolve({ success: true })
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)    
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)    
             }
         })
     }
 
-    public leaveFromCollaboration(title: string, collaboratorLogin: string) {
+    public leaveFromCollaboration(id: string, collaboratorLogin: string) {
         return new Promise(async (
             resolve: (state: { success: true }) => void,
             reject: (exception:
-                | typeof NoteExceptions.NoteNotFound
-                | typeof NoteExceptions.CollaboratorNotFound
-                | typeof NoteExceptions.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
             ) => void
         ) => {
             try {
-                const d = await this.Note.findByIdAndDelete()
+                const _id = new mongoose.Types.ObjectId(id)
 
                 const state = await this.Note.updateOne({
-
+                    _id,
+                    collaborators: collaboratorLogin
                 }, {
-
+                    $pull: {
+                        collaborators: collaboratorLogin
+                    }
                 })
+                if (!state.matchedCount) {
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
+                }
+
+                if (!state.modifiedCount) {
+                    return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
+                }
+
+                return resolve({ success: true })
+                
             } catch (_error) {
-                return reject(NoteExceptions.ServiceUnavailable)    
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)    
             }
         })
     }

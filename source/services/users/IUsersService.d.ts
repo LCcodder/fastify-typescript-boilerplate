@@ -1,11 +1,11 @@
 import { User, UserUpdate, UserWithoutMetadata } from "../../actors/User";
-import { UserExceptions } from "./UserExceptions";
+import { USER_EXCEPTIONS } from "./UserExceptions";
 
 export declare interface IUsersService {
     createUser(user: UserWithoutMetadata): Promise<
         | User
-        | typeof UserExceptions.AlreadyExists
-        | typeof UserExceptions.ServiceUnavailable
+        | typeof USER_EXCEPTIONS.AlreadyExists
+        | typeof USER_EXCEPTIONS.ServiceUnavailable
     >;
 
     getUser<TKey extends keyof UserWithoutMetadata>(
@@ -13,13 +13,13 @@ export declare interface IUsersService {
         value: UserWithoutMetadata[TKey]
     ): Promise<
         | User
-        | typeof UserExceptions.ServiceUnavailable
-        | typeof UserExceptions.NotFound  
+        | typeof USER_EXCEPTIONS.ServiceUnavailable
+        | typeof USER_EXCEPTIONS.NotFound  
     >
 
     updateUserByLogin(login: string, updateData: UserUpdate): Promise<
         | User
-        | typeof UserExceptions.ServiceUnavailable
-        | typeof UserExceptions.NotFound  
+        | typeof USER_EXCEPTIONS.ServiceUnavailable
+        | typeof USER_EXCEPTIONS.NotFound  
     >
 }

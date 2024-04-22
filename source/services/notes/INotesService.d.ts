@@ -1,12 +1,12 @@
 import { Note, NoteWithoutMetadata } from "../../actors/Note";
-import { NoteExceptions } from "./NoteExceptions";
+import { NOTE_EXCEPTIONS } from "./NoteExceptions";
 
 export interface INotesService {
     createNote(
         note: NoteWithoutMetadata
     ): Promise<
         | Note
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     getNote(
@@ -14,8 +14,8 @@ export interface INotesService {
         login: string
     ): Promise<
         | Note
-        | typeof NoteExceptions.NoteNotFound
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     deleteNote(
@@ -23,8 +23,8 @@ export interface INotesService {
         authorLogin: string 
     ): Promise<
         | {success: true}
-        | typeof NoteExceptions.NoteNotFound
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     updateNote(
@@ -33,18 +33,18 @@ export interface INotesService {
         updateData: any
     ): Promise<
         | Note
-        | typeof NoteExceptions.NoteNotFound
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     getMyNotes(authorLogin: string): Promise<
         Note[]
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     getCollaboratedNotes(login: string): Promise<
         Note[]
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     addCollaborator(
@@ -53,10 +53,10 @@ export interface INotesService {
         collaboratorLogin: string
     ): Promise<
         | { success: true }
-        | typeof NoteExceptions.CollaboratorAlreadyInNote
-        | typeof NoteExceptions.CollaboratorNotFound
-        | typeof NoteExceptions.NoteNotFound
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.CollaboratorAlreadyInNote
+        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     removeCollaborator(
@@ -65,9 +65,9 @@ export interface INotesService {
         collaboratorLogin: string
     ): Promise<
         | { success: true }
-        | typeof NoteExceptions.CollaboratorNotFound
-        | typeof NoteExceptions.NoteNotFound
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
     leaveFromCollaboration(
@@ -75,8 +75,8 @@ export interface INotesService {
         collaboratorLogin: string
     ): Promise<
         | { success: true }
-        | typeof NoteExceptions.CollaboratorNotFound
-        | typeof NoteExceptions.NoteNotFound
-        | typeof NoteExceptions.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 }
