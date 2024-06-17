@@ -11,9 +11,6 @@ export declare type Note = {
     _id: ObjectId
 }
 
-// export declare type NotePreview = Omit<Note, 
-// | "_id" 
-// | "createdAt" 
-// | "updatedAt" 
-// | "collaborato">
+export declare type NoteUpdate = Pick<Note, "content" | "tags" | "title">
+export declare type NotePreview = Pick<Note, "_id" | "collaborators" | "updatedAt" | "tags" | "title">
 export declare type NoteWithoutMetadata = Omit<Note, "createdAt" | "updatedAt" | "_id">

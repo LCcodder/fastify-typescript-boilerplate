@@ -9,6 +9,8 @@ import { handleAuthRoutes } from './handlers/AuthHandlers'
 import { logRequestMetadata } from './hooks/onRequestLogger'
 import { logResponseMetadata } from './hooks/onResponseLogger'
 import { authentificationFactory } from './auth/AuthPreHandler'
+import { handleNoteRoutes } from './handlers/NotesHandlers'
+import { NotesService } from './services/notes/NotesService'
 
 CONFIG.log()
 
@@ -30,10 +32,11 @@ const models = modelsFactory(mongoose)
 const usersService = new UsersService(models.User)
 const authentification = authentificationFactory(usersService)
 const authService = new AuthService(usersService)
+const notesService = new NotesService(models.Note, usersService)
 
 handleUserRoutes(server, usersService, authentification)
 handleAuthRoutes(server, authService, authentification)
-
+handleNoteRoutes(server, notesService, authentification)
 
 
 

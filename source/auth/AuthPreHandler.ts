@@ -10,6 +10,8 @@ export const authentificationFactory = (usersService: IUsersService) =>
 async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
     const token = extractToken(request)
     if (!token) {
+
+        console.log(1)
         reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
         return
     }
@@ -17,10 +19,10 @@ async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFuncti
     // validating jwt signature
     const isValid = validateSignature(token)
     if (!isValid) {
+        
         reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
         return
     }
-
     
     // extracting payload and validating
     const payload = extractJwtPayload(token)

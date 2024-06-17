@@ -1,4 +1,4 @@
-import { Note, NoteWithoutMetadata } from "../../actors/Note";
+import { Note, NotePreview, NoteWithoutMetadata } from "../../actors/Note";
 import { NOTE_EXCEPTIONS } from "./NoteExceptions";
 
 export interface INotesService {
@@ -37,12 +37,12 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
-    getMyNotes(authorLogin: string): Promise<
-        Note[]
+    getMyNotes(authorLogin: string, limit: number, skip: number): Promise<
+        NotePreview[]
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
-    getCollaboratedNotes(login: string): Promise<
+    getCollaboratedNotes(login: string, limit: number, skip: number): Promise<
         Note[]
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
@@ -57,6 +57,8 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
         | typeof NOTE_EXCEPTIONS.NoteNotFound
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.AcessRestricted
+        | typeof NOTE_EXCEPTIONS.AcessRestricted
     >
 
     removeCollaborator(
@@ -68,15 +70,6 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
         | typeof NOTE_EXCEPTIONS.NoteNotFound
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
-    >
-
-    leaveFromCollaboration(
-        id: string,
-        collaboratorLogin: string
-    ): Promise<
-        | { success: true }
-        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        
     >
 }

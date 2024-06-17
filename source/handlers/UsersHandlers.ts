@@ -25,7 +25,7 @@ export const handleUserRoutes = (
             400: typeof USER_EXCEPTIONS.AlreadyExists,
             503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
-    }>("/users/create", {schema: RegisterUserSchema}, async (request, reply) => {
+    }>("/users", {schema: RegisterUserSchema}, async (request, reply) => {
         try {
             const insertData: UserWithoutMetadata = request.body
             let createdUser = await usersService.createUser(insertData) as User

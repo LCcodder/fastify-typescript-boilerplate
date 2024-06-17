@@ -7,5 +7,5 @@ export const noteSchema = new Schema({
     collaborators: Array<String>,
     title: String,
     content: String,
-    tags: String
+    tags: Array<String>
 }, { timestamps: true, versionKey: false })

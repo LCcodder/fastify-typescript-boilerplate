@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose"
-import { DeepPartial } from "../utils/DeepPartial"
+import { DeepOptional } from "typing-assets/src"
+
 
 export declare type User = {
     login: string
@@ -14,7 +15,7 @@ export declare type User = {
     _id: ObjectId
 }
 
-export declare type UserUpdate = DeepPartial<
+export declare type UserUpdate = DeepOptional<
     Omit<User, "updatedAt" | "createdAt" | "_id" | "email" | "login">
 >
 export declare type UserCredentials = Pick<User, "email" | "password">
