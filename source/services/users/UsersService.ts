@@ -1,6 +1,6 @@
 import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../actors/User";
-import { IUsersService } from "./IUsersService";
-import { USER_EXCEPTIONS } from "./UserExceptions";
+import { IUsersService } from "./UsersServiceInterface";
+import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 import { UserModel } from "../../database/ModelsFactory";
 import bcrypt from 'bcrypt'
 

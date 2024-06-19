@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { IUsersService } from "../services/users/IUsersService";
+import { IUsersService } from "../services/users/UsersServiceInterface";
 import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../actors/User";
-import { USER_EXCEPTIONS } from "../services/users/UserExceptions";
-import { RegisterUserSchema, GetUserSchema, UpdateUserSchema } from "./validation/UserSchemas";
+import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
+import { RegisterUserSchema, GetUserSchema, UpdateUserSchema } from "../validation/UserSchemas";
 import { UsersService } from "../services/users/UsersService";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";

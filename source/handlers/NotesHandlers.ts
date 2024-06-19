@@ -1,11 +1,11 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { INotesService } from "../services/notes/INotesService";
+import { INotesService } from "../services/notes/NotesServiceInterface";
 import { Note, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../actors/Note";
-import { NOTE_EXCEPTIONS } from "../services/notes/NoteExceptions";
+import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
-import { AddOrRemoveCollaboratorSchema, CreateNoteSchema, GetNotesSchema, OperateNoteSchema, UpdateNoteSchema } from "./validation/NoteSchemas";
-import { request } from "http";
+import { AddOrRemoveCollaboratorSchema, CreateNoteSchema, GetNotesSchema, OperateNoteSchema, UpdateNoteSchema } from "../validation/NoteSchemas";
+
 
 export const handleNoteRoutes = (
     server: FastifyInstance,
@@ -255,5 +255,4 @@ export const handleNoteRoutes = (
             ).send(exception)           
         }
     })
-    
 }

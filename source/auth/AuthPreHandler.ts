@@ -2,9 +2,9 @@ import { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { extractToken } from "../utils/TokenExtractor";
 import { extractJwtPayload } from "./jwt/PayloadExtractor";
 import { validateSignature } from "./jwt/SignatureValidator";
-import { IUsersService } from "../services/users/IUsersService";
+import { IUsersService } from "../services/users/UsersServiceInterface";
 import { User } from "../actors/User";
-import { USER_EXCEPTIONS } from "../services/users/UserExceptions";
+import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 
 export const authentificationFactory = (usersService: IUsersService) => 
 async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {

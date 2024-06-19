@@ -1,4 +1,4 @@
-import { AuthExceptions } from "./AuthExceptions";
+import { AuthExceptions } from "../../exceptions/AuthExceptions";
 
 export declare interface IAuthService {
     authorizeAndGetToken(email: string, password: string): Promise<

@@ -1,5 +1,5 @@
 import { Note, NotePreview, NoteWithoutMetadata } from "../../actors/Note";
-import { NOTE_EXCEPTIONS } from "./NoteExceptions";
+import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 
 export interface INotesService {
     createNote(

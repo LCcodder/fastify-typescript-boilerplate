@@ -1,9 +1,9 @@
 import { User } from "../../actors/User";
 import { generateToken } from "../../auth/jwt/TokenGenerator";
 import { Exception } from "../../utils/Exception";
-import { IUsersService } from "../users/IUsersService";
-import { AuthExceptions } from "./AuthExceptions";
-import { IAuthService } from "./IAuthService";
+import { IUsersService } from "../users/UsersServiceInterface";
+import { AuthExceptions } from "../../exceptions/AuthExceptions";
+import { IAuthService } from "./AuthServiceInterface";
 import { CONFIG } from "../../config/ServerConfiguration";
 import bcrypt from 'bcrypt'
 

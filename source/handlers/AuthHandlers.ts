@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { IAuthService } from "../services/auth/IAuthService";
+import { IAuthService } from "../services/auth/AuthServiceInterface";
 import { UserCredentials, UserWithoutMetadata } from "../actors/User";
-import { AuthExceptions } from "../services/auth/AuthExceptions";
-import { AuthUserSchema, ChangePasswordSchema } from "./validation/AuthSchemas";
+import { AuthExceptions } from "../exceptions/AuthExceptions";
+import { AuthUserSchema, ChangePasswordSchema } from "../validation/AuthSchemas";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
 

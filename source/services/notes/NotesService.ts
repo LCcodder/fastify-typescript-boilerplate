@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate } from "../../actors/Note";
 import { User } from "../../actors/User";
 import { NoteModel } from "../../database/ModelsFactory";
-import { IUsersService } from "../users/IUsersService";
-import { INotesService } from "./INotesService";
-import { NOTE_EXCEPTIONS } from "./NoteExceptions";
+import { IUsersService } from "../users/UsersServiceInterface";
+import { INotesService } from "./NotesServiceInterface";
+import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 
 
 export class NotesService implements INotesService {
