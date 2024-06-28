@@ -1,7 +1,5 @@
 import fastify from 'fastify'
 import { CONFIG } from './config/ServerConfiguration'
-import { modelsFactory } from './database/ModelsFactory'
-import mongoose from 'mongoose'
 import { UsersService } from './services/users/UsersService'
 import { handleUserRoutes } from './handlers/UsersHandlers'
 import { AuthService } from './services/auth/AuthService'
@@ -11,6 +9,10 @@ import { logResponseMetadata } from './hooks/onResponseLogger'
 import { authentificationFactory } from './auth/AuthPreHandler'
 import { handleNoteRoutes } from './handlers/NotesHandlers'
 import { NotesService } from './services/notes/NotesService'
+import "reflect-metadata"
+import {User} from './database/entities/_User'
+import { initAndGetDataSource } from './database/InitDataSource'
+import { Note } from './database/entities/_Note'
 
 CONFIG.log()
 
@@ -24,15 +26,20 @@ const server = fastify({
 server.addHook('onRequest', logRequestMetadata)
 server.addHook('onResponse', logResponseMetadata)
 
-mongoose.connect('mongodb://127.0.0.1:27017/NodeNotes').then(_ => {
-    console.log(`[INFO] Database connected at host ${CONFIG.mongodbConnectionString}, ready to use\n`)
-})
-const models = modelsFactory(mongoose)
+const appDataSource = initAndGetDataSource(
+    "localhost",
+    5432,
+    "postgres",
+    "pwd",
+    "NodeNotes"
+)
 
-const usersService = new UsersService(models.User)
+const usersService = new UsersService(
+    appDataSource.getRepository(User)
+)
 const authentification = authentificationFactory(usersService)
 const authService = new AuthService(usersService)
-const notesService = new NotesService(models.Note, usersService)
+const notesService = new NotesService(appDataSource.getRepository(Note), usersService)
 
 handleUserRoutes(server, usersService, authentification)
 handleAuthRoutes(server, authService, authentification)

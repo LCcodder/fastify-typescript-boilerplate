@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { INotesService } from "../services/notes/NotesServiceInterface";
-import { Note, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../actors/Note";
+import { Note, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/_Note";
 import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
@@ -35,7 +35,7 @@ export const handleNoteRoutes = (
                 ...request.body,
                 author: payload.login
             }
-            console.log("123")
+            
             const createdNote = await notesService.createNote(insertData) as Note
             reply.code(201).send(createdNote)
         } catch (exception: any) {

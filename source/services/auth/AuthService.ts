@@ -1,4 +1,4 @@
-import { User } from "../../actors/User";
+import { User } from "../../database/entities/_User";
 import { generateToken } from "../../auth/jwt/TokenGenerator";
 import { Exception } from "../../utils/Exception";
 import { IUsersService } from "../users/UsersServiceInterface";

@@ -1,23 +1,24 @@
-import mongoose from "mongoose";
-import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate } from "../../actors/Note";
-import { User } from "../../actors/User";
-import { NoteModel } from "../../database/ModelsFactory";
+import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate } from "../../database/entities/_Note";
+import { User } from "../../database/entities/_User";
 import { IUsersService } from "../users/UsersServiceInterface";
 import { INotesService } from "./NotesServiceInterface";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
-
+import { ArrayContains, Repository } from "typeorm";
+import { DeepOptional } from "typing-assets/src";
+import { Exception } from "../../utils/Exception";
 
 export class NotesService implements INotesService {
-    private static fromStringToObjectId(id: string): mongoose.Types.ObjectId | null {
-        try {
-            return new mongoose.Types.ObjectId(id)
-        } catch (_error) {
-            return null
+    private static generateNoteId(): string {
+        const symbolsHEX = "0123456789abcdef"
+        let id = ""
+        for (let i: number = 0; i < 16; i++) {
+            id += symbolsHEX.charAt(Math.floor(Math.random() * 16));
         }
+        return id
     }
 
     constructor(
-        private Note: NoteModel, 
+        private noteRepository: Repository<Note>, 
         private usersService: IUsersService
     ) {}
 
@@ -30,8 +31,11 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                console.log(":(")
-                const createdNote = await this.Note.create(note)
+                const id = NotesService.generateNoteId()
+                const createdNote = await this.noteRepository.save({
+                    ...note,
+                    id
+                })
                 resolve(createdNote as unknown as Note)
             } catch (_error) {
                 console.log(_error)
@@ -49,11 +53,9 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const _id = NotesService.fromStringToObjectId(id)
-
-                const foundNote = await this.Note.findOne({$or: [
-                    { author: login, _id },
-                    { collaborators: login, _id }
+                const foundNote = await this.noteRepository.findOne({where: [
+                    { author: login, id },
+                    { collaborators: login, id }
                 ]})
                 
                 if (!foundNote) {
@@ -77,26 +79,25 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const _id = NotesService.fromStringToObjectId(id)
-
-                const foundNote = await this.Note.findOne({ _id })
+                const foundNote = await this.noteRepository.findOneBy({ id })
                 if (!foundNote) {
                     return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
 
                 if (foundNote.author !== login) {
-                    await this.Note.updateOne({
-                        _id,
-                        collaborators: login
+                    
+                    await this.noteRepository.update({
+                        id,
+                        collaborators: ArrayContains([login])
                     }, {
-                        $pull: {
-                            collaborators: login
-                        }
+                        collaborators: foundNote.collaborators.splice(foundNote.collaborators.indexOf(login), 1)
+                        
                     })
+
                     return resolve({ success: true })
                 }
 
-                await foundNote.deleteOne({ author: login, _id })
+                await this.noteRepository.delete({ author: login, id })
                 
                 return resolve({ success: true })
             } catch (_error) {
@@ -108,7 +109,7 @@ export class NotesService implements INotesService {
     public updateNote(
         id: string, 
         login: string, 
-        updateData: NoteUpdate
+        updateData: DeepOptional<Note>
     ) {
         return new Promise(async (
             resolve: (state: Note) => void,
@@ -118,26 +119,25 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const _id = NotesService.fromStringToObjectId(id)
-
-                const state = await this.Note.updateOne({
-                    $or: [
+                let foundNote = await this.noteRepository.findOne({
+                    where: [
                         {
-                            _id,
-                            author: login
+                            id,
+                            author: ArrayContains([login])
                         },
                         {
-                            _id,
-                            collaborators: login
+                            id,
+                            collaborators: ArrayContains([login])
                         }
                     ]
-                }, updateData)
+                })
                 
-                if (!state.matchedCount) {
+                if (!foundNote) {
                     return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
 
-                const updatedNote = await this.Note.findOne({ _id })
+                foundNote = Object.assign(foundNote, updateData)
+                const updatedNote = await this.noteRepository.save(foundNote)
                 return resolve(updatedNote as unknown as Note)
             } catch (_error) {
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
@@ -151,12 +151,13 @@ export class NotesService implements INotesService {
             reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
-                const foundNotes = await this.Note.find({
-                    author: authorLogin
-                }, {
-                    createdAt: 0,
-                    content: 0
-                }).skip(skip).limit(limit)
+                const foundNotes = await this.noteRepository.find({
+                    where: {
+                        author: authorLogin
+                    },
+                    skip,
+                    take: limit
+                })
                 return resolve(foundNotes as unknown as NotePreview[])
             } catch (_error) {
                 console.log(_error)
@@ -171,9 +172,13 @@ export class NotesService implements INotesService {
             reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
-                const foundNotes = await this.Note.find({
-                    collaborators: login
-                }).skip(skip).limit(limit)
+                const foundNotes = await this.noteRepository.find({
+                    where: {
+                        collaborators: ArrayContains([login])
+                    },
+                    skip,
+                    take: limit
+                })
                 return resolve(foundNotes as unknown as Note[])
             } catch (_error) {
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
@@ -193,38 +198,40 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const _id = NotesService.fromStringToObjectId(id)
                 
-                const foundNote = await this.Note.findById(_id)
+                const foundNote = await this.noteRepository.findOneBy({ id })
+                if (!foundNote) {
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
+                }
                 if (foundNote.author !== authorLogin) {
                     return reject(
                         NOTE_EXCEPTIONS.AcessRestricted
                     )
                 }
-
+                
                 const foundCollaborator = await this.usersService.getUser(
                     "login",
                     collaboratorLogin
-                ) as unknown as User
+                ).catch() as unknown as User
                 
-                if (!foundCollaborator || !foundCollaborator.isCollaborating) {
+                if ((foundCollaborator as unknown as Exception).statusCode === 503) {
+                    return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
+                }
+
+                if ((foundCollaborator as unknown as Exception).statusCode === 404 || !foundCollaborator.isCollaborating) {
                     return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
 
-                const state = await this.Note.updateOne({
-                    _id,
-                    author: authorLogin
-                }, {
-                    $addToSet: {collaborators: collaboratorLogin}
-                })
-
-                if (!state.matchedCount) {
-                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
-                }
-
-                if (!state.modifiedCount) {
+                if (foundNote.collaborators.includes(foundCollaborator.login)) {
                     return reject(NOTE_EXCEPTIONS.CollaboratorAlreadyInNote)
                 }
+
+                await this.noteRepository.update({
+                    id,
+                    author: authorLogin
+                }, {
+                    collaborators: [...foundNote.collaborators, foundCollaborator.login]
+                })
 
                 return resolve({ success: true })
             } catch (_error) {
@@ -244,31 +251,25 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const _id = NotesService.fromStringToObjectId(id)
                 
-                const foundNote = await this.Note.findById(_id)
+                let foundNote = await this.noteRepository.findOneBy({ id })
+                if (!foundNote) {
+                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
+                }
                 if (foundNote.author !== authorLogin) {
                     return reject(
                         NOTE_EXCEPTIONS.AcessRestricted
                     )
                 }
 
-                const state = await this.Note.updateOne({
-                    _id,
-                    author: authorLogin
-                }, {
-                    $pull: {
-                        collaborators: collaboratorLogin
-                    }
-                })
-
-                if (!state.matchedCount) {
-                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
-                }
-
-                if (!state.modifiedCount) {
+                if (foundNote.collaborators.indexOf(collaboratorLogin) === -1) {
                     return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
+
+                foundNote.collaborators.splice(
+                    foundNote.collaborators.indexOf(collaboratorLogin),
+                    1
+                )
 
                 return resolve({ success: true })
             } catch (_error) {

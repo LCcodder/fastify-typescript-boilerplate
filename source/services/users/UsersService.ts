@@ -1,8 +1,8 @@
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../actors/User";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../database/entities/_User";
 import { IUsersService } from "./UsersServiceInterface";
 import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
-import { UserModel } from "../../database/ModelsFactory";
 import bcrypt from 'bcrypt'
+import { Repository } from "typeorm";
 
 export class UsersService implements IUsersService {
     /**
@@ -20,7 +20,7 @@ export class UsersService implements IUsersService {
         }
     }
 
-    constructor(private User: UserModel) {}
+    constructor(private userRepository: Repository<User>) {}
 
     public createUser(user: UserWithoutMetadata) {
         return new Promise(async (
@@ -31,10 +31,10 @@ export class UsersService implements IUsersService {
             ) => void
         ) => {
             try {
-                const foundUserWithEmail = await this.User.findOne({
+                const foundUserWithEmail = await this.userRepository.findOneBy({
                     email: user.email
                 })
-                const foundUserWithLogin = await this.User.findOne({
+                const foundUserWithLogin = await this.userRepository.findOneBy({
                     login: user.login
                 })
                 if (foundUserWithEmail || foundUserWithLogin) {
@@ -46,8 +46,8 @@ export class UsersService implements IUsersService {
                     validToken: null
                 }
                 creationData.password = await bcrypt.hash(creationData.password, 4)
-                const createdUser = await this.User.create(creationData)
                 
+                const createdUser = await this.userRepository.save(creationData)
                 return resolve(createdUser as unknown as User)
             } catch (_error) {
                 console.log(_error)
@@ -68,7 +68,7 @@ export class UsersService implements IUsersService {
                 let query: Record<string, UserWithoutMetadata[TKey]> = {}
                 query[key] = value
 
-                const user = await this.User.findOne(query)
+                const user = await this.userRepository.findOneBy(query)
                 if (!user) return reject(USER_EXCEPTIONS.NotFound)
 
                 return resolve(user as unknown as User)
@@ -87,13 +87,13 @@ export class UsersService implements IUsersService {
             ) => void
         ) => {
             try {
-                const state = await this.User.updateOne({ login }, updateData)
+                const state = await this.userRepository.update({ login }, updateData)
                 // if user not found - raise error
-                if (!state.matchedCount) {
+                if (!state.affected) {
                     return reject(USER_EXCEPTIONS.NotFound)
                 }
 
-                const updatedUser = await this.User.findOne({ login })
+                const updatedUser = await this.userRepository.findOneBy({ login })
                 return resolve(updatedUser as unknown as User)
             } catch (_error) {
                 console.log(_error)

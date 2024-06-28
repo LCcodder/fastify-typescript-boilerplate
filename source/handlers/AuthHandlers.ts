@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { IAuthService } from "../services/auth/AuthServiceInterface";
-import { UserCredentials, UserWithoutMetadata } from "../actors/User";
+import { UserCredentials, UserWithoutMetadata } from "../database/entities/_User";
 import { AuthExceptions } from "../exceptions/AuthExceptions";
 import { AuthUserSchema, ChangePasswordSchema } from "../validation/AuthSchemas";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
