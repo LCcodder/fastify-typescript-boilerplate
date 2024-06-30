@@ -1,6 +1,14 @@
 export declare interface Config {
-    port: number,
-    mongodbConnectionString: string,
+    appPort: number
+
+    databaseHost: string
+    databasePort: number
+    databaseName: string
+    databaseUser: string
+    databasePassword: string
+
+    get databaseConnectionString(): string
+
     jwtSecret: string,
     // in '*h' format
     jwtExpiration: string,

@@ -35,9 +35,11 @@ export class AuthService implements IAuthService {
                     CONFIG.jwtExpiration
                 ]) 
             } catch (error) {
-                return (error as Exception).statusCode === 404 ? 
-                    reject(AuthExceptions.WrongCredentials) :
-                    reject(AuthExceptions.ServiceUnavailable)
+                if ((error as Exception).statusCode === 404) {
+                    return reject(AuthExceptions.WrongCredentials)
+                }
+                console.log(error)
+                return reject(AuthExceptions.ServiceUnavailable)
             }
         })
     }
@@ -64,9 +66,11 @@ export class AuthService implements IAuthService {
 
                 return resolve({ success: true })
             } catch (error) {
-                return (error as Exception).statusCode === 404 ? 
-                    reject(AuthExceptions.WrongCredentials) :
-                    reject(AuthExceptions.ServiceUnavailable)
+                if ((error as Exception).statusCode === 404) {
+                    return reject(AuthExceptions.WrongCredentials)
+                }
+                console.log(error)
+                return reject(AuthExceptions.ServiceUnavailable)
             }
         })
     }

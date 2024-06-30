@@ -10,7 +10,7 @@ import { authentificationFactory } from './auth/AuthPreHandler'
 import { handleNoteRoutes } from './handlers/NotesHandlers'
 import { NotesService } from './services/notes/NotesService'
 import "reflect-metadata"
-import {User} from './database/entities/_User'
+import { User } from './database/entities/_User'
 import { initAndGetDataSource } from './database/InitDataSource'
 import { Note } from './database/entities/_Note'
 
@@ -48,7 +48,7 @@ handleNoteRoutes(server, notesService, authentification)
 
 
 server.listen({ 
-    port: CONFIG.port
+    port: CONFIG.appPort
 }, (error: Error, address: string) => {
     
     if (error) {

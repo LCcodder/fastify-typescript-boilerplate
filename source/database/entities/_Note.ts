@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { DeepOptional } from "typing-assets/src"
 
 @Entity()
 export class Note {
@@ -39,6 +40,6 @@ export class Note {
 }
 
 
-export type NoteUpdate = Pick<Note, "content" | "tags" | "title">
+export type NoteUpdate = DeepOptional<Pick<Note, "content" | "tags" | "title">>
 export type NotePreview = Pick<Note, "id" | "collaborators" | "updatedAt" | "tags" | "title">
-export type NoteWithoutMetadata = Omit<Note, "createdAt" | "updatedAt">
+export type NoteWithoutMetadata = Omit<Note, "createdAt" | "updatedAt" | "id">

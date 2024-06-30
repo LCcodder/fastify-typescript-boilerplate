@@ -15,7 +15,7 @@ export class UsersService implements IUsersService {
             user.password = undefined
             user.validToken = undefined
             return user
-        } catch(_error) {
+        } catch(error) {
             return user
         }
     }
@@ -49,8 +49,8 @@ export class UsersService implements IUsersService {
                 
                 const createdUser = await this.userRepository.save(creationData)
                 return resolve(createdUser as unknown as User)
-            } catch (_error) {
-                console.log(_error)
+            } catch (error) {
+                console.log(error)
                 return reject(USER_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -72,7 +72,8 @@ export class UsersService implements IUsersService {
                 if (!user) return reject(USER_EXCEPTIONS.NotFound)
 
                 return resolve(user as unknown as User)
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(USER_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -95,8 +96,8 @@ export class UsersService implements IUsersService {
 
                 const updatedUser = await this.userRepository.findOneBy({ login })
                 return resolve(updatedUser as unknown as User)
-            } catch (_error) {
-                console.log(_error)
+            } catch (error) {
+                console.log(error)
                 return reject(USER_EXCEPTIONS.ServiceUnavailable)
             }
         })

@@ -1,4 +1,4 @@
-import { Note, NotePreview, NoteWithoutMetadata } from "../../database/entities/_Note";
+import { Note, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/_Note";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 
 export interface INotesService {
@@ -7,6 +7,7 @@ export interface INotesService {
     ): Promise<
         | Note
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
     >
 
     getNote(
@@ -20,7 +21,7 @@ export interface INotesService {
 
     deleteNote(
         id: string,
-        authorLogin: string 
+        login: string 
     ): Promise<
         | {success: true}
         | typeof NOTE_EXCEPTIONS.NoteNotFound
@@ -30,7 +31,7 @@ export interface INotesService {
     updateNote(
         id: string,
         login: string,
-        updateData: any
+        updateData: NoteUpdate
     ): Promise<
         | Note
         | typeof NOTE_EXCEPTIONS.NoteNotFound
@@ -58,7 +59,6 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.NoteNotFound
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
         | typeof NOTE_EXCEPTIONS.AcessRestricted
-        | typeof NOTE_EXCEPTIONS.AcessRestricted
     >
 
     removeCollaborator(
@@ -70,6 +70,7 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
         | typeof NOTE_EXCEPTIONS.NoteNotFound
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_EXCEPTIONS.AcessRestricted
         
     >
 }

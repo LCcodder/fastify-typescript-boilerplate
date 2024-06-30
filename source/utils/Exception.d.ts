@@ -1,4 +1,4 @@
-export type Exception = {
+export declare type Exception = {
     message: string
     statusCode: number
 }

@@ -4,7 +4,6 @@ import { IUsersService } from "../users/UsersServiceInterface";
 import { INotesService } from "./NotesServiceInterface";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 import { ArrayContains, Repository } from "typeorm";
-import { DeepOptional } from "typing-assets/src";
 import { Exception } from "../../utils/Exception";
 
 export class NotesService implements INotesService {
@@ -28,17 +27,26 @@ export class NotesService implements INotesService {
             resolve: (state: Note) => void,
             reject: (exception: 
                 | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+                | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
             ) => void
         ) => {
             try {
+                // checking collaborators existance
+                for (const collaboratorLogin of note.collaborators) {
+                    const foundCollaborator = await this.usersService.getUser("login", collaboratorLogin).catch()
+                    if ((foundCollaborator as unknown as Exception).statusCode === 404) {
+                        return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
+                    }
+                }
+
                 const id = NotesService.generateNoteId()
                 const createdNote = await this.noteRepository.save({
                     ...note,
                     id
                 })
                 resolve(createdNote as unknown as Note)
-            } catch (_error) {
-                console.log(_error)
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -63,7 +71,8 @@ export class NotesService implements INotesService {
                 }
                 
                 return resolve(foundNote as unknown as Note)
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
 
@@ -100,7 +109,8 @@ export class NotesService implements INotesService {
                 await this.noteRepository.delete({ author: login, id })
                 
                 return resolve({ success: true })
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -109,7 +119,7 @@ export class NotesService implements INotesService {
     public updateNote(
         id: string, 
         login: string, 
-        updateData: DeepOptional<Note>
+        updateData: NoteUpdate
     ) {
         return new Promise(async (
             resolve: (state: Note) => void,
@@ -139,7 +149,8 @@ export class NotesService implements INotesService {
                 foundNote = Object.assign(foundNote, updateData)
                 const updatedNote = await this.noteRepository.save(foundNote)
                 return resolve(updatedNote as unknown as Note)
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -159,8 +170,8 @@ export class NotesService implements INotesService {
                     take: limit
                 })
                 return resolve(foundNotes as unknown as NotePreview[])
-            } catch (_error) {
-                console.log(_error)
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -180,7 +191,8 @@ export class NotesService implements INotesService {
                     take: limit
                 })
                 return resolve(foundNotes as unknown as Note[])
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -234,7 +246,8 @@ export class NotesService implements INotesService {
                 })
 
                 return resolve({ success: true })
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
@@ -272,7 +285,8 @@ export class NotesService implements INotesService {
                 )
 
                 return resolve({ success: true })
-            } catch (_error) {
+            } catch (error) {
+                console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)    
             }
         })
