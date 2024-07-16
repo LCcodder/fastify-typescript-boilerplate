@@ -30,7 +30,7 @@ const appDataSource = initAndGetDataSource(
     "localhost",
     5432,
     "postgres",
-    "pwd",
+    "",
     "NodeNotes"
 )
 
@@ -47,7 +47,7 @@ handleNoteRoutes(server, notesService, authentification)
 
 
 
-server.listen({ 
+server.listen({
     port: CONFIG.appPort
 }, (error: Error, address: string) => {
     
