@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { INotesService } from "../services/notes/NotesServiceInterface";
-import { Note, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/_Note";
+import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/_Note";
 import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
@@ -17,7 +17,7 @@ export const handleNoteRoutes = (
     ) => void
 ) => {
     server.post<{
-        Body: Omit<NoteWithoutMetadata, "author">,
+        Body: NoteWithoutMetadata,
         Reply: {
             201: Note,
             503: typeof NOTE_EXCEPTIONS.ServiceUnavailable   
@@ -194,10 +194,42 @@ export const handleNoteRoutes = (
         }
     })
 
-    server.post<{
+    server.get<{
+        Params: { id: string },
+        Reply: {
+            200: NoteCollaborators
+            404: typeof NOTE_EXCEPTIONS.NoteNotFound
+            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        }
+    }>("/notes/:id/collaborators", {
+        preHandler: authentificate
+    }, async (request, reply) => {
+        try {
+            const payload = extractJwtPayload(
+                extractToken(request)
+            )
+            const id = request.params.id
+            const collaborators = await notesService.getCollaborators(id, payload.login) as NoteCollaborators
+            
+            reply.code(200).send(collaborators)
+        } catch (exception: any) {
+            reply.code(
+                exception.statusCode
+            ).send(exception)           
+        }
+    })
+
+    server.put<{
         Params: { id: string },
         Body: {
             collaboratorLogin: string
+        },
+        Reply: {
+            201: {success: true}
+            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable,
+            404: typeof NOTE_EXCEPTIONS.CollaboratorNotFound | typeof NOTE_EXCEPTIONS.NoteNotFound
+            400: typeof NOTE_EXCEPTIONS.CollaboratorAlreadyInNote
+            403: typeof NOTE_EXCEPTIONS.AcessRestricted
         }
     }>("/notes/:id/collaborators", {
         schema: AddOrRemoveCollaboratorSchema,
@@ -217,7 +249,7 @@ export const handleNoteRoutes = (
                 collaboratorLogin
             ) as { success: true }
 
-            reply.code(200).send(state)
+            reply.code(201).send(state)
         } catch (exception: any) {
             reply.code(
                 exception.statusCode
@@ -229,6 +261,12 @@ export const handleNoteRoutes = (
         Params: { id: string },
         Body: {
             collaboratorLogin: string
+        },
+        Reply: {
+            200: {success: true}
+            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
+            404: typeof NOTE_EXCEPTIONS.CollaboratorNotFound | typeof NOTE_EXCEPTIONS.NoteNotFound
+            403: typeof NOTE_EXCEPTIONS.AcessRestricted
         }
     }>("/notes/:id/collaborators", {
         schema: AddOrRemoveCollaboratorSchema,

@@ -10,9 +10,9 @@ import { authentificationFactory } from './auth/AuthPreHandler'
 import { handleNoteRoutes } from './handlers/NotesHandlers'
 import { NotesService } from './services/notes/NotesService'
 import "reflect-metadata"
-import { User } from './database/entities/_User'
+import { UserEntity, User } from './database/entities/_User'
 import { initAndGetDataSource } from './database/InitDataSource'
-import { Note } from './database/entities/_Note'
+import { NoteEntity, Note } from './database/entities/_Note'
 
 CONFIG.log()
 
@@ -35,11 +35,11 @@ const appDataSource = initAndGetDataSource(
 )
 
 const usersService = new UsersService(
-    appDataSource.getRepository(User)
+    appDataSource.getRepository(UserEntity.User)
 )
 const authentification = authentificationFactory(usersService)
 const authService = new AuthService(usersService)
-const notesService = new NotesService(appDataSource.getRepository(Note), usersService)
+const notesService = new NotesService(appDataSource.getRepository(NoteEntity.Note), usersService)
 
 handleUserRoutes(server, usersService, authentification)
 handleAuthRoutes(server, authService, authentification)

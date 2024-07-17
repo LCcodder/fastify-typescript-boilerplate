@@ -1,49 +1,55 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from "typeorm"
 import { DeepOptional } from "typing-assets/src"
+import { Note } from "./_Note"
 
-@Entity()
-export class User {
-    @PrimaryColumn("varchar")
-    public login: string
+export namespace UserEntity {
 
-    @Column("varchar", {
-        length: 60,
-        nullable: false
-    })
-    public email: string
-
-    @Column("text")
-    public password: string
-
-    @Column("varchar", {
-        length: 32
-    })
-    public username: string
-
-    @Column("varchar", {
-        length: 7,
-        nullable: false
-    })
-    public personalColor: string
-
-    @Column("boolean", {
-        nullable: false
-    })
-    public isCollaborating: boolean
-
-    @Column("text", {
-        nullable: true
-    })
-    public validToken: string
-
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
-    public createdAt: Date;
-
-    @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
-    public updatedAt: Date;
+    @Entity()
+    export class User {
+        @PrimaryColumn("varchar")
+        public login: string
+    
+        @Column("varchar", {
+            length: 60,
+            nullable: false
+        })
+        public email: string
+    
+        @Column("text")
+        public password: string
+    
+        @Column("varchar", {
+            length: 32
+        })
+        public username: string
+    
+        @Column("varchar", {
+            length: 7,
+            nullable: false
+        })
+        public personalColor: string
+    
+        @Column("boolean", {
+            nullable: false
+        })
+        public isCollaborating: boolean
+    
+        @Column("text", {
+            nullable: true
+        })
+        public validToken: string
+    
+        
+    
+        @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+        public createdAt: Date;
+    
+        @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", onUpdate: "CURRENT_TIMESTAMP(6)" })
+        public updatedAt: Date;
+    }
 }
 
-
+export type User = UserEntity.User
 export type UserUpdate = DeepOptional<
     Omit<User, "updatedAt" | "createdAt" | "email" | "login">
 >

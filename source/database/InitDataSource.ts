@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
-import {User} from "./entities/_User";
-import {Note} from "./entities/_Note";
+import {UserEntity}  from "./entities/_User";
+import {NoteEntity}  from "./entities/_Note";
 
 export const initAndGetDataSource = (
     host: string,
@@ -11,7 +11,7 @@ export const initAndGetDataSource = (
 ): DataSource => {
     const appDataSource = new DataSource({
         type: "postgres",
-        entities: [User, Note],
+        entities: [UserEntity.User, NoteEntity.Note],
         synchronize: true,
         logging: false,
         host,

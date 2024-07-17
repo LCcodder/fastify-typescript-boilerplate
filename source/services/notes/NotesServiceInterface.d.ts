@@ -1,4 +1,4 @@
-import { Note, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/_Note";
+import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/_Note";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 
 export interface INotesService {
@@ -44,7 +44,13 @@ export interface INotesService {
     >
 
     getCollaboratedNotes(login: string, limit: number, skip: number): Promise<
-        Note[]
+        NotePreview[]
+        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+    >
+
+    getCollaborators(id: string, login: string): Promise<
+        NoteCollaborators
+        | typeof NOTE_EXCEPTIONS.NoteNotFound
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 

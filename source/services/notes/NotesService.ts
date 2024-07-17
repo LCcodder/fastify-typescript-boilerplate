@@ -1,10 +1,12 @@
-import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate } from "../../database/entities/_Note";
-import { User } from "../../database/entities/_User";
+import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate, NoteEntity, NoteCollaborators } from "../../database/entities/_Note";
+import { User, UserWithoutSensetives } from "../../database/entities/_User";
 import { IUsersService } from "../users/UsersServiceInterface";
 import { INotesService } from "./NotesServiceInterface";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 import { ArrayContains, Repository } from "typeorm";
 import { Exception } from "../../utils/Exception";
+import { transformNoteCollaborators } from "../../utils/TransformNoteCollaborators";
+import { excludeProperties } from "typing-assets/src"
 
 export class NotesService implements INotesService {
     private static generateNoteId(): string {
@@ -17,11 +19,10 @@ export class NotesService implements INotesService {
     }
 
     constructor(
-        private noteRepository: Repository<Note>, 
+        private noteRepository: Repository<NoteEntity.Note>, 
         private usersService: IUsersService
     ) {}
 
-    // TODO: Add checking collaborators existance
     public createNote(note: NoteWithoutMetadata) {
         return new Promise(async(
             resolve: (state: Note) => void,
@@ -31,20 +32,26 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
+                const collaboratorsRelationArray = []
                 // checking collaborators existance
-                for (const collaboratorLogin of note.collaborators) {
-                    const foundCollaborator = await this.usersService.getUser("login", collaboratorLogin).catch()
+                for (const collaborator of note.collaborators) {
+                    const foundCollaborator = await this.usersService.getUser("login", collaborator).catch()
                     if ((foundCollaborator as unknown as Exception).statusCode === 404) {
                         return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                     }
+                    collaboratorsRelationArray.push(foundCollaborator as User)
                 }
 
                 const id = NotesService.generateNoteId()
                 const createdNote = await this.noteRepository.save({
                     ...note,
-                    id
+                    id,
+                    collaborators: collaboratorsRelationArray
                 })
-                resolve(createdNote as unknown as Note)
+
+                resolve(
+                    transformNoteCollaborators(createdNote) as unknown as Note
+                )
             } catch (error) {
                 console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
@@ -61,16 +68,25 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const foundNote = await this.noteRepository.findOne({where: [
-                    { author: login, id },
-                    { collaborators: login, id }
-                ]})
-                
-                if (!foundNote) {
-                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
+                const foundNote = await this.noteRepository.findOne(
+                    {
+                        where: {
+                            id
+                        },
+                        relations: {
+                            collaborators: true
+                        }
+                    }
+                )
+
+                if (foundNote?.author === login || foundNote?.collaborators.find(c => c.login === login)) {
+                    return resolve(
+                        transformNoteCollaborators(foundNote) as unknown as Note
+                    )
                 }
                 
-                return resolve(foundNote as unknown as Note)
+                
+                return reject(NOTE_EXCEPTIONS.NoteNotFound)
             } catch (error) {
                 console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
@@ -88,20 +104,15 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                const foundNote = await this.noteRepository.findOneBy({ id })
+                const foundNote = await this.noteRepository.findOne({ where: { id }, relations: {collaborators: true}})
+                
                 if (!foundNote) {
                     return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
 
                 if (foundNote.author !== login) {
-                    
-                    await this.noteRepository.update({
-                        id,
-                        collaborators: ArrayContains([login])
-                    }, {
-                        collaborators: foundNote.collaborators.splice(foundNote.collaborators.indexOf(login), 1)
-                        
-                    })
+                    foundNote.collaborators = foundNote.collaborators.filter(c => c.login !== login)
+                    await this.noteRepository.save(foundNote)
 
                     return resolve({ success: true })
                 }
@@ -129,33 +140,33 @@ export class NotesService implements INotesService {
             ) => void
         ) => {
             try {
-                let foundNote = await this.noteRepository.findOne({
-                    where: [
-                        {
-                            id,
-                            author: ArrayContains([login])
+                let foundNote = await this.noteRepository.findOne(
+                    {
+                        where: {
+                            id
                         },
-                        {
-                            id,
-                            collaborators: ArrayContains([login])
+                        relations: {
+                            collaborators: true
                         }
-                    ]
-                })
-                
-                if (!foundNote) {
-                    return reject(NOTE_EXCEPTIONS.NoteNotFound)
-                }
+                    }
+                )
 
-                foundNote = Object.assign(foundNote, updateData)
-                const updatedNote = await this.noteRepository.save(foundNote)
-                return resolve(updatedNote as unknown as Note)
+                if (foundNote?.author === login || foundNote?.collaborators.find(c => c.login === login)) {
+                    foundNote = Object.assign(foundNote, updateData)
+                    const updatedNote = await this.noteRepository.save(foundNote)
+
+                    return resolve(
+                        transformNoteCollaborators(updatedNote) as unknown as Note
+                    )
+                }
+                
+                return reject(NOTE_EXCEPTIONS.NoteNotFound)
             } catch (error) {
                 console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
             }
         })
     }
-
     public getMyNotes(authorLogin: string, limit: number, skip: number) {
         return new Promise(async (
             resolve: (state: NotePreview[]) => void,
@@ -163,11 +174,21 @@ export class NotesService implements INotesService {
         ) => {
             try {
                 const foundNotes = await this.noteRepository.find({
+                    select: {
+                        id: true,
+                        author: true,
+                        title: true,
+                        tags: true,
+                        updatedAt: true
+                    },
                     where: {
                         author: authorLogin
                     },
                     skip,
-                    take: limit
+                    take: limit,
+                    order: {
+                        updatedAt: "DESC"
+                    }
                 })
                 return resolve(foundNotes as unknown as NotePreview[])
             } catch (error) {
@@ -179,18 +200,21 @@ export class NotesService implements INotesService {
 
     public getCollaboratedNotes(login: string, limit: number, skip: number) {
         return new Promise(async (
-            resolve: (state: Note[]) => void,
+            resolve: (state: NotePreview[]) => void,
             reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
-                const foundNotes = await this.noteRepository.find({
-                    where: {
-                        collaborators: ArrayContains([login])
-                    },
-                    skip,
-                    take: limit
-                })
-                return resolve(foundNotes as unknown as Note[])
+                
+                const foundNotes = await this.noteRepository
+                    .createQueryBuilder("note")
+                    .innerJoinAndSelect("note.collaborators", "user", '"userLogin" = :login', {login})
+                    .select(["note.id", "note.author", "note.title", "note.tags", 'note.updatedAt'])
+                    .limit(limit)
+                    .skip(skip)
+                    .orderBy('note.updatedAt', "DESC")
+                    .getMany()
+                    
+                return resolve(foundNotes)
             } catch (error) {
                 console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
@@ -198,6 +222,40 @@ export class NotesService implements INotesService {
         })
     }
     
+    public getCollaborators(id: string, login: string) {
+        return new Promise(async (
+            resolve: (collaborators: NoteCollaborators) => void,
+            reject: (exception: 
+                | typeof NOTE_EXCEPTIONS.NoteNotFound
+                | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+            ) => void
+        ) => {
+            try {
+                const foundNote = await this.noteRepository.findOne({
+                    where: {
+                        id
+                    },
+                    relations: {
+                        collaborators: true
+                    }
+                })
+                
+                if (foundNote.author === login || foundNote.collaborators.find(c => c.login === login)) {
+                    const collaborators = foundNote.collaborators.map(c => excludeProperties(c, "password", "validToken"))
+
+                    return resolve(
+                        collaborators
+                    )
+                }
+
+                return reject(NOTE_EXCEPTIONS.NoteNotFound)
+            } catch (error) {
+                console.log(error)
+                return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
+            }
+        })
+    }
+
     public addCollaborator(id: string, authorLogin: string, collaboratorLogin: string) {
         return new Promise(async (
             resolve: (state: { success: true }) => void,
@@ -211,13 +269,19 @@ export class NotesService implements INotesService {
         ) => {
             try {
                 
-                const foundNote = await this.noteRepository.findOneBy({ id })
+                const foundNote = await this.noteRepository.findOne({ where: { id }, relations: {collaborators: true}})
+                
                 if (!foundNote) {
                     return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
                 if (foundNote.author !== authorLogin) {
                     return reject(
                         NOTE_EXCEPTIONS.AcessRestricted
+                    )
+                }
+                if (authorLogin === collaboratorLogin) {
+                    return reject(
+                        NOTE_EXCEPTIONS.CollaboratorNotFound
                     )
                 }
                 
@@ -234,16 +298,12 @@ export class NotesService implements INotesService {
                     return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
 
-                if (foundNote.collaborators.includes(foundCollaborator.login)) {
+                if (foundNote.collaborators.find(c => c.login === collaboratorLogin)) {
                     return reject(NOTE_EXCEPTIONS.CollaboratorAlreadyInNote)
                 }
 
-                await this.noteRepository.update({
-                    id,
-                    author: authorLogin
-                }, {
-                    collaborators: [...foundNote.collaborators, foundCollaborator.login]
-                })
+                foundNote.collaborators.push(foundCollaborator)
+                await this.noteRepository.save(foundNote)
 
                 return resolve({ success: true })
             } catch (error) {
@@ -265,7 +325,8 @@ export class NotesService implements INotesService {
         ) => {
             try {
                 
-                let foundNote = await this.noteRepository.findOneBy({ id })
+                const foundNote = await this.noteRepository.findOne({ where: { id }, relations: {collaborators: true}})
+                
                 if (!foundNote) {
                     return reject(NOTE_EXCEPTIONS.NoteNotFound)
                 }
@@ -275,14 +336,13 @@ export class NotesService implements INotesService {
                     )
                 }
 
-                if (foundNote.collaborators.indexOf(collaboratorLogin) === -1) {
+                const foundCollaborator = foundNote.collaborators.find(c => c.login === collaboratorLogin)
+                if (!foundCollaborator) {
                     return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
 
-                foundNote.collaborators.splice(
-                    foundNote.collaborators.indexOf(collaboratorLogin),
-                    1
-                )
+                foundNote.collaborators = foundNote.collaborators.filter(c => c.login !== collaboratorLogin)
+                await this.noteRepository.save(foundNote)
 
                 return resolve({ success: true })
             } catch (error) {
