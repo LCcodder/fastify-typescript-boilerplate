@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from "typeorm"
-import { DeepOptional } from "typing-assets/src"
+import { DeepOptional } from "typing-assets"
 import { Note } from "./_Note"
 
 export namespace UserEntity {

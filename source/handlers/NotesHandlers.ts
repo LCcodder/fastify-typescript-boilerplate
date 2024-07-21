@@ -194,30 +194,30 @@ export const handleNoteRoutes = (
         }
     })
 
-    server.get<{
-        Params: { id: string },
-        Reply: {
-            200: NoteCollaborators
-            404: typeof NOTE_EXCEPTIONS.NoteNotFound
-            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-        }
-    }>("/notes/:id/collaborators", {
-        preHandler: authentificate
-    }, async (request, reply) => {
-        try {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
-            const id = request.params.id
-            const collaborators = await notesService.getCollaborators(id, payload.login) as NoteCollaborators
+    // server.get<{
+    //     Params: { id: string },
+    //     Reply: {
+    //         200: NoteCollaborators
+    //         404: typeof NOTE_EXCEPTIONS.NoteNotFound
+    //         503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
+    //     }
+    // }>("/notes/:id/collaborators", {
+    //     preHandler: authentificate
+    // }, async (request, reply) => {
+    //     try {
+    //         const payload = extractJwtPayload(
+    //             extractToken(request)
+    //         )
+    //         const id = request.params.id
+    //         const collaborators = await notesService.getCollaborators(id, payload.login) as NoteCollaborators
             
-            reply.code(200).send(collaborators)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)           
-        }
-    })
+    //         reply.code(200).send(collaborators)
+    //     } catch (exception: any) {
+    //         reply.code(
+    //             exception.statusCode
+    //         ).send(exception)           
+    //     }
+    // })
 
     server.put<{
         Params: { id: string },

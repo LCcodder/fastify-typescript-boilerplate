@@ -6,14 +6,13 @@ import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 import { ArrayContains, Repository } from "typeorm";
 import { Exception } from "../../utils/Exception";
 import { transformNoteCollaborators } from "../../utils/TransformNoteCollaborators";
-import { excludeProperties } from "typing-assets/src"
-
+import { excludeProperties } from "typing-assets"
 export class NotesService implements INotesService {
     private static generateNoteId(): string {
         const symbolsHEX = "0123456789abcdef"
         let id = ""
         for (let i: number = 0; i < 16; i++) {
-            id += symbolsHEX.charAt(Math.floor(Math.random() * 16));
+            id += symbolsHEX.charAt(Math.floor(Math.random() * 16))
         }
         return id
     }
