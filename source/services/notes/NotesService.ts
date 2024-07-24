@@ -176,6 +176,7 @@ export class NotesService implements INotesService {
                 const query = this.noteRepository
                     .createQueryBuilder("note")
                     .select(["note.id", "note.author", "note.title", "note.tags", 'note.updatedAt'])
+                    .where("note.author = :login", {login: authorLogin})
                     .limit(limit)
                     .skip(skip)
                     .orderBy('note.updatedAt', sort)
@@ -192,6 +193,7 @@ export class NotesService implements INotesService {
             }
         })
     }
+
 
     public getCollaboratedNotes(login: string, tags: string[], limit: number, skip: number, sort: "ASC" | "DESC") {
         return new Promise(async (
