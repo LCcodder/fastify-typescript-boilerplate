@@ -38,7 +38,7 @@ const main = async () => {
         "localhost",
         5432,
         "postgres",
-        "robocopid12",
+        "",
         "NodeNotes"
     )
     
