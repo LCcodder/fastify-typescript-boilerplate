@@ -48,7 +48,9 @@ export const handleNoteRoutes = (
     server.get<{
         Querystring: {
             limit: number,
-            offset: number
+            offset: number,
+            sort: "ASC" | "DESC",
+            tags: string[]
         },
         Reply: {
             200: NotePreview[],
@@ -67,8 +69,10 @@ export const handleNoteRoutes = (
 
             const limit = request.query.limit
             const skip = request.query.offset
+            const sort = request.query.sort
+            const tags = request.query.tags
 
-            const notes = await notesService.getMyNotes(payload.login, limit, skip) as NotePreview[]
+            const notes = await notesService.getMyNotes(payload.login, tags, limit, skip, sort) as NotePreview[]
             reply.code(200).send(notes)
         } catch (exception: any) {
             reply.code(
@@ -80,7 +84,9 @@ export const handleNoteRoutes = (
     server.get<{
         Querystring: {
             limit: number,
-            offset: number
+            offset: number,
+            sort: "ASC" | "DESC",
+            tags: string[]
         },
         Reply: {
             200: NotePreview[],
@@ -97,8 +103,10 @@ export const handleNoteRoutes = (
 
             const limit = request.query.limit
             const skip = request.query.offset
+            const sort = request.query.sort
+            const tags = request.query.tags
 
-            const notes = await notesService.getCollaboratedNotes(payload.login, limit, skip) as NotePreview[]
+            const notes = await notesService.getCollaboratedNotes(payload.login, tags, limit, skip, sort) as NotePreview[]
             reply.code(200).send(notes)
         } catch (exception: any) {
             reply.code(
@@ -194,30 +202,31 @@ export const handleNoteRoutes = (
         }
     })
 
-    // server.get<{
-    //     Params: { id: string },
-    //     Reply: {
-    //         200: NoteCollaborators
-    //         404: typeof NOTE_EXCEPTIONS.NoteNotFound
-    //         503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-    //     }
-    // }>("/notes/:id/collaborators", {
-    //     preHandler: authentificate
-    // }, async (request, reply) => {
-    //     try {
-    //         const payload = extractJwtPayload(
-    //             extractToken(request)
-    //         )
-    //         const id = request.params.id
-    //         const collaborators = await notesService.getCollaborators(id, payload.login) as NoteCollaborators
+    server.get<{
+        Params: { id: string },
+        Reply: {
+            200: NoteCollaborators
+            404: typeof NOTE_EXCEPTIONS.NoteNotFound
+            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        }
+    }>("/notes/:id/collaborators", {
+        schema: OperateNoteSchema,
+        preHandler: authentificate
+    }, async (request, reply) => {
+        try {
+            const payload = extractJwtPayload(
+                extractToken(request)
+            )
+            const id = request.params.id
+            const collaborators = await notesService.getCollaborators(id, payload.login) as NoteCollaborators
             
-    //         reply.code(200).send(collaborators)
-    //     } catch (exception: any) {
-    //         reply.code(
-    //             exception.statusCode
-    //         ).send(exception)           
-    //     }
-    // })
+            reply.code(200).send(collaborators)
+        } catch (exception: any) {
+            reply.code(
+                exception.statusCode
+            ).send(exception)           
+        }
+    })
 
     server.put<{
         Params: { id: string },

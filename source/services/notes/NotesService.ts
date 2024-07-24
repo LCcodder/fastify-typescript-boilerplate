@@ -3,7 +3,7 @@ import { User, UserWithoutSensetives } from "../../database/entities/_User";
 import { IUsersService } from "../users/UsersServiceInterface";
 import { INotesService } from "./NotesServiceInterface";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
-import { ArrayContains, Repository } from "typeorm";
+import { ArrayContains, Repository, SelectQueryBuilder } from "typeorm";
 import { Exception } from "../../utils/Exception";
 import { transformNoteCollaborators } from "../../utils/TransformNoteCollaborators";
 import { excludeProperties } from "typing-assets"
@@ -166,29 +166,25 @@ export class NotesService implements INotesService {
             }
         })
     }
-    public getMyNotes(authorLogin: string, limit: number, skip: number) {
+    public getMyNotes(authorLogin: string, tags: string[], limit: number, skip: number, sort: "ASC" | "DESC") {
         return new Promise(async (
             resolve: (state: NotePreview[]) => void,
             reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
-                const foundNotes = await this.noteRepository.find({
-                    select: {
-                        id: true,
-                        author: true,
-                        title: true,
-                        tags: true,
-                        updatedAt: true
-                    },
-                    where: {
-                        author: authorLogin
-                    },
-                    skip,
-                    take: limit,
-                    order: {
-                        updatedAt: "DESC"
-                    }
-                })
+
+                const query = this.noteRepository
+                    .createQueryBuilder("note")
+                    .select(["note.id", "note.author", "note.title", "note.tags", 'note.updatedAt'])
+                    .limit(limit)
+                    .skip(skip)
+                    .orderBy('note.updatedAt', sort)
+
+                if (tags && tags.length) {
+                    query.where("note.tags && :tags", { tags })    
+                }
+                
+                const foundNotes = await query.getMany()
                 return resolve(foundNotes as unknown as NotePreview[])
             } catch (error) {
                 console.log(error)
@@ -197,23 +193,28 @@ export class NotesService implements INotesService {
         })
     }
 
-    public getCollaboratedNotes(login: string, limit: number, skip: number) {
+    public getCollaboratedNotes(login: string, tags: string[], limit: number, skip: number, sort: "ASC" | "DESC") {
         return new Promise(async (
             resolve: (state: NotePreview[]) => void,
             reject: (exception: typeof NOTE_EXCEPTIONS.ServiceUnavailable) => void
         ) => {
             try {
                 
-                const foundNotes = await this.noteRepository
+
+                const query = this.noteRepository
                     .createQueryBuilder("note")
                     .innerJoinAndSelect("note.collaborators", "user", '"userLogin" = :login', {login})
                     .select(["note.id", "note.author", "note.title", "note.tags", 'note.updatedAt'])
                     .limit(limit)
                     .skip(skip)
-                    .orderBy('note.updatedAt', "DESC")
-                    .getMany()
+                    .orderBy('note.updatedAt', sort)
                     
-                return resolve(foundNotes)
+                if (tags && tags.length) {
+                    query.where("note.tags && :tags", { tags })    
+                }
+                    
+                const foundNotes = await query.getMany()
+                return resolve(foundNotes as unknown as NotePreview[])
             } catch (error) {
                 console.log(error)
                 return reject(NOTE_EXCEPTIONS.ServiceUnavailable)

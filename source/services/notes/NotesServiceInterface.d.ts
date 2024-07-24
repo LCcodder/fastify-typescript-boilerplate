@@ -38,12 +38,12 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
-    getMyNotes(authorLogin: string, limit: number, skip: number): Promise<
+    getMyNotes(authorLogin: string, filters: string[], limit: number, skip: number, sort: "ASC" | "DESC"): Promise<
         NotePreview[]
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
-    getCollaboratedNotes(login: string, limit: number, skip: number): Promise<
+    getCollaboratedNotes(login: string, filters: string[], limit: number, skip: number, sort: "ASC" | "DESC"): Promise<
         NotePreview[]
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
@@ -77,6 +77,5 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.NoteNotFound
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
         | typeof NOTE_EXCEPTIONS.AcessRestricted
-        
     >
 }
