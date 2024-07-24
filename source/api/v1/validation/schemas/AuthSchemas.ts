@@ -1,40 +1,40 @@
-import { FastifySchema } from "fastify";
+import { pickProperties } from "typing-assets";
+import { BaseUserSchema } from "./base/User";
+import { AUTH_RESPONSES } from "../openapi/responses/AuthResponses";
+import { FastifySchema } from "../../utils/FastifySchemaOverride";
 
 export const AuthUserSchema: FastifySchema = {
+    
     body: {
         type: 'object',
-        properties: {
-            email: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 60
-            },
-            password: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 32
-            }
-        },
+        properties: pickProperties(
+            {...BaseUserSchema.properties},
+            "email",
+            "password"
+        ),
         required: ['email', 'password'],
-    }
+    },
+
+    // openapi snippets
+    description: 'Authorization with email and password which returns token in response',
+    tags: ["auth"],
+    response: AUTH_RESPONSES.Authorize
 }
 
 
 export const ChangePasswordSchema: FastifySchema = {
+    
     body: {
         type: 'object',
         properties: {
-            oldPassword: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 32
-            },
-            newPassword: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 32
-            }
+            oldPassword: BaseUserSchema.properties.password,
+            newPassword: BaseUserSchema.properties.password
         },
         required: ['oldPassword', 'newPassword']
-    }
+    },
+
+    // openapi snippets
+    description: 'Password change and reset current token',
+    tags: ["auth"],
+    response: AUTH_RESPONSES.ChangePassword
 }

@@ -1,5 +1,5 @@
-import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate, NoteEntity, NoteCollaborators } from "../../database/entities/_Note";
-import { User, UserWithoutSensetives } from "../../database/entities/_User";
+import { NoteWithoutMetadata, Note, NotePreview, NoteUpdate, NoteEntity, NoteCollaborators } from "../../database/entities/Note";
+import { User, UserWithoutSensetives } from "../../database/entities/User";
 import { IUsersService } from "../users/UsersServiceInterface";
 import { INotesService } from "./NotesServiceInterface";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";

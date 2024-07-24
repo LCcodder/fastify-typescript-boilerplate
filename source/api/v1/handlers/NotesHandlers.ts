@@ -1,16 +1,16 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { INotesService } from "../services/notes/NotesServiceInterface";
-import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/_Note";
+import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/Note";
 import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
-import {AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteSchema, GetNotesSchema, OperateNoteSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
+import {AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
 
 
 export const handleNoteRoutes = (
     server: FastifyInstance,
     notesService: INotesService, 
-    authentificate: (
+    authenticate: (
         request: FastifyRequest, 
         reply: FastifyReply, 
         done: HookHandlerDoneFunction
@@ -25,7 +25,7 @@ export const handleNoteRoutes = (
         }
     }>("/notes", {
         schema: CreateNoteSchema,
-        preHandler: authentificate
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -60,7 +60,7 @@ export const handleNoteRoutes = (
     }>("/notes/my", 
         {
             schema: GetNotesSchema, 
-            preHandler: authentificate
+            preHandler: authenticate
         }, 
     async (request, reply) => {
         try {
@@ -95,7 +95,7 @@ export const handleNoteRoutes = (
         }
     }>("/notes/collaborated", {
         schema: GetNotesSchema,
-        preHandler: authentificate
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -126,7 +126,7 @@ export const handleNoteRoutes = (
     }>("/notes/:id", 
         {
             schema: GetNoteSchema,
-            preHandler: authentificate 
+            preHandler: authenticate 
         },
     async (request, reply) => {
         try {
@@ -155,7 +155,7 @@ export const handleNoteRoutes = (
     }>("/notes/:id", 
         {
             schema: DeleteNoteSchema,
-            preHandler: authentificate
+            preHandler: authenticate
         },
     async (request, reply) => {
         try {
@@ -184,7 +184,7 @@ export const handleNoteRoutes = (
         Body: NoteUpdate
     }>("/notes/:id", {
         schema: UpdateNoteSchema,
-        preHandler: authentificate
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -211,8 +211,8 @@ export const handleNoteRoutes = (
             503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
         }
     }>("/notes/:id/collaborators", {
-        schema: OperateNoteSchema,
-        preHandler: authentificate
+        schema: GetNoteCollaboratorsSchema,
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -243,7 +243,7 @@ export const handleNoteRoutes = (
         }
     }>("/notes/:id/collaborators", {
         schema: AddCollaboratorSchema,
-        preHandler: authentificate
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -280,7 +280,7 @@ export const handleNoteRoutes = (
         }
     }>("/notes/:id/collaborators", {
         schema: RemoveCollaboratorSchema,
-        preHandler: authentificate
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(

@@ -1,4 +1,6 @@
-export const AuthExceptions = {
+import { Exception } from "../utils/Exception";
+
+export const AUTH_EXCEPTIONS = {
     WrongCredentials: {
         statusCode: 400,
         message: "Wrong credentials"
@@ -7,4 +9,4 @@ export const AuthExceptions = {
         statusCode: 503,
         message: "Cannot create auth, service unavalable"
     },
-} as const
+} as const satisfies Record<string, Exception>

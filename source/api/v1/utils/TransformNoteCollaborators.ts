@@ -1,4 +1,4 @@
-import { NoteEntity, Note } from "../database/entities/_Note";
+import { NoteEntity, Note } from "../database/entities/Note";
 
 export const transformNoteCollaborators = (note: NoteEntity.Note): Note => {
     return {

@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { IUsersService } from "../services/users/UsersServiceInterface";
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/_User";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
-import { CreateUserSchema, GetUserSchema, UpdateUserSchema } from "../validation/schemas/UserSchemas";
+import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema } from "../validation/schemas/UserSchemas";
 import { UsersService } from "../services/users/UsersService";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
@@ -12,7 +12,7 @@ export const handleUserRoutes = (
     server: FastifyInstance, 
     usersService: IUsersService, 
     // auth prehandler, which have to be generated in main.ts file
-    authentificate: (
+    authenticate: (
         request: FastifyRequest, 
         reply: FastifyReply, 
         done: HookHandlerDoneFunction
@@ -21,7 +21,7 @@ export const handleUserRoutes = (
     server.post<{
         Body: UserWithoutMetadata,
         Reply: {
-            201: User,
+            201: UserWithoutSensetives,
             400: typeof USER_EXCEPTIONS.AlreadyExists,
             503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
@@ -46,7 +46,8 @@ export const handleUserRoutes = (
             503: typeof USER_EXCEPTIONS.ServiceUnavailable,
         }
     }>("/users/me", {
-        preHandler: authentificate
+        schema: GetMyProfileSchema,
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(
@@ -73,7 +74,7 @@ export const handleUserRoutes = (
         }
     }>("/users/me", {
         schema: UpdateUserSchema,
-        preHandler: authentificate
+        preHandler: authenticate
     }, async (request, reply) => {
         try {
             const payload = extractJwtPayload(

@@ -1,4 +1,4 @@
-import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/_Note";
+import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/Note";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 
 export interface INotesService {

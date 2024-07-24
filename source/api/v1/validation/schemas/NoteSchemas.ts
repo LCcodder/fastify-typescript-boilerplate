@@ -1,16 +1,13 @@
-import { FastifySchema } from "fastify"
-import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions"
-import { CreateUserSchema } from "./UserSchemas"
 import { excludeProperties, pickProperties } from "typing-assets"
-import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions"
-import { BasicNoteSchema } from "./basic/User"
-import { NOTE_RESPONSES } from "../swagger/responses/NoteResponses"
+import { BaseNoteSchema, OperateNoteSchema } from "./base/Note"
+import { NOTE_RESPONSES } from "../openapi/responses/NoteResponses"
+import { FastifySchema } from "../../utils/FastifySchemaOverride"
 
 export const CreateNoteSchema: FastifySchema = {
     body: {
         type: 'object',
         properties: excludeProperties(
-            {...BasicNoteSchema.properties},
+            {...BaseNoteSchema.properties},
             "author",
             "createdAt",
             "updatedAt",
@@ -18,11 +15,15 @@ export const CreateNoteSchema: FastifySchema = {
         ),
         required: ['collaborators', 'title', 'content', 'tags']
     },
-    // response prop is for swagger API spec generating
+
+    // openapi snippets
+    description: "Creates and returns created note (also adds provided collaborators to the note)",
+    tags: ["notes"],
     response: NOTE_RESPONSES.CreateNote
 }
 
 export const GetNotesSchema: FastifySchema = {
+    
     querystring: {
         type: 'object',
         properties: {
@@ -32,43 +33,62 @@ export const GetNotesSchema: FastifySchema = {
             tags: { type: 'array', items: { type: 'string' }, maxItems: 20 }
         }   
     },
+
+    // openapi snippets
+    description: "Returns notes array by provided params",
+    tags: ["notes"],
     response: NOTE_RESPONSES.GetNotes
 }
 
-export const OperateNoteSchema: FastifySchema = {
-    params: {
-        type: 'object',
-        properties: {
-            id: { type: 'string' }
-        },
-        required: ['id']
-    }
-}
+
+
 export const GetNoteSchema: FastifySchema = {
+    
     ...OperateNoteSchema,
+
+    // openapi snippets
+    description: "Returns note by id",
+    tags: ["notes"],
     response: NOTE_RESPONSES.GetNote
 }
 
 export const DeleteNoteSchema: FastifySchema = {
+   
     ...OperateNoteSchema,
+
+    // openapi snippets
+    description: "Deletes note by id",
+    tags: ["notes"],
     response: NOTE_RESPONSES.DeleteNote
 }
 
 export const GetNoteCollaboratorsSchema: FastifySchema = {
+    
+    ...OperateNoteSchema,
 
+    // openapi snippets
+    description: "Returns note collaborators array",
+    tags: ["notes"],
+    response: NOTE_RESPONSES.GetCollaborators
 }
 
 export const UpdateNoteSchema: FastifySchema = {
+    
     ...OperateNoteSchema,
     body: {
         type: 'object',
-        properties: pickProperties({...BasicNoteSchema.properties}, "title", "tags", "content"),
+        properties: pickProperties({...BaseNoteSchema.properties}, "title", "tags", "content"),
         required: []
     },
+
+    // openapi snippets
+    description: "Updates note and returns updated value (can also be updated by collaborator)",
+    tags: ["notes"],
     response: NOTE_RESPONSES.UpdateNote
 }
 
 export const AddCollaboratorSchema: FastifySchema = {
+    
     ...OperateNoteSchema,
     body: {
         type: 'object',
@@ -81,10 +101,15 @@ export const AddCollaboratorSchema: FastifySchema = {
         },
         required: ['collaboratorLogin']
     },
+
+    // openapi snippets
+    description: "Adds collaborator to the note",
+    tags: ["notes"],
     response: NOTE_RESPONSES.AddCollaborator
 }
 
 export const RemoveCollaboratorSchema: FastifySchema = {
+    
     ...OperateNoteSchema,
     body: {
         type: 'object',
@@ -97,5 +122,9 @@ export const RemoveCollaboratorSchema: FastifySchema = {
         },
         required: ['collaboratorLogin']
     },
+
+    // openapi snippets
+    description: "Removes collaborator from note",
+    tags: ["notes"],
     response: NOTE_RESPONSES.RemoveCollaborator
 }

@@ -1,4 +1,4 @@
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../database/entities/_User";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../database/entities/User";
 import { IUsersService } from "./UsersServiceInterface";
 import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 import bcrypt from 'bcrypt'

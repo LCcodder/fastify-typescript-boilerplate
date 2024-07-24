@@ -1,4 +1,4 @@
-import { User, UserUpdate, UserWithoutMetadata } from "../../database/entities/_User";
+import { User, UserUpdate, UserWithoutMetadata } from "../../database/entities/User";
 import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 
 export declare interface IUsersService {

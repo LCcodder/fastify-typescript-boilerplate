@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
-import {UserEntity}  from "./entities/_User";
-import {NoteEntity}  from "./entities/_Note";
+import {UserEntity}  from "./entities/User";
+import {NoteEntity}  from "./entities/Note";
 
 export const initAndGetDataSource = (
     host: string,

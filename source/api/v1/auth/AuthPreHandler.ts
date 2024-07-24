@@ -3,10 +3,10 @@ import { extractToken } from "../utils/TokenExtractor";
 import { extractJwtPayload } from "./jwt/PayloadExtractor";
 import { validateSignature } from "./jwt/SignatureValidator";
 import { IUsersService } from "../services/users/UsersServiceInterface";
-import { User } from "../database/entities/_User";
+import { User } from "../database/entities/User";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 
-export const authentificationFactory = (usersService: IUsersService) => 
+export const authenticationFactory = (usersService: IUsersService) => 
 async (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => {
     const token = extractToken(request)
     if (!token) {

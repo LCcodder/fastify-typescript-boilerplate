@@ -1,40 +1,23 @@
-import { FastifySchema } from "fastify"
+import { FastifySchema } from "../../utils/FastifySchemaOverride";
+import { excludeProperties, pickProperties } from "typing-assets"
+import { BaseUserSchema } from "./base/User"
+import { USER_RESPONSES } from "../openapi/responses/UserResponses"
 
 export const CreateUserSchema: FastifySchema = {
     body: {
         type: 'object',
-        properties: {
-            login: {
-                type: 'string',
-                minLength: 4,
-                maxLength: 16
-            },
-            email: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 60
-            },
-            password: {
-                type: 'string',
-                minLength: 8,
-                maxLength: 32
-            },
-            username: {
-                type: 'string',
-                minLength: 4,
-                maxLength: 32
-            },
-            personalColor: {
-                type: 'string',
-                minLength: 7,
-                maxLength: 7
-            },
-            isCollaborating: {
-                type: 'boolean'
-            }
-        },
-        required: ['email', 'password', 'username', 'personalColor', 'isCollaborating'],
-    }
+        properties: excludeProperties(
+            {...BaseUserSchema.properties},
+            "createdAt",
+            "updatedAt"
+        ),
+        required: ['login', 'email', 'password', 'username', 'personalColor', 'isCollaborating'],
+    },
+
+    // openapi snippets
+    description: "Creates and returns new user",
+    tags: ["users"],
+    response: USER_RESPONSES.CreateUser
 }
 
 export const GetUserSchema: FastifySchema = {
@@ -46,27 +29,35 @@ export const GetUserSchema: FastifySchema = {
             }
         },
         required: ['login']
-        
-    }
+    },
+
+    // openapi snippets
+    description: "Returns user profile by login",
+    tags: ["users"],
+    response: USER_RESPONSES.GetUser
+}
+
+export const GetMyProfileSchema: FastifySchema = {
+    // openapi snippets
+    description: "Returns current user profile by provided JWT",
+    tags: ["users"],
+    response: USER_RESPONSES.GetUser
 }
 
 export const UpdateUserSchema: FastifySchema = {
     body: {
         type: 'object',
-        properties: {
-            username: {
-                type: 'string',
-                minLength: 4,
-                maxLength: 32
-            },
-            personalColor: {
-                type: 'string',
-                minLength: 7,
-                maxLength: 7
-            },
-            isCollaborating: {
-                type: 'boolean'
-            }
-        }
-    }
+        properties: pickProperties(
+            {...BaseUserSchema.properties},
+            "personalColor",
+            "username",
+            "isCollaborating"
+        ),
+        required: []
+    },
+
+    // openapi snippets
+    description: "Updates and returns updated user",
+    tags: ["users"],
+    response: USER_RESPONSES.UpdateUser
 }

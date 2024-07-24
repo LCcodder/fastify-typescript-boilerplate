@@ -6,14 +6,14 @@ import { AuthService } from './api/v1/services/auth/AuthService'
 import { handleAuthRoutes } from './api/v1/handlers/AuthHandlers'
 import { logRequestMetadata } from './api/v1/hooks/onRequestLogger'
 import { logResponseMetadata } from './api/v1/hooks/onResponseLogger'
-import { authentificationFactory } from './api/v1/auth/AuthPreHandler'
+import { authenticationFactory } from './api/v1/auth/AuthPreHandler'
 import { handleNoteRoutes } from './api/v1/handlers/NotesHandlers'
 import { NotesService } from './api/v1/services/notes/NotesService'
 import "reflect-metadata"
-import { UserEntity, User } from './api/v1/database/entities/_User'
+import { UserEntity } from './api/v1/database/entities/User'
 import { initAndGetDataSource } from './api/v1/database/InitDataSource'
-import { NoteEntity, Note } from './api/v1/database/entities/_Note'
-import { initSwagger } from './swagger/InitSwagger'
+import { NoteEntity } from './api/v1/database/entities/Note'
+import { initSwaggerViewer } from './openapi/InitSwagger'
 
 
 const main = async () => {
@@ -28,7 +28,7 @@ const main = async () => {
 
     
     
-    await initSwagger(server)
+    await initSwaggerViewer(server)
     
     // logging hooks
     server.addHook('onRequest', logRequestMetadata)
@@ -46,15 +46,15 @@ const main = async () => {
     const usersService = new UsersService(
         appDataSource.getRepository(UserEntity.User)
     )
-    const authentification = authentificationFactory(usersService)
+    const authentication = authenticationFactory(usersService)
     const authService = new AuthService(usersService)
     const notesService = new NotesService(appDataSource.getRepository(NoteEntity.Note), usersService)
     
     // versioning decorator which adds '/api/v' prefix to all routes
     server.register((server, _, done) => {
-        handleUserRoutes(server, usersService, authentification)
-        handleAuthRoutes(server, authService, authentification)
-        handleNoteRoutes(server, notesService, authentification)
+        handleUserRoutes(server, usersService, authentication)
+        handleAuthRoutes(server, authService, authentication)
+        handleNoteRoutes(server, notesService, authentication)
 
         done()
     }, { prefix: "/api/v1" })
