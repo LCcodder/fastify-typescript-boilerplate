@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/swagger": "^8.15.0",
+    "@fastify/swagger-ui": "^4.0.1",
     "@mgcrea/fastify-request-logger": "^1.5.0",
     "bcrypt": "^5.1.1",
     "brcypt": "^1.0.1",
