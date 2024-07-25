@@ -48,7 +48,7 @@ export const handleAuthRoutes = (
         Body: { oldPassword: string, newPassword: string },
         Reply: {
             200: { success: true },
-            400: typeof AUTH_EXCEPTIONS.WrongCredentials,
+            400: typeof AUTH_EXCEPTIONS.WrongCredentials | typeof AUTH_EXCEPTIONS.NewPasswordIsSame,
             503: typeof AUTH_EXCEPTIONS.ServiceUnavailable
         }
     }>("/auth/password", {

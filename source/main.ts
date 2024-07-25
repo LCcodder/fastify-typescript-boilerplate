@@ -1,5 +1,5 @@
 import fastify from 'fastify'
-import { CONFIG } from './config/ServerConfiguration'
+import { CONFIG } from './api/v1/config/ServerConfiguration'
 import { UsersService } from './api/v1/services/users/UsersService'
 import { handleUserRoutes } from './api/v1/handlers/UsersHandlers'
 import { AuthService } from './api/v1/services/auth/AuthService'
@@ -35,11 +35,11 @@ const main = async () => {
     server.addHook('onResponse', logResponseMetadata)
     
     const appDataSource = initAndGetDataSource(
-        "localhost",
-        5432,
-        "postgres",
-        "",
-        "NodeNotes"
+        CONFIG.databaseHost,
+        CONFIG.databasePort,
+        CONFIG.databaseUser,
+        CONFIG.databasePassword,
+        CONFIG.databaseName
     )
     
     // services DI

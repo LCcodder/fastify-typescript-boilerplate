@@ -4,7 +4,7 @@ import { Exception } from "../../utils/Exception";
 import { IUsersService } from "../users/UsersServiceInterface";
 import { AUTH_EXCEPTIONS } from "../../exceptions/AuthExceptions";
 import { IAuthService } from "./AuthServiceInterface";
-import { CONFIG } from "../../../../config/ServerConfiguration";
+import { CONFIG } from "../../config/ServerConfiguration";
 import bcrypt from 'bcrypt'
 
 export class AuthService implements IAuthService {
@@ -50,6 +50,7 @@ export class AuthService implements IAuthService {
             reject: (exception: 
                 | typeof AUTH_EXCEPTIONS.WrongCredentials
                 | typeof AUTH_EXCEPTIONS.ServiceUnavailable    
+                | typeof AUTH_EXCEPTIONS.NewPasswordIsSame
             ) => void
         ) => {
             try {
@@ -57,6 +58,9 @@ export class AuthService implements IAuthService {
                 const passwordIsValid = await bcrypt.compare(oldPassword, foundUser.password)
                 if (!passwordIsValid) {
                     return reject(AUTH_EXCEPTIONS.WrongCredentials)  
+                }
+                if (oldPassword === newPassword) {
+                    return reject(AUTH_EXCEPTIONS.NewPasswordIsSame)  
                 }
                 const newHashedPassword = await bcrypt.hash(newPassword, 4)
                 await this.usersService.updateUserByLogin(login, {

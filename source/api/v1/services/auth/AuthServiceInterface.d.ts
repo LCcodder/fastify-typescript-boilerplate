@@ -10,6 +10,7 @@ export declare interface IAuthService {
     changePassword(login: string, oldPassword: string, newPassword: string): Promise<
         | { success: true }
         | typeof AUTH_EXCEPTIONS.WrongCredentials
+        | typeof AUTH_EXCEPTIONS.NewPasswordIsSame
         | typeof AUTH_EXCEPTIONS.ServiceUnavailable 
     >
 }

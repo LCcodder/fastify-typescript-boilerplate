@@ -36,7 +36,7 @@ export const AUTH_RESPONSES = {
             type: 'object',
             properties: { 
                 statusCode: { enum: [400] },
-                message: {enum: [AUTH_EXCEPTIONS.WrongCredentials.message, "body must have required property 'PROPERTY NAME'"]}
+                message: {enum: [AUTH_EXCEPTIONS.NewPasswordIsSame.message, AUTH_EXCEPTIONS.WrongCredentials.message, "body must have required property 'PROPERTY NAME'"]}
             }
         },
         401: {
