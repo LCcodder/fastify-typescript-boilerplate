@@ -40,11 +40,25 @@ docker compose up --build
 ```
 
 
+## **`pgAdmin` panel** 
 
+1. Go to the `http://localhost:5050`
+2. Log in with email: `admin@pgadmin.com` and password: `password`
+3. Run 
+```
+docker ps -a 
+```
+4. Find and copy `postgres` container id
+5. Run
+```
+docker inspect <copied container id>
+```
+6. Find `IPAddress` with *172* prefix and copy it
+7. Now add server in `pgAdmin` and paste copied IP in `host` input
+8. Complete all other inputs
 ## **`Swagger` API specification**
-
-### WebApp supports `Swagger` `OpenApi` spec viewer
-### Use `http://localhost:8080/documentation` to go to the `SwaggerUI` page 
+#### WebApp supports `Swagger` `OpenApi` spec viewer
+#### Use `http://localhost:8080/documentation` to go to the `SwaggerUI` page 
 <img src="screenshot.png">
 
 ---
