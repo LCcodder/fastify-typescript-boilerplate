@@ -65,7 +65,8 @@ const main = async () => {
     })
 
     server.listen({
-        port: CONFIG.appPort
+        port: CONFIG.appPort,
+        host: '0.0.0.0'
     }, (error: Error, address: string) => {
         
         if (error) {
