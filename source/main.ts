@@ -14,6 +14,8 @@ import { UserEntity } from './api/v1/database/entities/User'
 import { initAndGetDataSource } from './api/v1/database/InitDataSource'
 import { NoteEntity } from './api/v1/database/entities/Note'
 import { initSwaggerViewer } from './openapi/InitSwagger'
+import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
+
 
 
 const main = async () => {
@@ -41,13 +43,17 @@ const main = async () => {
         CONFIG.databasePassword,
         CONFIG.databaseName
     )
+
+    const redis = await connectAndGetRedisInstance(
+        CONFIG.redisConnectionString
+    )
     
     // services DI
     const usersService = new UsersService(
         appDataSource.getRepository(UserEntity.User)
     )
-    const authentication = authenticationFactory(usersService)
-    const authService = new AuthService(usersService)
+    const authService = new AuthService(usersService, redis)
+    const authentication = authenticationFactory(authService)
     const notesService = new NotesService(appDataSource.getRepository(NoteEntity.Note), usersService)
     
     // versioning decorator which adds '/api/v' prefix to all routes

@@ -6,9 +6,14 @@ import { AUTH_EXCEPTIONS } from "../../exceptions/AuthExceptions";
 import { IAuthService } from "./AuthServiceInterface";
 import { CONFIG } from "../../config/ServerConfiguration";
 import bcrypt from 'bcrypt'
+import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+import { RedisClientType } from "redis";
 
 export class AuthService implements IAuthService {
-    constructor(private usersService: IUsersService) {}
+    constructor(
+        private usersService: IUsersService,
+        private redis: RedisClientType 
+    ) {}
 
     public authorizeAndGetToken(email: string, password: string) {
         return new Promise(async (
@@ -26,9 +31,10 @@ export class AuthService implements IAuthService {
                 }
 
                 const token = generateToken(foundUser.login)
-                await this.usersService.updateUserByLogin(foundUser.login, {
-                    validToken: token
-                })
+                await this.redis.SET(foundUser.login, token)
+                // await this.usersService.updateUserByLogin(foundUser.login, {
+                //     validToken: token
+                // })
 
                 return resolve([
                     token,
@@ -38,6 +44,28 @@ export class AuthService implements IAuthService {
                 if ((error as Exception).statusCode === 404) {
                     return reject(AUTH_EXCEPTIONS.WrongCredentials)
                 }
+                console.log(error)
+                return reject(AUTH_EXCEPTIONS.ServiceUnavailable)
+            }
+        })
+    }
+
+    public compareTokens(login: string, transmittedToken: string) {
+        return new Promise(async (
+            resolve: (state: void) => void,
+            reject: (exception: 
+                | typeof USER_EXCEPTIONS.NotAuthorized
+                | typeof AUTH_EXCEPTIONS.ServiceUnavailable    
+            ) => void
+        ) => {
+            try {
+                const foundToken = await this.redis.GET(login)
+                if (!foundToken || foundToken !== transmittedToken) {
+                    return reject(USER_EXCEPTIONS.NotAuthorized)
+                }
+                
+                return resolve()
+            } catch (error) {
                 console.log(error)
                 return reject(AUTH_EXCEPTIONS.ServiceUnavailable)
             }
@@ -62,11 +90,12 @@ export class AuthService implements IAuthService {
                 if (oldPassword === newPassword) {
                     return reject(AUTH_EXCEPTIONS.NewPasswordIsSame)  
                 }
+
                 const newHashedPassword = await bcrypt.hash(newPassword, 4)
                 await this.usersService.updateUserByLogin(login, {
                     password: newHashedPassword,
-                    validToken: null
                 })
+                await this.redis.DEL(foundUser.login)
 
                 return resolve({ success: true })
             } catch (error) {

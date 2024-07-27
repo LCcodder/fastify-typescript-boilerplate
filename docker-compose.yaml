@@ -9,7 +9,7 @@ services:
       - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
       - DATABASE_PASSWORD=postgres
-
+      - REDIS_CONNECTION_STRING=redis://redis:6379/0
       - JWT_SECRET=fdkslhfdshgjldsngklds
       - JWT_EXPIRATION=24h
     ports:
@@ -31,6 +31,21 @@ services:
       - 5432:5432
     volumes: 
       - postgres:/var/lib/postgresql/data
+    networks:
+      - nodenotes
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - cache:/data
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+    depends_on: 
+      - postgres
     networks:
       - nodenotes
 
@@ -59,3 +74,5 @@ volumes:
     name: postgres
     driver: local
   pgadmin:
+  cache:
+    driver: local

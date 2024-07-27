@@ -34,8 +34,19 @@ export class NotesService implements INotesService {
                 const collaboratorsRelationArray = []
                 // checking collaborators existance
                 for (const collaborator of note.collaborators) {
-                    const foundCollaborator = await this.usersService.getUser("login", collaborator).catch()
-                    if ((foundCollaborator as unknown as Exception).statusCode === 404) {
+
+                    let foundCollaborator 
+                    await this.usersService.getUser("login", collaborator).then(
+                        c => foundCollaborator = c
+                    ).catch(
+                        exception => foundCollaborator = exception
+                    )
+
+                    if (
+                        (foundCollaborator as unknown as Exception).statusCode === 404 
+                        ||
+                        !(foundCollaborator as unknown as User).isCollaborating 
+                    ) {
                         return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                     }
                     collaboratorsRelationArray.push(foundCollaborator as User)
@@ -243,7 +254,7 @@ export class NotesService implements INotesService {
                 })
                 
                 if (foundNote.author === login || foundNote.collaborators.find(c => c.login === login)) {
-                    const collaborators = foundNote.collaborators.map(c => excludeProperties(c, "password", "validToken"))
+                    const collaborators = foundNote.collaborators.map(c => excludeProperties(c, "password"))
 
                     return resolve(
                         collaborators
@@ -287,16 +298,23 @@ export class NotesService implements INotesService {
                     )
                 }
                 
-                const foundCollaborator = await this.usersService.getUser(
-                    "login",
-                    collaboratorLogin
-                ).catch() as unknown as User
+                
+                let foundCollaborator 
+                await this.usersService.getUser("login", collaboratorLogin).then(
+                    c => foundCollaborator = c
+                ).catch(
+                    exception => foundCollaborator = exception
+                )
                 
                 if ((foundCollaborator as unknown as Exception).statusCode === 503) {
                     return reject(NOTE_EXCEPTIONS.ServiceUnavailable)
                 }
 
-                if ((foundCollaborator as unknown as Exception).statusCode === 404 || !foundCollaborator.isCollaborating) {
+                if (
+                    (foundCollaborator as unknown as Exception).statusCode === 404 
+                    || 
+                    !(foundCollaborator as unknown as User).isCollaborating
+                ) {
                     return reject(NOTE_EXCEPTIONS.CollaboratorNotFound)
                 }
 

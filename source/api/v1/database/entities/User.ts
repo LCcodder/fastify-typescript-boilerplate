@@ -34,10 +34,10 @@ export namespace UserEntity {
         })
         public isCollaborating: boolean
     
-        @Column("text", {
-            nullable: true
-        })
-        public validToken: string
+        // @Column("text", {
+        //     nullable: true
+        // })
+        // public validToken: string
     
         
     
@@ -54,5 +54,5 @@ export type UserUpdate = DeepOptional<
     Omit<User, "updatedAt" | "createdAt" | "email" | "login">
 >
 export type UserCredentials = Pick<User, "email" | "password">
-export type UserWithoutSensetives = Omit<User, "validToken" | "password">
-export type UserWithoutMetadata = Omit<User, "updatedAt" | "createdAt" | "validToken">
+export type UserWithoutSensetives = Omit<User,  "password">
+export type UserWithoutMetadata = Omit<User, "updatedAt" | "createdAt" >

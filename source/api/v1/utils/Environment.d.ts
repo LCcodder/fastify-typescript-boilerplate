@@ -8,6 +8,7 @@ declare global {
             DATABASE_NAME?: string;
             DATABASE_USER?: string;
             DATABASE_PASSWORD?: string;
+            REDIS_CONNECTION_STRING?: string
 
             JWT_EXPIRATION?: string;
             JWT_SECRET?: string;

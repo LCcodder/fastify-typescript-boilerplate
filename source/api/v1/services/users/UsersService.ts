@@ -13,7 +13,6 @@ export class UsersService implements IUsersService {
     public static omitSensetiveData(user: User): UserWithoutSensetives {
         try {
             user.password = undefined
-            user.validToken = undefined
             return user
         } catch(error) {
             return user
@@ -43,7 +42,6 @@ export class UsersService implements IUsersService {
 
                 let creationData: UserWithoutMetadata & {validToken?: string} = {
                     ...user,
-                    validToken: null
                 }
                 creationData.password = await bcrypt.hash(creationData.password, 4)
                 

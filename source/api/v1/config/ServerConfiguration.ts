@@ -14,6 +14,8 @@ export const CONFIG: Config = {
         return `postgres://${this.databaseUser}:${this.databasePassword}@${this.databaseHost}:${this.databasePort}/${this.databaseName}`
     },
 
+    redisConnectionString: process.env.REDIS_CONNECTION_STRING || "redis://127.0.0.1:6379/0",
+
     jwtSecret: process.env.JWT_SECRET || "SECRET",
     jwtExpiration: process.env.JWT_EXPIRATION || "24h",
 

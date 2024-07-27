@@ -7,6 +7,8 @@ export declare interface Config {
     databaseUser: string
     databasePassword: string
 
+    redisConnectionString: string
+
     get databaseConnectionString(): string
 
     jwtSecret: string,
