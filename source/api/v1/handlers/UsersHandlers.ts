@@ -100,7 +100,10 @@ export const handleUserRoutes = (
             404: typeof USER_EXCEPTIONS.NotFound,
             503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
-    }>("/users/:login", {schema: GetUserSchema}, async (request, reply) => {
+    }>("/users/:login", {
+        schema: GetUserSchema,
+        preHandler: authenticate
+    }, async (request, reply) => {
         try {
             const login: string = request.params.login
             
