@@ -19,6 +19,6 @@ export const NOTE_EXCEPTIONS = {
     },
     AcessRestricted: {
         statusCode: 403,
-        message: "Only creator can delete notes"
+        message: "Access restricted"
     }
 } as const satisfies Record<string, Exception>

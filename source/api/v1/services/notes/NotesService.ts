@@ -253,7 +253,7 @@ export class NotesService implements INotesService {
                     }
                 })
                 
-                if (foundNote.author === login || foundNote.collaborators.find(c => c.login === login)) {
+                if (foundNote?.author === login || foundNote?.collaborators.find(c => c.login === login)) {
                     const collaborators = foundNote.collaborators.map(c => excludeProperties(c, "password"))
 
                     return resolve(
@@ -353,6 +353,12 @@ export class NotesService implements INotesService {
                 if (foundNote.author !== authorLogin) {
                     return reject(
                         NOTE_EXCEPTIONS.AcessRestricted
+                    )
+                }
+
+                if (authorLogin === collaboratorLogin) {
+                    return reject(
+                        NOTE_EXCEPTIONS.CollaboratorNotFound
                     )
                 }
 
