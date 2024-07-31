@@ -63,4 +63,4 @@ docker inspect <copied container id>
 <img src="screenshot.png">
 
 ---
-### Made by [LCcodder](https://github.com/LCcodder)
+### Everything, including `Postman` tests, `GitHub ci/cd`, `Docker compose` and API itself was created and written by [LCcodder](https://github.com/LCcodder)
