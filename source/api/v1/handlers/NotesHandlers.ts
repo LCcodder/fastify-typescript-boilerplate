@@ -36,7 +36,7 @@ export const handleNoteRoutes = (
                 ...request.body,
                 author: payload.login
             }
-            
+            console.log(123)
             const createdNote = await notesService.createNote(insertData) as Note
             reply.code(201).send(createdNote)
         } catch (exception: any) {
