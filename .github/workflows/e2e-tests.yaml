@@ -15,7 +15,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - name: Build servies
-              run: docker-compose up -d
+              run: docker compose up --build
             
 
             - uses: actions/setup-node@v1
