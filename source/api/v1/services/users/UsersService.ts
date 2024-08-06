@@ -3,6 +3,7 @@ import { IUsersService } from "./UsersServiceInterface";
 import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 import bcrypt from 'bcrypt'
 import { Repository } from "typeorm";
+import { withExceptionCatch } from "../../decorators/WithExceptionCatch";
 
 export class UsersService implements IUsersService {
     /**
@@ -21,15 +22,9 @@ export class UsersService implements IUsersService {
 
     constructor(private userRepository: Repository<User>) {}
 
-    public createUser(user: UserWithoutMetadata) {
-        return new Promise(async (
-            resolve: (state: User) => void,
-            reject: (exception: 
-                | typeof USER_EXCEPTIONS.ServiceUnavailable
-                | typeof USER_EXCEPTIONS.AlreadyExists 
-            ) => void
-        ) => {
-            try {
+    @withExceptionCatch
+    public async createUser(user: UserWithoutMetadata) {
+        
                 const foundUserWithEmail = await this.userRepository.findOneBy({
                     email: user.email
                 })
@@ -37,7 +32,7 @@ export class UsersService implements IUsersService {
                     login: user.login
                 })
                 if (foundUserWithEmail || foundUserWithLogin) {
-                    return reject(USER_EXCEPTIONS.AlreadyExists)
+                    return USER_EXCEPTIONS.AlreadyExists
                 }
 
                 let creationData: UserWithoutMetadata & {validToken?: string} = {
@@ -46,58 +41,34 @@ export class UsersService implements IUsersService {
                 creationData.password = await bcrypt.hash(creationData.password, 4)
                 
                 const createdUser = await this.userRepository.save(creationData)
-                return resolve(createdUser as unknown as User)
-            } catch (error) {
-                console.log(error)
-                return reject(USER_EXCEPTIONS.ServiceUnavailable)
-            }
-        })
+                return createdUser as unknown as User
+        
     }
 
-    public getUser<TKey extends keyof UserWithoutMetadata>(key: TKey, value: UserWithoutMetadata[TKey]) {
-        return new Promise(async (
-            resolve: (state: User) => void,
-            reject: (exception: 
-                | typeof USER_EXCEPTIONS.ServiceUnavailable
-                | typeof USER_EXCEPTIONS.NotFound
-            ) => void
-        ) => {
-            try {
+    @withExceptionCatch
+    public async getUser<TKey extends keyof UserWithoutMetadata>(key: TKey, value: UserWithoutMetadata[TKey]) {
+        
                 let query: Record<string, UserWithoutMetadata[TKey]> = {}
                 query[key] = value
 
                 const user = await this.userRepository.findOneBy(query)
-                if (!user) return reject(USER_EXCEPTIONS.NotFound)
+                if (!user) return USER_EXCEPTIONS.NotFound
 
-                return resolve(user as unknown as User)
-            } catch (error) {
-                console.log(error)
-                return reject(USER_EXCEPTIONS.ServiceUnavailable)
-            }
-        })
+                return user as unknown as User
+       
     }
 
-    public updateUserByLogin(login: string, updateData: UserUpdate) {
-        return new Promise(async (
-            resolve: (state: User) => void,
-            reject: (exception: 
-                | typeof USER_EXCEPTIONS.ServiceUnavailable
-                | typeof USER_EXCEPTIONS.NotFound
-            ) => void
-        ) => {
-            try {
+    @withExceptionCatch
+    public async updateUserByLogin(login: string, updateData: UserUpdate) {
+        
                 const state = await this.userRepository.update({ login }, updateData)
                 // if user not found - raise error
                 if (!state.affected) {
-                    return reject(USER_EXCEPTIONS.NotFound)
+                    return USER_EXCEPTIONS.NotFound
                 }
 
                 const updatedUser = await this.userRepository.findOneBy({ login })
-                return resolve(updatedUser as unknown as User)
-            } catch (error) {
-                console.log(error)
-                return reject(USER_EXCEPTIONS.ServiceUnavailable)
-            }
-        })
+                return updatedUser as unknown as User
+            
     }
 }

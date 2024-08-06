@@ -6,6 +6,7 @@ import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema }
 import { UsersService } from "../services/users/UsersService";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
+import { isException } from "../utils/guards/ExceptionGuard";
 
 
 export const handleUserRoutes = (
@@ -26,17 +27,19 @@ export const handleUserRoutes = (
             503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
     }>("/users", {schema: CreateUserSchema}, async (request, reply) => {
-        try {
+
             const insertData: UserWithoutMetadata = request.body
-            let createdUser = await usersService.createUser(insertData) as User
+            let createdUser = await usersService.createUser(insertData)
+            
+            if (isException(createdUser)) {
+                reply.code(createdUser.statusCode).send(createdUser)
+                return
+            }
+            
             UsersService.omitSensetiveData(createdUser)
 
             reply.code(201).send(createdUser)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.get<{
@@ -49,20 +52,19 @@ export const handleUserRoutes = (
         schema: GetMyProfileSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
             
-            let user = await usersService.getUser("login", payload.login) as User
+            let user = await usersService.getUser("login", payload.login)
+            if (isException(user)) {
+                reply.code(user.statusCode).send(user)
+                return
+            }
             UsersService.omitSensetiveData(user)
 
             reply.code(200).send(user)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.patch<{
@@ -76,21 +78,20 @@ export const handleUserRoutes = (
         schema: UpdateUserSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
             const updateData = request.body
 
-            let updatedUser = await usersService.updateUserByLogin(payload.login, updateData) as User
+            let updatedUser = await usersService.updateUserByLogin(payload.login, updateData)
+            if (isException(updatedUser)) {
+                reply.code(updatedUser.statusCode).send(updatedUser)
+                return
+            }
             UsersService.omitSensetiveData(updatedUser)
 
             reply.code(200).send(updatedUser)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.get<{
@@ -104,17 +105,16 @@ export const handleUserRoutes = (
         schema: GetUserSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const login: string = request.params.login
             
-            let user = await usersService.getUser("login", login) as User
+            let user = await usersService.getUser("login", login)
+            if (isException(user)) {
+                reply.code(user.statusCode).send(user)
+                return
+            }
             UsersService.omitSensetiveData(user)
 
             reply.code(200).send(user)
-        } catch (exception: any) { 
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 }

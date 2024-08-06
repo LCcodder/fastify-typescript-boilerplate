@@ -6,6 +6,7 @@ export declare interface IAuthService {
         | [string, string]
         | typeof AUTH_EXCEPTIONS.WrongCredentials
         | typeof AUTH_EXCEPTIONS.ServiceUnavailable
+        | typeof USER_EXCEPTIONS.ServiceUnavailable
     >
 
     compareTokens(login: string, transmittedToken: string): Promise<
@@ -19,5 +20,6 @@ export declare interface IAuthService {
         | typeof AUTH_EXCEPTIONS.WrongCredentials
         | typeof AUTH_EXCEPTIONS.NewPasswordIsSame
         | typeof AUTH_EXCEPTIONS.ServiceUnavailable 
+        | typeof USER_EXCEPTIONS.ServiceUnavailable
     >
 }

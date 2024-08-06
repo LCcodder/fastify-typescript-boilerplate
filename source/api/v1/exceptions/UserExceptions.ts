@@ -8,7 +8,7 @@ export const USER_EXCEPTIONS = {
 
     ServiceUnavailable: {
         statusCode: 503,
-        message: "Cannot create user, service unavalable"
+        message: "Users service unavalable"
     },
 
     NotFound: {

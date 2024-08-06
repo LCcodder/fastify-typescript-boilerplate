@@ -11,6 +11,6 @@ export const AUTH_EXCEPTIONS = {
     },
     ServiceUnavailable: {
         statusCode: 503,
-        message: "Cannot create auth, service unavalable"
+        message: "Auth service unavalable"
     },
 } as const satisfies Record<string, Exception>

@@ -1,5 +1,6 @@
 import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/Note";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
+import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 
 export interface INotesService {
     createNote(
@@ -8,6 +9,7 @@ export interface INotesService {
         | Note
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
         | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
+        | typeof USER_EXCEPTIONS.ServiceUnavailable
     >
 
     getNote(

@@ -8,6 +8,8 @@ import { CONFIG } from "../../config/ServerConfiguration";
 import bcrypt from 'bcrypt'
 import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 import { RedisClientType } from "redis";
+import { withExceptionCatch } from "../../decorators/WithExceptionCatch";
+import { isException } from "../../utils/guards/ExceptionGuard";
 
 export class AuthService implements IAuthService {
     constructor(
@@ -15,19 +17,19 @@ export class AuthService implements IAuthService {
         private redis: RedisClientType 
     ) {}
 
-    public authorizeAndGetToken(email: string, password: string) {
-        return new Promise(async (
-            resolve: (state: [string, string]) => void,
-            reject: (exception:
-                | typeof AUTH_EXCEPTIONS.WrongCredentials
-                | typeof AUTH_EXCEPTIONS.ServiceUnavailable
-            ) => void
-        ) => {
-            try {
-                const foundUser = await this.usersService.getUser("email", email) as User
+    @withExceptionCatch
+    public async authorizeAndGetToken(email: string, password: string) {
+        
+                const foundUser = await this.usersService.getUser("email", email)
+                if (isException(foundUser)) {
+                    if (foundUser.statusCode === 404) {
+                        return AUTH_EXCEPTIONS.WrongCredentials
+                    }
+                    return foundUser
+                }
                 const passwordIsValid = await bcrypt.compare(password, foundUser.password)
                 if (!passwordIsValid) {
-                    return reject(AUTH_EXCEPTIONS.WrongCredentials)  
+                    return AUTH_EXCEPTIONS.WrongCredentials
                 }
 
                 const token = generateToken(foundUser.login)
@@ -36,59 +38,42 @@ export class AuthService implements IAuthService {
                 //     validToken: token
                 // })
 
-                return resolve([
+                return [
                     token,
                     CONFIG.jwtExpiration
-                ]) 
-            } catch (error) {
-                if ((error as Exception).statusCode === 404) {
-                    return reject(AUTH_EXCEPTIONS.WrongCredentials)
-                }
-                console.log(error)
-                return reject(AUTH_EXCEPTIONS.ServiceUnavailable)
-            }
-        })
+                ] as [string, string]
+            
+        
     }
 
-    public compareTokens(login: string, transmittedToken: string) {
-        return new Promise(async (
-            resolve: (state: void) => void,
-            reject: (exception: 
-                | typeof USER_EXCEPTIONS.NotAuthorized
-                | typeof AUTH_EXCEPTIONS.ServiceUnavailable    
-            ) => void
-        ) => {
-            try {
+    @withExceptionCatch
+    public async compareTokens(login: string, transmittedToken: string) {
+        
                 const foundToken = await this.redis.GET(login)
                 if (!foundToken || foundToken !== transmittedToken) {
-                    return reject(USER_EXCEPTIONS.NotAuthorized)
+                    return USER_EXCEPTIONS.NotAuthorized
                 }
                 
-                return resolve()
-            } catch (error) {
-                console.log(error)
-                return reject(AUTH_EXCEPTIONS.ServiceUnavailable)
-            }
-        })
+                return 
+           
     }
 
-    public changePassword(login: string, oldPassword: string, newPassword: string) {
-        return new Promise(async (
-            resolve: (state: { success: true }) => void,
-            reject: (exception: 
-                | typeof AUTH_EXCEPTIONS.WrongCredentials
-                | typeof AUTH_EXCEPTIONS.ServiceUnavailable    
-                | typeof AUTH_EXCEPTIONS.NewPasswordIsSame
-            ) => void
-        ) => {
-            try {
-                const foundUser = await this.usersService.getUser("login", login) as User
+    @withExceptionCatch
+    public async changePassword(login: string, oldPassword: string, newPassword: string) {
+        
+                const foundUser = await this.usersService.getUser("login", login)
+                if (isException(foundUser)) {
+                    if (foundUser.statusCode === 404) {
+                        return AUTH_EXCEPTIONS.WrongCredentials
+                    }
+                    return foundUser
+                }
                 const passwordIsValid = await bcrypt.compare(oldPassword, foundUser.password)
                 if (!passwordIsValid) {
-                    return reject(AUTH_EXCEPTIONS.WrongCredentials)  
+                    return AUTH_EXCEPTIONS.WrongCredentials
                 }
                 if (oldPassword === newPassword) {
-                    return reject(AUTH_EXCEPTIONS.NewPasswordIsSame)  
+                    return AUTH_EXCEPTIONS.NewPasswordIsSame
                 }
 
                 const newHashedPassword = await bcrypt.hash(newPassword, 4)
@@ -97,14 +82,7 @@ export class AuthService implements IAuthService {
                 })
                 await this.redis.DEL(foundUser.login)
 
-                return resolve({ success: true })
-            } catch (error) {
-                if ((error as Exception).statusCode === 404) {
-                    return reject(AUTH_EXCEPTIONS.WrongCredentials)
-                }
-                console.log(error)
-                return reject(AUTH_EXCEPTIONS.ServiceUnavailable)
-            }
-        })
+                return { success: true as true }
+           
     }
 }

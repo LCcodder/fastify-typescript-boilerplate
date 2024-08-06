@@ -15,7 +15,7 @@ export const NOTE_EXCEPTIONS = {
     },
     ServiceUnavailable: {
         statusCode: 503,
-        message: "Notes service is unavailable"
+        message: "Notes service unavailable"
     },
     AcessRestricted: {
         statusCode: 403,

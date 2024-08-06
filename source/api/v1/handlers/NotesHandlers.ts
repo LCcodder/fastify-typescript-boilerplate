@@ -5,6 +5,8 @@ import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/TokenExtractor";
 import {AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
+import { isException } from "../utils/guards/ExceptionGuard";
+import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 
 
 export const handleNoteRoutes = (
@@ -20,14 +22,13 @@ export const handleNoteRoutes = (
         Body: Omit<NoteWithoutMetadata, "author">,
         Reply: {
             201: Note,
-            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable,
+            503: typeof NOTE_EXCEPTIONS.ServiceUnavailable | typeof USER_EXCEPTIONS.ServiceUnavailable
             404: typeof NOTE_EXCEPTIONS.CollaboratorNotFound
         }
     }>("/notes", {
         schema: CreateNoteSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
@@ -36,14 +37,14 @@ export const handleNoteRoutes = (
                 ...request.body,
                 author: payload.login
             }
-            console.log(123)
-            const createdNote = await notesService.createNote(insertData) as Note
+            const createdNote = await notesService.createNote(insertData)
+            if (isException(createdNote)) {
+                reply.code(createdNote.statusCode).send(createdNote)
+                return
+            }
+
             reply.code(201).send(createdNote)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.get<{
@@ -63,7 +64,6 @@ export const handleNoteRoutes = (
             preHandler: authenticate
         }, 
     async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
@@ -73,13 +73,14 @@ export const handleNoteRoutes = (
             const sort = request.query.sort
             const tags = request.query.tags
 
-            const notes = await notesService.getMyNotes(payload.login, tags, limit, skip, sort) as NotePreview[]
+            const notes = await notesService.getMyNotes(payload.login, tags, limit, skip, sort)
+            if (isException(notes)) {
+                reply.code(notes.statusCode).send(notes)
+                return
+            }
+
             reply.code(200).send(notes)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.get<{
@@ -97,7 +98,6 @@ export const handleNoteRoutes = (
         schema: GetNotesSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
@@ -107,13 +107,12 @@ export const handleNoteRoutes = (
             const sort = request.query.sort
             const tags = request.query.tags
 
-            const notes = await notesService.getCollaboratedNotes(payload.login, tags, limit, skip, sort) as NotePreview[]
+            const notes = await notesService.getCollaboratedNotes(payload.login, tags, limit, skip, sort) 
+            if (isException(notes)) {
+                reply.code(notes.statusCode).send(notes)
+                return
+            }            
             reply.code(200).send(notes)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
     })
 
     server.get<{
@@ -129,20 +128,19 @@ export const handleNoteRoutes = (
             preHandler: authenticate 
         },
     async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
 
             const id = request.params.id
 
-            const foundNote = await notesService.getNote(id, payload.login) as Note
+            const foundNote = await notesService.getNote(id, payload.login)
+            if (isException(foundNote)) {
+                reply.code(foundNote.statusCode).send(foundNote)
+                return
+            }
             reply.code(200).send(foundNote)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.delete<{
@@ -158,20 +156,19 @@ export const handleNoteRoutes = (
             preHandler: authenticate
         },
     async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
 
             const id = request.params.id
 
-            const state = await notesService.deleteNote(id, payload.login) as {success: true}
+            const state = await notesService.deleteNote(id, payload.login)
+            if (isException(state)) {
+                reply.code(state.statusCode).send(state)
+                return
+            }
             reply.code(200).send(state)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.patch<{
@@ -186,7 +183,6 @@ export const handleNoteRoutes = (
         schema: UpdateNoteSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
@@ -194,13 +190,14 @@ export const handleNoteRoutes = (
             const id = request.params.id
             const updateData = request.body
 
-            const updatedNote = await notesService.updateNote(id, payload.login, updateData) as Note
+            const updatedNote = await notesService.updateNote(id, payload.login, updateData)
+            if (isException(updatedNote)) {
+                reply.code(updatedNote.statusCode).send(updatedNote)
+                return
+            }
+
             reply.code(200).send(updatedNote)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)
-        }
+        
     })
 
     server.get<{
@@ -214,19 +211,17 @@ export const handleNoteRoutes = (
         schema: GetNoteCollaboratorsSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
             const id = request.params.id
-            const collaborators = await notesService.getCollaborators(id, payload.login) as NoteCollaborators
-            
+            const collaborators = await notesService.getCollaborators(id, payload.login)
+            if (isException(collaborators)) {
+                reply.code(collaborators.statusCode).send(collaborators)
+                return
+            }            
             reply.code(200).send(collaborators)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)           
-        }
+        
     })
 
     server.put<{
@@ -245,7 +240,6 @@ export const handleNoteRoutes = (
         schema: AddCollaboratorSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
@@ -257,14 +251,13 @@ export const handleNoteRoutes = (
                 id,
                 payload.login,
                 collaboratorLogin
-            ) as { success: true }
+            )
+            if (isException(state)) {
+                reply.code(state.statusCode).send(state)
+                return
+            }
 
             reply.code(201).send(state)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)           
-        }
     })
 
     server.delete<{
@@ -282,7 +275,6 @@ export const handleNoteRoutes = (
         schema: RemoveCollaboratorSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        try {
             const payload = extractJwtPayload(
                 extractToken(request)
             )
@@ -294,13 +286,13 @@ export const handleNoteRoutes = (
                 id,
                 payload.login,
                 collaboratorLogin
-            ) as { success: true }
+            )
+            if (isException(state)) {
+                reply.code(state.statusCode).send(state)
+                return
+            }
 
             reply.code(200).send(state)
-        } catch (exception: any) {
-            reply.code(
-                exception.statusCode
-            ).send(exception)           
-        }
+        
     })
 }
