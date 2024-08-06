@@ -28,17 +28,17 @@ export const handleUserRoutes = (
         }
     }>("/users", {schema: CreateUserSchema}, async (request, reply) => {
 
-            const insertData: UserWithoutMetadata = request.body
-            let createdUser = await usersService.createUser(insertData)
-            
-            if (isException(createdUser)) {
-                reply.code(createdUser.statusCode).send(createdUser)
-                return
-            }
-            
-            UsersService.omitSensetiveData(createdUser)
+        const insertData: UserWithoutMetadata = request.body
+        let createdUser = await usersService.createUser(insertData)
+        
+        if (isException(createdUser)) {
+            reply.code(createdUser.statusCode).send(createdUser)
+            return
+        }
+        
+        UsersService.omitSensetiveData(createdUser)
 
-            reply.code(201).send(createdUser)
+        reply.code(201).send(createdUser)
         
     })
 
@@ -52,18 +52,18 @@ export const handleUserRoutes = (
         schema: GetMyProfileSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
-            
-            let user = await usersService.getUser("login", payload.login)
-            if (isException(user)) {
-                reply.code(user.statusCode).send(user)
-                return
-            }
-            UsersService.omitSensetiveData(user)
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
+        
+        let user = await usersService.getUser("login", payload.login)
+        if (isException(user)) {
+            reply.code(user.statusCode).send(user)
+            return
+        }
+        UsersService.omitSensetiveData(user)
 
-            reply.code(200).send(user)
+        reply.code(200).send(user)
         
     })
 
@@ -78,19 +78,19 @@ export const handleUserRoutes = (
         schema: UpdateUserSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
-            const updateData = request.body
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
+        const updateData = request.body
 
-            let updatedUser = await usersService.updateUserByLogin(payload.login, updateData)
-            if (isException(updatedUser)) {
-                reply.code(updatedUser.statusCode).send(updatedUser)
-                return
-            }
-            UsersService.omitSensetiveData(updatedUser)
+        let updatedUser = await usersService.updateUserByLogin(payload.login, updateData)
+        if (isException(updatedUser)) {
+            reply.code(updatedUser.statusCode).send(updatedUser)
+            return
+        }
+        UsersService.omitSensetiveData(updatedUser)
 
-            reply.code(200).send(updatedUser)
+        reply.code(200).send(updatedUser)
         
     })
 
@@ -105,16 +105,16 @@ export const handleUserRoutes = (
         schema: GetUserSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const login: string = request.params.login
-            
-            let user = await usersService.getUser("login", login)
-            if (isException(user)) {
-                reply.code(user.statusCode).send(user)
-                return
-            }
-            UsersService.omitSensetiveData(user)
+        const login: string = request.params.login
+        
+        let user = await usersService.getUser("login", login)
+        if (isException(user)) {
+            reply.code(user.statusCode).send(user)
+            return
+        }
+        UsersService.omitSensetiveData(user)
 
-            reply.code(200).send(user)
+        reply.code(200).send(user)
         
     })
 }

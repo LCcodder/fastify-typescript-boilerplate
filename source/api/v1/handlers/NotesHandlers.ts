@@ -29,21 +29,21 @@ export const handleNoteRoutes = (
         schema: CreateNoteSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
-            
-            const insertData = {
-                ...request.body,
-                author: payload.login
-            }
-            const createdNote = await notesService.createNote(insertData)
-            if (isException(createdNote)) {
-                reply.code(createdNote.statusCode).send(createdNote)
-                return
-            }
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
+        
+        const insertData = {
+            ...request.body,
+            author: payload.login
+        }
+        const createdNote = await notesService.createNote(insertData)
+        if (isException(createdNote)) {
+            reply.code(createdNote.statusCode).send(createdNote)
+            return
+        }
 
-            reply.code(201).send(createdNote)
+        reply.code(201).send(createdNote)
         
     })
 
@@ -64,22 +64,22 @@ export const handleNoteRoutes = (
             preHandler: authenticate
         }, 
     async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const limit = request.query.limit
-            const skip = request.query.offset
-            const sort = request.query.sort
-            const tags = request.query.tags
+        const limit = request.query.limit
+        const skip = request.query.offset
+        const sort = request.query.sort
+        const tags = request.query.tags
 
-            const notes = await notesService.getMyNotes(payload.login, tags, limit, skip, sort)
-            if (isException(notes)) {
-                reply.code(notes.statusCode).send(notes)
-                return
-            }
+        const notes = await notesService.getMyNotes(payload.login, tags, limit, skip, sort)
+        if (isException(notes)) {
+            reply.code(notes.statusCode).send(notes)
+            return
+        }
 
-            reply.code(200).send(notes)
+        reply.code(200).send(notes)
         
     })
 
@@ -98,21 +98,21 @@ export const handleNoteRoutes = (
         schema: GetNotesSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const limit = request.query.limit
-            const skip = request.query.offset
-            const sort = request.query.sort
-            const tags = request.query.tags
+        const limit = request.query.limit
+        const skip = request.query.offset
+        const sort = request.query.sort
+        const tags = request.query.tags
 
-            const notes = await notesService.getCollaboratedNotes(payload.login, tags, limit, skip, sort) 
-            if (isException(notes)) {
-                reply.code(notes.statusCode).send(notes)
-                return
-            }            
-            reply.code(200).send(notes)
+        const notes = await notesService.getCollaboratedNotes(payload.login, tags, limit, skip, sort) 
+        if (isException(notes)) {
+            reply.code(notes.statusCode).send(notes)
+            return
+        }            
+        reply.code(200).send(notes)
     })
 
     server.get<{
@@ -128,18 +128,18 @@ export const handleNoteRoutes = (
             preHandler: authenticate 
         },
     async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const id = request.params.id
+        const id = request.params.id
 
-            const foundNote = await notesService.getNote(id, payload.login)
-            if (isException(foundNote)) {
-                reply.code(foundNote.statusCode).send(foundNote)
-                return
-            }
-            reply.code(200).send(foundNote)
+        const foundNote = await notesService.getNote(id, payload.login)
+        if (isException(foundNote)) {
+            reply.code(foundNote.statusCode).send(foundNote)
+            return
+        }
+        reply.code(200).send(foundNote)
         
     })
 
@@ -156,18 +156,18 @@ export const handleNoteRoutes = (
             preHandler: authenticate
         },
     async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const id = request.params.id
+        const id = request.params.id
 
-            const state = await notesService.deleteNote(id, payload.login)
-            if (isException(state)) {
-                reply.code(state.statusCode).send(state)
-                return
-            }
-            reply.code(200).send(state)
+        const state = await notesService.deleteNote(id, payload.login)
+        if (isException(state)) {
+            reply.code(state.statusCode).send(state)
+            return
+        }
+        reply.code(200).send(state)
         
     })
 
@@ -183,20 +183,20 @@ export const handleNoteRoutes = (
         schema: UpdateNoteSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const id = request.params.id
-            const updateData = request.body
+        const id = request.params.id
+        const updateData = request.body
 
-            const updatedNote = await notesService.updateNote(id, payload.login, updateData)
-            if (isException(updatedNote)) {
-                reply.code(updatedNote.statusCode).send(updatedNote)
-                return
-            }
+        const updatedNote = await notesService.updateNote(id, payload.login, updateData)
+        if (isException(updatedNote)) {
+            reply.code(updatedNote.statusCode).send(updatedNote)
+            return
+        }
 
-            reply.code(200).send(updatedNote)
+        reply.code(200).send(updatedNote)
         
     })
 
@@ -211,16 +211,16 @@ export const handleNoteRoutes = (
         schema: GetNoteCollaboratorsSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
-            const id = request.params.id
-            const collaborators = await notesService.getCollaborators(id, payload.login)
-            if (isException(collaborators)) {
-                reply.code(collaborators.statusCode).send(collaborators)
-                return
-            }            
-            reply.code(200).send(collaborators)
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
+        const id = request.params.id
+        const collaborators = await notesService.getCollaborators(id, payload.login)
+        if (isException(collaborators)) {
+            reply.code(collaborators.statusCode).send(collaborators)
+            return
+        }            
+        reply.code(200).send(collaborators)
         
     })
 
@@ -240,24 +240,24 @@ export const handleNoteRoutes = (
         schema: AddCollaboratorSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const id = request.params.id
-            const collaboratorLogin = request.body.collaboratorLogin
+        const id = request.params.id
+        const collaboratorLogin = request.body.collaboratorLogin
 
-            const state = await notesService.addCollaborator(
-                id,
-                payload.login,
-                collaboratorLogin
-            )
-            if (isException(state)) {
-                reply.code(state.statusCode).send(state)
-                return
-            }
+        const state = await notesService.addCollaborator(
+            id,
+            payload.login,
+            collaboratorLogin
+        )
+        if (isException(state)) {
+            reply.code(state.statusCode).send(state)
+            return
+        }
 
-            reply.code(201).send(state)
+        reply.code(201).send(state)
     })
 
     server.delete<{
@@ -275,24 +275,24 @@ export const handleNoteRoutes = (
         schema: RemoveCollaboratorSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-            const payload = extractJwtPayload(
-                extractToken(request)
-            )
+        const payload = extractJwtPayload(
+            extractToken(request)
+        )
 
-            const id = request.params.id
-            const collaboratorLogin = request.body.collaboratorLogin
+        const id = request.params.id
+        const collaboratorLogin = request.body.collaboratorLogin
 
-            const state = await notesService.removeCollaborator(
-                id,
-                payload.login,
-                collaboratorLogin
-            )
-            if (isException(state)) {
-                reply.code(state.statusCode).send(state)
-                return
-            }
+        const state = await notesService.removeCollaborator(
+            id,
+            payload.login,
+            collaboratorLogin
+        )
+        if (isException(state)) {
+            reply.code(state.statusCode).send(state)
+            return
+        }
 
-            reply.code(200).send(state)
+        reply.code(200).send(state)
         
     })
 }
