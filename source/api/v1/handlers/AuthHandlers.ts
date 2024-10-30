@@ -1,10 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { IAuthService } from "../services/auth/AuthServiceInterface";
+import { IAuthService } from "../services/interfaces/AuthServiceInterface";
 import { UserCredentials, UserWithoutMetadata } from "../database/entities/User";
 import { AUTH_EXCEPTIONS } from "../exceptions/AuthExceptions";
 import { AuthUserSchema, ChangePasswordSchema } from "../validation/schemas/AuthSchemas";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
-import { extractToken } from "../utils/TokenExtractor";
+import { extractToken } from "../utils/common/TokenExtractor";
 import { isException } from "../utils/guards/ExceptionGuard";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 
@@ -29,7 +29,7 @@ export const handleAuthRoutes = (
     }, async (request, reply) => {
         const credentials: UserCredentials = request.body
         
-        const result = await authService.authorizeAndGetToken(
+        const result = await authService.authorizeAndGenerateToken(
             credentials.email, 
             credentials.password
         )
@@ -57,14 +57,16 @@ export const handleAuthRoutes = (
         preHandler: authenticate
     }, async (request, reply) => {
         const passwords = request.body
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
+
         const state = await authService.changePassword(
-            payload.login,
+            login,
             passwords.oldPassword,
             passwords.newPassword
         )
+        
         if (isException(state)) {
             reply.code(state.statusCode).send(state)
             return

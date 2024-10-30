@@ -1,4 +1,4 @@
-import { FastifySchema } from "../../utils/FastifySchemaOverride";
+import { FastifySchema } from "../../utils/typing/FastifySchemaOverride";
 import { excludeProperties, pickProperties } from "typing-assets"
 import { BaseUserSchema } from "./base/User"
 import { USER_RESPONSES } from "../openapi/responses/UserResponses"

@@ -1,9 +1,9 @@
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../database/entities/User";
-import { IUsersService } from "./UsersServiceInterface";
-import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
+import { IUsersService } from "./interfaces/UsersServiceInterface";
+import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 import bcrypt from 'bcrypt'
 import { Repository } from "typeorm";
-import { withExceptionCatch } from "../../decorators/WithExceptionCatch";
+import { withExceptionCatch } from "../decorators/WithExceptionCatch";
 
 export class UsersService implements IUsersService {
     /**

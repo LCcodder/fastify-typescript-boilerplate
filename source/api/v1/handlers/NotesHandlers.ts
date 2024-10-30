@@ -1,9 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { INotesService } from "../services/notes/NotesServiceInterface";
+import { INotesService } from "../services/interfaces/NotesServiceInterface";
 import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/Note";
 import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
-import { extractToken } from "../utils/TokenExtractor";
+import { extractToken } from "../utils/common/TokenExtractor";
 import {AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
 import { isException } from "../utils/guards/ExceptionGuard";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
@@ -29,13 +29,13 @@ export const handleNoteRoutes = (
         schema: CreateNoteSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
         
         const insertData = {
             ...request.body,
-            author: payload.login
+            author: login
         }
         const createdNote = await notesService.createNote(insertData)
         if (isException(createdNote)) {
@@ -64,7 +64,7 @@ export const handleNoteRoutes = (
             preHandler: authenticate
         }, 
     async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
@@ -73,7 +73,7 @@ export const handleNoteRoutes = (
         const sort = request.query.sort
         const tags = request.query.tags
 
-        const notes = await notesService.getMyNotes(payload.login, tags, limit, skip, sort)
+        const notes = await notesService.getMyNotes(login, tags, limit, skip, sort)
         if (isException(notes)) {
             reply.code(notes.statusCode).send(notes)
             return
@@ -98,7 +98,7 @@ export const handleNoteRoutes = (
         schema: GetNotesSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
@@ -107,7 +107,7 @@ export const handleNoteRoutes = (
         const sort = request.query.sort
         const tags = request.query.tags
 
-        const notes = await notesService.getCollaboratedNotes(payload.login, tags, limit, skip, sort) 
+        const notes = await notesService.getCollaboratedNotes(login, tags, limit, skip, sort) 
         if (isException(notes)) {
             reply.code(notes.statusCode).send(notes)
             return
@@ -128,13 +128,13 @@ export const handleNoteRoutes = (
             preHandler: authenticate 
         },
     async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
         const id = request.params.id
 
-        const foundNote = await notesService.getNote(id, payload.login)
+        const foundNote = await notesService.getNote(id, login)
         if (isException(foundNote)) {
             reply.code(foundNote.statusCode).send(foundNote)
             return
@@ -156,13 +156,13 @@ export const handleNoteRoutes = (
             preHandler: authenticate
         },
     async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
         const id = request.params.id
 
-        const state = await notesService.deleteNote(id, payload.login)
+        const state = await notesService.deleteNote(id, login)
         if (isException(state)) {
             reply.code(state.statusCode).send(state)
             return
@@ -183,14 +183,14 @@ export const handleNoteRoutes = (
         schema: UpdateNoteSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
         const id = request.params.id
         const updateData = request.body
 
-        const updatedNote = await notesService.updateNote(id, payload.login, updateData)
+        const updatedNote = await notesService.updateNote(id, login, updateData)
         if (isException(updatedNote)) {
             reply.code(updatedNote.statusCode).send(updatedNote)
             return
@@ -211,11 +211,13 @@ export const handleNoteRoutes = (
         schema: GetNoteCollaboratorsSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
+
         const id = request.params.id
-        const collaborators = await notesService.getCollaborators(id, payload.login)
+
+        const collaborators = await notesService.getCollaborators(id, login)
         if (isException(collaborators)) {
             reply.code(collaborators.statusCode).send(collaborators)
             return
@@ -240,7 +242,7 @@ export const handleNoteRoutes = (
         schema: AddCollaboratorSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
@@ -249,7 +251,7 @@ export const handleNoteRoutes = (
 
         const state = await notesService.addCollaborator(
             id,
-            payload.login,
+            login,
             collaboratorLogin
         )
         if (isException(state)) {
@@ -275,7 +277,7 @@ export const handleNoteRoutes = (
         schema: RemoveCollaboratorSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
 
@@ -284,7 +286,7 @@ export const handleNoteRoutes = (
 
         const state = await notesService.removeCollaborator(
             id,
-            payload.login,
+            login,
             collaboratorLogin
         )
         if (isException(state)) {

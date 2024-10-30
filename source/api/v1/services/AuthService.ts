@@ -1,15 +1,15 @@
-import { User } from "../../database/entities/User";
-import { generateToken } from "../../auth/jwt/TokenGenerator";
-import { Exception } from "../../utils/Exception";
-import { IUsersService } from "../users/UsersServiceInterface";
-import { AUTH_EXCEPTIONS } from "../../exceptions/AuthExceptions";
-import { IAuthService } from "./AuthServiceInterface";
-import { CONFIG } from "../../config/ServerConfiguration";
+import { User } from "../database/entities/User";
+import { generateToken } from "../auth/jwt/TokenGenerator";
+import { Exception } from "../utils/typing/Exception";
+import { IUsersService } from "./interfaces/UsersServiceInterface";
+import { AUTH_EXCEPTIONS } from "../exceptions/AuthExceptions";
+import { IAuthService } from "./interfaces/AuthServiceInterface";
+import { CONFIG } from "../config/ServerConfiguration";
 import bcrypt from 'bcrypt'
-import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 import { RedisClientType } from "redis";
-import { withExceptionCatch } from "../../decorators/WithExceptionCatch";
-import { isException } from "../../utils/guards/ExceptionGuard";
+import { withExceptionCatch } from "../decorators/WithExceptionCatch";
+import { isException } from "../utils/guards/ExceptionGuard";
 
 export class AuthService implements IAuthService {
     constructor(
@@ -17,8 +17,9 @@ export class AuthService implements IAuthService {
         private redis: RedisClientType 
     ) {}
 
+    // TODO: change return format from tuple to object
     @withExceptionCatch
-    public async authorizeAndGetToken(email: string, password: string) {
+    public async authorizeAndGenerateToken(email: string, password: string) {
         
         const foundUser = await this.usersService.getUser("email", email)
         if (isException(foundUser)) {
@@ -27,6 +28,7 @@ export class AuthService implements IAuthService {
             }
             return foundUser
         }
+
         const passwordIsValid = await bcrypt.compare(password, foundUser.password)
         if (!passwordIsValid) {
             return AUTH_EXCEPTIONS.WrongCredentials
@@ -40,11 +42,11 @@ export class AuthService implements IAuthService {
             token,
             CONFIG.jwtExpiration
         ] as [string, string]
-        
     }
 
+    // checks if token exists in Redis token storage
     @withExceptionCatch
-    public async compareTokens(login: string, transmittedToken: string) {
+    public async checkTokenRelevance(login: string, transmittedToken: string) {
         
         const foundToken = await this.redis.GET(login)
         if (!foundToken || foundToken !== transmittedToken) {
@@ -77,6 +79,8 @@ export class AuthService implements IAuthService {
         await this.usersService.updateUserByLogin(login, {
             password: newHashedPassword,
         })
+
+        // removing relevant token from storage
         await this.redis.DEL(foundUser.login)
 
         return { success: true as true }

@@ -1,18 +1,17 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { IUsersService } from "../services/users/UsersServiceInterface";
+import { IUsersService } from "../services/interfaces/UsersServiceInterface";
 import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema } from "../validation/schemas/UserSchemas";
-import { UsersService } from "../services/users/UsersService";
+import { UsersService } from "../services/UsersService";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
-import { extractToken } from "../utils/TokenExtractor";
+import { extractToken } from "../utils/common/TokenExtractor";
 import { isException } from "../utils/guards/ExceptionGuard";
 
 
 export const handleUserRoutes = (
     server: FastifyInstance, 
     usersService: IUsersService, 
-    // auth prehandler, which have to be generated in main.ts file
     authenticate: (
         request: FastifyRequest, 
         reply: FastifyReply, 
@@ -26,7 +25,7 @@ export const handleUserRoutes = (
             400: typeof USER_EXCEPTIONS.AlreadyExists,
             503: typeof USER_EXCEPTIONS.ServiceUnavailable
         }
-    }>("/users", {schema: CreateUserSchema}, async (request, reply) => {
+    }>("/users", { schema: CreateUserSchema }, async (request, reply) => {
 
         const insertData: UserWithoutMetadata = request.body
         let createdUser = await usersService.createUser(insertData)
@@ -52,11 +51,11 @@ export const handleUserRoutes = (
         schema: GetMyProfileSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
         
-        let user = await usersService.getUser("login", payload.login)
+        let user = await usersService.getUser("login", login)
         if (isException(user)) {
             reply.code(user.statusCode).send(user)
             return
@@ -78,12 +77,13 @@ export const handleUserRoutes = (
         schema: UpdateUserSchema,
         preHandler: authenticate
     }, async (request, reply) => {
-        const payload = extractJwtPayload(
+        const { login } = extractJwtPayload(
             extractToken(request)
         )
+
         const updateData = request.body
 
-        let updatedUser = await usersService.updateUserByLogin(payload.login, updateData)
+        let updatedUser = await usersService.updateUserByLogin(login, updateData)
         if (isException(updatedUser)) {
             reply.code(updatedUser.statusCode).send(updatedUser)
             return
