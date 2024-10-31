@@ -17,7 +17,6 @@ export class AuthService implements IAuthService {
         private redis: RedisClientType 
     ) {}
 
-    // TODO: change return format from tuple to object
     @withExceptionCatch
     public async authorizeAndGenerateToken(email: string, password: string) {
         
@@ -38,10 +37,10 @@ export class AuthService implements IAuthService {
         await this.redis.SET(foundUser.login, token)
         
 
-        return [
+        return {
             token,
-            CONFIG.jwtExpiration
-        ] as [string, string]
+            expiresIn: CONFIG.jwtExpiration
+        }
     }
 
     // checks if token exists in Redis token storage
@@ -59,7 +58,6 @@ export class AuthService implements IAuthService {
 
     @withExceptionCatch
     public async changePassword(login: string, oldPassword: string, newPassword: string) {
-        
         const foundUser = await this.usersService.getUser("login", login)
         if (isException(foundUser)) {
             if (foundUser.statusCode === 404) {
@@ -67,6 +65,7 @@ export class AuthService implements IAuthService {
             }
             return foundUser
         }
+        
         const passwordIsValid = await bcrypt.compare(oldPassword, foundUser.password)
         if (!passwordIsValid) {
             return AUTH_EXCEPTIONS.WrongCredentials

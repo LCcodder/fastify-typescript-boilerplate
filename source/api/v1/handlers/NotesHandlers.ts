@@ -73,7 +73,7 @@ export const handleNoteRoutes = (
         const sort = request.query.sort
         const tags = request.query.tags
 
-        const notes = await notesService.getMyNotes(login, tags, limit, skip, sort)
+        const notes = await notesService.getMyNotes(login, {tags, limit, skip, sort})
         if (isException(notes)) {
             reply.code(notes.statusCode).send(notes)
             return
@@ -107,7 +107,7 @@ export const handleNoteRoutes = (
         const sort = request.query.sort
         const tags = request.query.tags
 
-        const notes = await notesService.getCollaboratedNotes(login, tags, limit, skip, sort) 
+        const notes = await notesService.getCollaboratedNotes(login, {tags, limit, skip, sort}) 
         if (isException(notes)) {
             reply.code(notes.statusCode).send(notes)
             return

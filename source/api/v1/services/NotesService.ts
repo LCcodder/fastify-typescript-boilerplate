@@ -12,7 +12,7 @@ import {
     UserWithoutSensetives
 } from "../database/entities/User";
 import {IUsersService} from "./interfaces/UsersServiceInterface";
-import {INotesService} from "./interfaces/NotesServiceInterface";
+import {INotesService, NotesSearchOptions} from "./interfaces/NotesServiceInterface";
 import {NOTE_EXCEPTIONS} from "../exceptions/NoteExceptions";
 import {Repository} from "typeorm";
 import {transformNoteCollaborators} from "../utils/common/TransformNoteCollaborators";
@@ -161,14 +161,10 @@ export class NotesService implements INotesService {
         return transformNoteCollaborators(updatedNote) as unknown as Note;
     }
 
-    // TODO: pack all arguments after authorLogin in one object
     @withExceptionCatch
     public async getMyNotes(
         authorLogin: string,
-        tags: string[],
-        limit: number,
-        skip: number,
-        sort: "ASC" | "DESC"
+        options: NotesSearchOptions
     ) {
         const query = this.noteRepository
             .createQueryBuilder("note")
@@ -180,10 +176,11 @@ export class NotesService implements INotesService {
                 "note.updatedAt"
             ])
             .where("note.author = :login", {login: authorLogin})
-            .limit(limit)
-            .skip(skip)
-            .orderBy("note.updatedAt", sort);
+            .limit(options?.limit)
+            .skip(options?.skip)
+            .orderBy("note.updatedAt", options?.sort);
 
+        const tags = options?.tags
         if (tags && tags.length) {
             query.where("note.tags && :tags", {tags});
         }
@@ -192,14 +189,10 @@ export class NotesService implements INotesService {
         return foundNotes as unknown as NotePreview[];
     }
 
-    // TODO: pack all arguments after authorLogin in one object
     @withExceptionCatch
     public async getCollaboratedNotes(
         login: string,
-        tags: string[],
-        limit: number,
-        skip: number,
-        sort: "ASC" | "DESC"
+        options: NotesSearchOptions
     ) {
         const query = this.noteRepository
             .createQueryBuilder("note")
@@ -216,10 +209,11 @@ export class NotesService implements INotesService {
                 "note.tags",
                 "note.updatedAt"
             ])
-            .limit(limit)
-            .skip(skip)
-            .orderBy("note.updatedAt", sort);
-
+            .limit(options?.limit)
+            .skip(options?.skip)
+            .orderBy("note.updatedAt", options?.sort);
+        
+        const tags = options?.tags
         if (tags && tags.length) {
             query.where("note.tags && :tags", {tags});
         }

@@ -38,10 +38,7 @@ export const handleAuthRoutes = (
             return
         }
 
-        reply.code(200).send({
-            token: result[0],
-            expiresIn: result[1]
-        })
+        reply.code(200).send(result)
     
     })
 

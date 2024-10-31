@@ -32,7 +32,6 @@ const main = async () => {
     
     await initSwaggerViewer(server)
     
-    // logging hooks
     server.addHook('onRequest', logRequestMetadata)
     server.addHook('onResponse', logResponseMetadata)
     

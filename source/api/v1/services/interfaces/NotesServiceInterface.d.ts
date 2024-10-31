@@ -1,6 +1,14 @@
+import { DeepOptional } from "typing-assets";
 import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/Note";
 import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
 import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+
+export type NotesSearchOptions = DeepOptional<{
+    tags: string[]
+    limit: number
+    skip: number
+    sort: "ASC" | "DESC"
+}>
 
 export interface INotesService {
     createNote(
@@ -40,12 +48,12 @@ export interface INotesService {
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
-    getMyNotes(authorLogin: string, filters: string[], limit: number, skip: number, sort: "ASC" | "DESC"): Promise<
+    getMyNotes(authorLogin: string, options: NotesSearchOptions): Promise<
         NotePreview[]
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >
 
-    getCollaboratedNotes(login: string, filters: string[], limit: number, skip: number, sort: "ASC" | "DESC"): Promise<
+    getCollaboratedNotes(login: string, options: NotesSearchOptions): Promise<
         NotePreview[]
         | typeof NOTE_EXCEPTIONS.ServiceUnavailable
     >

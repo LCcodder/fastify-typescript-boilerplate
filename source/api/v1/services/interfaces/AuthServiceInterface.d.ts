@@ -3,7 +3,7 @@ import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
 
 export declare interface IAuthService {
     authorizeAndGenerateToken(email: string, password: string): Promise<
-        | [string, string]
+        | { token: string, expiresIn: string }
         | typeof AUTH_EXCEPTIONS.WrongCredentials
         | typeof AUTH_EXCEPTIONS.ServiceUnavailable
         | typeof USER_EXCEPTIONS.ServiceUnavailable

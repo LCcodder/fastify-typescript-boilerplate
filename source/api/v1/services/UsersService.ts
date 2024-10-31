@@ -15,27 +15,32 @@ export class UsersService implements IUsersService {
         try {
             user.password = undefined
             return user
-        } catch(error) {
+        } catch(_) {
             return user
         }
     }
 
     constructor(private userRepository: Repository<User>) {}
 
+    private async isUserExist(email: string, login: string): Promise<boolean> {
+        const foundUserWithEmail = await this.userRepository.findOneBy({
+            email
+        })
+        const foundUserWithLogin = await this.userRepository.findOneBy({
+            login
+        })
+
+        return Boolean(foundUserWithEmail) || Boolean(foundUserWithLogin)
+    }
+
     @withExceptionCatch
     public async createUser(user: UserWithoutMetadata) {
         
-        const foundUserWithEmail = await this.userRepository.findOneBy({
-            email: user.email
-        })
-        const foundUserWithLogin = await this.userRepository.findOneBy({
-            login: user.login
-        })
-        if (foundUserWithEmail || foundUserWithLogin) {
+        if (await this.isUserExist(user.email, user.password)) {
             return USER_EXCEPTIONS.AlreadyExists
         }
 
-        let creationData: UserWithoutMetadata & {validToken?: string} = {
+        let creationData: UserWithoutMetadata = {
             ...user,
         }
         creationData.password = await bcrypt.hash(creationData.password, 4)
@@ -62,7 +67,7 @@ export class UsersService implements IUsersService {
     public async updateUserByLogin(login: string, updateData: UserUpdate) {
         
         const state = await this.userRepository.update({ login }, updateData)
-        // if user not found - raise error
+        // found user check
         if (!state.affected) {
             return USER_EXCEPTIONS.NotFound
         }
