@@ -1,4 +1,4 @@
-import { generateGuard } from "typing-assets";
+// import { generateGuard } from "typing-assets";
 import { Exception } from "../typing/Exception";
 
 // before generateGuard function was used to create guard

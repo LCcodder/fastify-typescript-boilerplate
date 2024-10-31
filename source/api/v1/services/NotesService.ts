@@ -4,12 +4,10 @@ import {
     NotePreview,
     NoteUpdate,
     NoteEntity,
-    NoteCollaborators
 } from "../database/entities/Note";
 import {
     User,
     UserEntity,
-    UserWithoutSensetives
 } from "../database/entities/User";
 import {IUsersService} from "./interfaces/UsersServiceInterface";
 import {INotesService, NotesSearchOptions} from "./interfaces/NotesServiceInterface";

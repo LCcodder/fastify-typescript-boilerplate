@@ -1,4 +1,4 @@
-import {Exception} from "../utils/typing/Exception";
+import { Exception } from "../utils/typing/Exception";
 
 export const NOTE_EXCEPTIONS = {
     NoteNotFound: {

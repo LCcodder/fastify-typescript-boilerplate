@@ -1,6 +1,4 @@
-import { User } from "../database/entities/User";
 import { generateToken } from "../auth/jwt/TokenGenerator";
-import { Exception } from "../utils/typing/Exception";
 import { IUsersService } from "./interfaces/UsersServiceInterface";
 import { AUTH_EXCEPTIONS } from "../exceptions/AuthExceptions";
 import { IAuthService } from "./interfaces/AuthServiceInterface";

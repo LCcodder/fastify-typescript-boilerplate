@@ -4,7 +4,7 @@ import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata }
 import { NOTE_EXCEPTIONS } from "../exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../utils/common/TokenExtractor";
-import {AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
+import { AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
 import { isException } from "../utils/guards/ExceptionGuard";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 

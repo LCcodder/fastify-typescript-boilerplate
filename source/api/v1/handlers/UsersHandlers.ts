@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
 import { IUsersService } from "../services/interfaces/UsersServiceInterface";
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
+import { UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
 import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
 import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema } from "../validation/schemas/UserSchemas";
 import { UsersService } from "../services/UsersService";
