@@ -1,5 +1,5 @@
 import { User, UserUpdate, UserWithoutMetadata } from "../../database/entities/User";
-import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 
 export declare interface IUsersService {
     createUser(user: UserWithoutMetadata): Promise<

@@ -1,13 +1,15 @@
 import { FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { extractToken } from "../utils/common/TokenExtractor";
+import { extractToken } from "../shared/utils/common/TokenExtractor";
 import { extractJwtPayload } from "./jwt/PayloadExtractor";
 import { validateSignature } from "./jwt/SignatureValidator";
-import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
+import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
 import { IAuthService } from "../services/interfaces/AuthServiceInterface";
-import { isException } from "../utils/guards/ExceptionGuard";
+import { isException } from "../shared/utils/guards/ExceptionGuard";
+
+export type AuthentificationPreHandler = (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => void
 
 export const authenticationFactory = (authService: IAuthService) => 
-async (request: FastifyRequest, reply: FastifyReply, _done: HookHandlerDoneFunction) => {
+async (request: FastifyRequest, reply: FastifyReply, _done: HookHandlerDoneFunction): Promise<AuthentificationPreHandler> => {
     const token = extractToken(request)
     if (!token) {
         reply.code(401).send(USER_EXCEPTIONS.NotAuthorized)
@@ -26,19 +28,11 @@ async (request: FastifyRequest, reply: FastifyReply, _done: HookHandlerDoneFunct
         return
     }
 
-    // try {
     const relevanceState = await authService.checkTokenRelevance(payload.login, token)
     if (isException(relevanceState)) {
         reply.code(
             relevanceState.statusCode
         ).send(relevanceState)
         return
-    }
-    // } catch (exception: any) {
-    //     reply.code(
-    //         exception.statusCode
-    //     ).send(exception)
-    //     return
-    // }
-    
+    }    
 }

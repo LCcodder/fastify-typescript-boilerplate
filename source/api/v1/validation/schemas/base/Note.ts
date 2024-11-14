@@ -1,4 +1,4 @@
-import { FastifySchema } from "../../../utils/typing/FastifySchemaOverride"
+import { FastifySchema } from "../../../shared/utils/typing/FastifySchemaOverride"
 
 export const BaseNoteSchema = {
     type: 'object',

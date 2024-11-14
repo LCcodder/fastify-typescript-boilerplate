@@ -1,6 +1,6 @@
 import { excludeProperties } from "typing-assets";
-import { NOTE_EXCEPTIONS } from "../../../exceptions/NoteExceptions";
-import { USER_EXCEPTIONS } from "../../../exceptions/UserExceptions";
+import { NOTE_EXCEPTIONS } from "../../../shared/exceptions/NoteExceptions";
+import { USER_EXCEPTIONS } from "../../../shared/exceptions/UserExceptions";
 import { BaseNoteSchema } from "../../schemas/base/Note";
 import { BaseUserSchema } from "../../schemas/base/User";
 

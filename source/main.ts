@@ -1,13 +1,13 @@
 import fastify from 'fastify'
-import { CONFIG } from './api/v1/config/ServerConfiguration'
+import { CONFIG } from './api/v1/shared/config/ServerConfiguration'
 import { UsersService } from './api/v1/services/UsersService'
-import { handleUserRoutes } from './api/v1/handlers/UsersHandlers'
+import { UsersHandler } from './api/v1/handlers/UsersHandlers'
 import { AuthService } from './api/v1/services/AuthService'
-import { handleAuthRoutes } from './api/v1/handlers/AuthHandlers'
+import { AuthHandler } from './api/v1/handlers/AuthHandlers'
 import { logRequestMetadata } from './api/v1/hooks/onRequestLogger'
 import { logResponseMetadata } from './api/v1/hooks/onResponseLogger'
 import { authenticationFactory } from './api/v1/auth/AuthPreHandler'
-import { handleNoteRoutes } from './api/v1/handlers/NotesHandlers'
+import { NotesHandler } from './api/v1/handlers/NotesHandlers'
 import { NotesService } from './api/v1/services/NotesService'
 import "reflect-metadata"
 import { UserEntity } from './api/v1/database/entities/User'
@@ -15,8 +15,6 @@ import { initAndGetDataSource } from './api/v1/database/InitDataSource'
 import { NoteEntity } from './api/v1/database/entities/Note'
 import { initSwaggerViewer } from './openapi/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
-
-
 
 const main = async () => {
     CONFIG.log()
@@ -55,12 +53,16 @@ const main = async () => {
     const authentication = authenticationFactory(authService)
     const notesService = new NotesService(appDataSource.getRepository(NoteEntity.Note), usersService)
     
-    // versioning decorator which adds '/api/v' prefix to all routes
+    
+    // registering handlers with version prefix
     server.register((server, _, done) => {
-        handleUserRoutes(server, usersService, authentication)
-        handleAuthRoutes(server, authService, authentication)
-        handleNoteRoutes(server, notesService, authentication)
+        const usersHandler = new UsersHandler(server, authentication, usersService)
+        const notesHandler = new NotesHandler(server, authentication, notesService)
+        const authHandler = new AuthHandler(server, authentication, authService)
 
+        usersHandler.handleRoutes()
+        notesHandler.handleRoutes()
+        authHandler.handleRoutes()
         done()
     }, { prefix: "/api/v1" })
 

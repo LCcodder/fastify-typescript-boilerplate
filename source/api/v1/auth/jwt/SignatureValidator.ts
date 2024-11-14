@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken'
-import { CONFIG } from '../../config/ServerConfiguration'
+import { CONFIG } from '../../shared/config/ServerConfiguration'
 
 export const validateSignature = (token: string): boolean => {
     try {

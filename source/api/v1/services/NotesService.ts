@@ -11,13 +11,13 @@ import {
 } from "../database/entities/User";
 import {IUsersService} from "./interfaces/UsersServiceInterface";
 import {INotesService, NotesSearchOptions} from "./interfaces/NotesServiceInterface";
-import {NOTE_EXCEPTIONS} from "../exceptions/NoteExceptions";
+import {NOTE_EXCEPTIONS} from "../shared/exceptions/NoteExceptions";
 import {Repository} from "typeorm";
-import {transformNoteCollaborators} from "../utils/common/TransformNoteCollaborators";
+import {transformNoteCollaborators} from "../shared/utils/common/TransformNoteCollaborators";
 import {excludeProperties} from "typing-assets";
-import {withExceptionCatch} from "../decorators/WithExceptionCatch";
-import {isException} from "../utils/guards/ExceptionGuard";
-import {USER_EXCEPTIONS} from "../exceptions/UserExceptions";
+import {withExceptionCatch} from "../shared/decorators/WithExceptionCatch";
+import {isException} from "../shared/utils/guards/ExceptionGuard";
+import {USER_EXCEPTIONS} from "../shared/exceptions/UserExceptions";
 
 export class NotesService implements INotesService {
     private static generateNoteId(): string {

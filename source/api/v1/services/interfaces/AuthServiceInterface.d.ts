@@ -1,5 +1,5 @@
-import { AUTH_EXCEPTIONS } from "../../exceptions/AuthExceptions";
-import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+import { AUTH_EXCEPTIONS } from "../../shared/exceptions/AuthExceptions";
+import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 
 export declare interface IAuthService {
     authorizeAndGenerateToken(email: string, password: string): Promise<

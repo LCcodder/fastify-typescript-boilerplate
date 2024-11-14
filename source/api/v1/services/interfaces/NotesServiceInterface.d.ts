@@ -1,7 +1,7 @@
 import { DeepOptional } from "typing-assets";
 import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/Note";
-import { NOTE_EXCEPTIONS } from "../../exceptions/NoteExceptions";
-import { USER_EXCEPTIONS } from "../../exceptions/UserExceptions";
+import { NOTE_EXCEPTIONS } from "../../shared/exceptions/NoteExceptions";
+import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 
 export type NotesSearchOptions = DeepOptional<{
     tags: string[]

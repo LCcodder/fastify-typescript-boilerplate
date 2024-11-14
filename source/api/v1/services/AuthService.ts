@@ -1,13 +1,13 @@
 import { generateToken } from "../auth/jwt/TokenGenerator";
 import { IUsersService } from "./interfaces/UsersServiceInterface";
-import { AUTH_EXCEPTIONS } from "../exceptions/AuthExceptions";
+import { AUTH_EXCEPTIONS } from "../shared/exceptions/AuthExceptions";
 import { IAuthService } from "./interfaces/AuthServiceInterface";
-import { CONFIG } from "../config/ServerConfiguration";
+import { CONFIG } from "../shared/config/ServerConfiguration";
 import bcrypt from 'bcrypt'
-import { USER_EXCEPTIONS } from "../exceptions/UserExceptions";
+import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
 import { RedisClientType } from "redis";
-import { withExceptionCatch } from "../decorators/WithExceptionCatch";
-import { isException } from "../utils/guards/ExceptionGuard";
+import { withExceptionCatch } from "../shared/decorators/WithExceptionCatch";
+import { isException } from "../shared/utils/guards/ExceptionGuard";
 
 export class AuthService implements IAuthService {
     constructor(
