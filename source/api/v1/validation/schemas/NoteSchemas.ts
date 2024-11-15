@@ -1,6 +1,6 @@
 import { excludeProperties, pickProperties } from "typing-assets"
 import { BaseNoteSchema, OperateNoteSchema } from "./base/Note"
-import { NOTE_RESPONSES } from "../openapi/responses/NoteResponses"
+import { NOTE_RESPONSES } from "../../openapi/responses/NoteResponses"
 import { FastifySchema } from "../../shared/utils/typing/FastifySchemaOverride"
 
 export const CreateNoteSchema: FastifySchema = {
@@ -19,7 +19,10 @@ export const CreateNoteSchema: FastifySchema = {
     // openapi snippets
     description: "Creates and returns created note (also adds provided collaborators to the note)",
     tags: ["notes"],
-    response: NOTE_RESPONSES.CreateNote
+    response: NOTE_RESPONSES.CreateNote,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const GetNotesSchema: FastifySchema = {
@@ -37,7 +40,10 @@ export const GetNotesSchema: FastifySchema = {
     // openapi snippets
     description: "Returns notes array by provided params",
     tags: ["notes"],
-    response: NOTE_RESPONSES.GetNotes
+    response: NOTE_RESPONSES.GetNotes,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 
@@ -49,7 +55,10 @@ export const GetNoteSchema: FastifySchema = {
     // openapi snippets
     description: "Returns note by id",
     tags: ["notes"],
-    response: NOTE_RESPONSES.GetNote
+    response: NOTE_RESPONSES.GetNote,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const DeleteNoteSchema: FastifySchema = {
@@ -59,7 +68,10 @@ export const DeleteNoteSchema: FastifySchema = {
     // openapi snippets
     description: "Deletes note by id",
     tags: ["notes"],
-    response: NOTE_RESPONSES.DeleteNote
+    response: NOTE_RESPONSES.DeleteNote,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const GetNoteCollaboratorsSchema: FastifySchema = {
@@ -69,7 +81,10 @@ export const GetNoteCollaboratorsSchema: FastifySchema = {
     // openapi snippets
     description: "Returns note collaborators array",
     tags: ["notes"],
-    response: NOTE_RESPONSES.GetCollaborators
+    response: NOTE_RESPONSES.GetCollaborators,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const UpdateNoteSchema: FastifySchema = {
@@ -84,7 +99,10 @@ export const UpdateNoteSchema: FastifySchema = {
     // openapi snippets
     description: "Updates note and returns updated value (can also be updated by collaborator)",
     tags: ["notes"],
-    response: NOTE_RESPONSES.UpdateNote
+    response: NOTE_RESPONSES.UpdateNote,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const AddCollaboratorSchema: FastifySchema = {
@@ -105,7 +123,10 @@ export const AddCollaboratorSchema: FastifySchema = {
     // openapi snippets
     description: "Adds collaborator to the note",
     tags: ["notes"],
-    response: NOTE_RESPONSES.AddCollaborator
+    response: NOTE_RESPONSES.AddCollaborator,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const RemoveCollaboratorSchema: FastifySchema = {
@@ -126,5 +147,8 @@ export const RemoveCollaboratorSchema: FastifySchema = {
     // openapi snippets
     description: "Removes collaborator from note",
     tags: ["notes"],
-    response: NOTE_RESPONSES.RemoveCollaborator
+    response: NOTE_RESPONSES.RemoveCollaborator,
+    security: [{
+        bearerAuth: []
+    }]
 }

@@ -13,7 +13,7 @@ import "reflect-metadata"
 import { UserEntity } from './api/v1/database/entities/User'
 import { initAndGetDataSource } from './api/v1/database/InitDataSource'
 import { NoteEntity } from './api/v1/database/entities/Note'
-import { initSwaggerViewer } from './openapi/InitSwagger'
+import { initSwaggerViewer } from './api/v1/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
 
 const main = async () => {

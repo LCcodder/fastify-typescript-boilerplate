@@ -1,6 +1,6 @@
 import { excludeProperties } from "typing-assets";
-import { BaseUserSchema } from "../../schemas/base/User";
-import { USER_EXCEPTIONS } from "../../../shared/exceptions/UserExceptions";
+import { BaseUserSchema } from "../../validation/schemas/base/User";
+import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 
 export const USER_RESPONSES = {
     CreateUser: {

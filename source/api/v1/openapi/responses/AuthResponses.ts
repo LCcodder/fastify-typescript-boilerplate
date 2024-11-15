@@ -1,5 +1,5 @@
-import { AUTH_EXCEPTIONS } from "../../../shared/exceptions/AuthExceptions";
-import { USER_EXCEPTIONS } from "../../../shared/exceptions/UserExceptions";
+import { AUTH_EXCEPTIONS } from "../../shared/exceptions/AuthExceptions";
+import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 
 export const AUTH_RESPONSES = {
     Authorize: {

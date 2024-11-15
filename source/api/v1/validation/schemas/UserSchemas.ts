@@ -1,7 +1,7 @@
 import { FastifySchema } from "../../shared/utils/typing/FastifySchemaOverride";
 import { excludeProperties, pickProperties } from "typing-assets"
 import { BaseUserSchema } from "./base/User"
-import { USER_RESPONSES } from "../openapi/responses/UserResponses"
+import { USER_RESPONSES } from "../../openapi/responses/UserResponses";
 
 export const CreateUserSchema: FastifySchema = {
     body: {
@@ -34,14 +34,20 @@ export const GetUserSchema: FastifySchema = {
     // openapi snippets
     description: "Returns user profile by login",
     tags: ["users"],
-    response: USER_RESPONSES.GetUser
+    response: USER_RESPONSES.GetUser,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const GetMyProfileSchema: FastifySchema = {
     // openapi snippets
     description: "Returns current user profile by provided JWT",
     tags: ["users"],
-    response: USER_RESPONSES.GetUser
+    response: USER_RESPONSES.GetUser,
+    security: [{
+        bearerAuth: []
+    }]
 }
 
 export const UpdateUserSchema: FastifySchema = {
@@ -59,5 +65,8 @@ export const UpdateUserSchema: FastifySchema = {
     // openapi snippets
     description: "Updates and returns updated user",
     tags: ["users"],
-    response: USER_RESPONSES.UpdateUser
+    response: USER_RESPONSES.UpdateUser,
+    security: [{
+        bearerAuth: []
+    }]
 }
