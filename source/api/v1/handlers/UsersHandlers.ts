@@ -1,9 +1,9 @@
 import { FastifyInstance } from "fastify";
-import { IUsersService } from "../services/interfaces/UsersServiceInterface";
+import { IUsersService } from "../services/users/UsersServiceInterface";
 import { UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
 import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
 import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema } from "../validation/schemas/UserSchemas";
-import { UsersService } from "../services/UsersService";
+import { UsersService } from "../services/users/UsersService";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
 import { extractToken } from "../shared/utils/common/TokenExtractor";
 import { isException } from "../shared/utils/guards/ExceptionGuard";

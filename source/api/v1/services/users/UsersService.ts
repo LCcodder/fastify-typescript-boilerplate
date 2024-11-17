@@ -1,15 +1,15 @@
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
-import { IUsersService } from "./interfaces/UsersServiceInterface";
-import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../database/entities/User";
+import { IUsersService } from "./UsersServiceInterface";
+import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 import bcrypt from 'bcrypt'
 import { Repository } from "typeorm";
-import { withExceptionCatch } from "../shared/decorators/WithExceptionCatch";
+import { withExceptionCatch } from "../../shared/decorators/WithExceptionCatch";
 
 export class UsersService implements IUsersService {
     /**
      * @mutable Mutates initial
      * @param user `User` to omit
-     * @returns User without sensetive data such as `passoword` and `validToken`
+     * @returns User without sensetive data such as `password` and `validToken`
      */
     public static omitSensetiveData(user: User): UserWithoutSensetives {
         try {

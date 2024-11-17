@@ -3,7 +3,7 @@ import { extractToken } from "../shared/utils/common/TokenExtractor";
 import { extractJwtPayload } from "./jwt/PayloadExtractor";
 import { validateSignature } from "./jwt/SignatureValidator";
 import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
-import { IAuthService } from "../services/interfaces/AuthServiceInterface";
+import { IAuthService } from "../services/auth/AuthServiceInterface";
 import { isException } from "../shared/utils/guards/ExceptionGuard";
 
 export type AuthentificationPreHandler = (request: FastifyRequest, reply: FastifyReply, done: HookHandlerDoneFunction) => void

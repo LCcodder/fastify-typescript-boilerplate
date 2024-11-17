@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { IAuthService } from "../services/interfaces/AuthServiceInterface";
+import { IAuthService } from "../services/auth/AuthServiceInterface";
 import { UserCredentials } from "../database/entities/User";
 import { AUTH_EXCEPTIONS } from "../shared/exceptions/AuthExceptions";
 import { AuthUserSchema, ChangePasswordSchema } from "../validation/schemas/AuthSchemas";

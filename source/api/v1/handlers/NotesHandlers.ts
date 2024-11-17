@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { INotesService } from "../services/interfaces/NotesServiceInterface";
+import { INotesService } from "../services/notes/NotesServiceInterface";
 import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/Note";
 import { NOTE_EXCEPTIONS } from "../shared/exceptions/NoteExceptions";
 import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
