@@ -41,7 +41,7 @@ docker compose up --build
 
 ## **`Jest` unit tests**
 - App covered with `Jest` unit tests
-- Coverage `85%` (checkout `coverage` folder)
+- Coverage `85%`
 
 To run all testsheets enter:
 ```
