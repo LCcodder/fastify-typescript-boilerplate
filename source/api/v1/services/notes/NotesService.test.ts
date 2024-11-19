@@ -1,7 +1,6 @@
 import {describe, expect, test} from "@jest/globals";
 import {NotesService} from "./NotesService";
 import {NoteWithoutMetadata} from "../../database/entities/Note";
-import { deepStrictEqual } from "assert";
 
 const mockGetUser = jest.fn();
 const mockFindOneBy = jest.fn();
@@ -296,6 +295,180 @@ describe("Notes service tests", () => {
             expect(result).toBeDefined()
             expect(result[0].login).toBeDefined()
             expect(result[0].password).toBeUndefined()
+        })
+    })
+
+    describe("Add collaborator tests", () => {
+        const note = {
+            id: "12312312",
+            collaborators: [{login: "login1", password: "123123123"}],
+            // @ts-ignore
+            tags: [],
+            content: "",
+            title: "",
+            author: "login",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }
+
+        const user = {
+            login: "login1",
+            password: "12345678",
+            email: "email@email.com",
+            username: "username",
+            personalColor: "#ffffff",
+            isCollaborating: true
+        }
+
+        test("Should return 'note doesn't exist' error", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(null)
+
+            const result = await notesService.addCollaborator("", "", "") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+        test("Should return 'access denied' error (provided login is not author's)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+
+            const result = await notesService.addCollaborator("", "login4", "") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(403);
+        })
+
+        test("Should return 'collaborator not found' error (collaborator login equals author's)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            
+            const result = await notesService.addCollaborator("", "login", "login") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+        test("Should return 'collaborator not found' error (wrong collaborator login)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            usersService.getUser.mockResolvedValueOnce({message: "", statusCode: 404})
+            
+            const result = await notesService.addCollaborator("", "login", "login5") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+        test("Should return 'collaborator not found' error (collaborator is not collaborating)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            usersService.getUser.mockResolvedValueOnce({...note, isCollaborating: false})
+            
+            const result = await notesService.addCollaborator("", "login", "login1") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+        test("Should return 'collaborator already in note error'", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            usersService.getUser.mockResolvedValueOnce(user)
+            
+            const result = await notesService.addCollaborator("", "login", "login1") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(400);
+        })
+
+        test("Should call 'save' method", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            usersService.getUser.mockResolvedValueOnce({...user, login: "login5"})
+            
+            const result = await notesService.addCollaborator("", "login", "login5") as any
+
+            expect(result).toBeDefined();
+            expect(result.success).toEqual(true)
+            expect(noteRepository.save).toBeCalled()
+            
+        })
+    })
+
+    describe("Remove collaborator tests", () => {
+        const note = {
+            id: "12312312",
+            collaborators: [{login: "login1", password: "123123123"}],
+            // @ts-ignore
+            tags: [],
+            content: "",
+            title: "",
+            author: "login",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }
+
+        const user = {
+            login: "login1",
+            password: "12345678",
+            email: "email@email.com",
+            username: "username",
+            personalColor: "#ffffff",
+            isCollaborating: true
+        }
+
+        test("Should return 'note doesn't exist' error", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(null)
+
+            const result = await notesService.removeCollaborator("", "", "") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+        test("Should return 'access denied' error (provided login is not author's)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+
+            const result = await notesService.removeCollaborator("", "login4", "") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(403);
+        })
+
+        test("Should return 'collaborator not found' error (collaborator login equals author's)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            
+            const result = await notesService.removeCollaborator("", "login", "login") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+        test("Should return 'collaborator not found' error (collaborator doesn't exist in note)", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            usersService.getUser.mockResolvedValueOnce({message: "", statusCode: 404})
+            
+            const result = await notesService.removeCollaborator("", "login", "login5") as any
+
+            expect(result).toBeDefined();
+            expect(result.message).toBeDefined();
+            expect(result.statusCode).toEqual(404);
+        })
+
+
+        test("Should call 'save' method", async () => {
+            noteRepository.findOne.mockResolvedValueOnce(note)
+            usersService.getUser.mockResolvedValueOnce({...user, login: "login5"})
+            
+            const result = await notesService.removeCollaborator("", "login", "login1") as any
+            expect(result).toBeDefined();
+            expect(result.success).toEqual(true)
+            expect(noteRepository.save).toBeCalled()
+            
         })
     })
 });

@@ -5,12 +5,13 @@
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 ### REST API and *Clean Architecture* boilerplate/template written in `Node.js` and `Fastify`
- This is *notion-like* note application backend and *Clean Architecture boilerplate* with registration, authorization, collaborating, etc. You can create note, add tags to it and filter your notes, add and remove collaborators, customize your profile. More about functional you can read [here]() 
+ This is *notion-like* note application backend and *Clean Architecture boilerplate* with registration, authorization, collaborating, etc. You can create note, add tags to it and filter your notes, add and remove collaborators, customize your profile.
 
 ### **Features**
 + User registration and authorization by `JWT`
@@ -21,8 +22,6 @@
 + Receiving notes with pagination, update date sorting, tags filtering
 + Adding and removing collaborators
 
-### **Dependency injection diagram**
-<img src="app-schema.png">
 
 
 
@@ -40,6 +39,14 @@ cd NodeNotes
 docker compose up --build
 ```
 
+## **`Jest` unit tests**
+- App covered with `Jest` unit tests
+- Coverage `85%` (checkout `coverage` folder)
+
+To run all testsheets enter:
+```
+npm test
+```
 
 ## **`pgAdmin` panel** 
 
@@ -63,4 +70,4 @@ docker inspect <copied container id>
 <img src="screenshot.png">
 
 ---
-### Everything, including `Postman` tests, `GitHub ci/cd`, `Docker compose` and API itself was created and written by [LCcodder](https://github.com/LCcodder)
+### Everything, including `Postman` tests, unit tests, `GitHub ci/cd`, `Docker compose` and API itself was created and written by [LCcodder](https://github.com/LCcodder)
