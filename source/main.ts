@@ -15,6 +15,8 @@ import { initAndGetDataSource } from './api/v1/database/InitDataSource'
 import { NoteEntity } from './api/v1/database/entities/Note'
 import { initSwaggerViewer } from './api/v1/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
+import Healthcheck from './api/v1/shared/utils/common/Healthcheck'
+import { CommonHandler } from './api/v1/handlers/CommonHandler'
 
 const main = async () => {
     CONFIG.log()
@@ -26,8 +28,6 @@ const main = async () => {
         }
     })
 
-    
-    
     await initSwaggerViewer(server)
     
     server.addHook('onRequest', logRequestMetadata)
@@ -40,11 +40,11 @@ const main = async () => {
         CONFIG.databasePassword,
         CONFIG.databaseName
     )
-
+    appDataSource.isInitialized
     const redis = await connectAndGetRedisInstance(
         CONFIG.redisConnectionString
     )
-    
+    redis.PING()
     // services DI
     const usersService = new UsersService(
         appDataSource.getRepository(UserEntity.User)
@@ -52,17 +52,19 @@ const main = async () => {
     const authService = new AuthService(usersService, redis)
     const authentication = authenticationFactory(authService)
     const notesService = new NotesService(appDataSource.getRepository(NoteEntity.Note), usersService)
-    
+    const healthcheck = new Healthcheck(redis, appDataSource)
     
     // registering handlers with version prefix
     server.register((server, _, done) => {
         const usersHandler = new UsersHandler(server, authentication, usersService)
         const notesHandler = new NotesHandler(server, authentication, notesService)
         const authHandler = new AuthHandler(server, authentication, authService)
+        const commonHandler = new CommonHandler(server, healthcheck)
 
         usersHandler.handleRoutes()
         notesHandler.handleRoutes()
         authHandler.handleRoutes()
+        commonHandler.handleRoutes()
         done()
     }, { prefix: "/api/v1" })
 

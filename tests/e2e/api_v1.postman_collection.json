@@ -1,12 +1,68 @@
 {
 	"info": {
-		"_postman_id": "2ab9da82-cedd-4f0f-a26c-6e98eb3f0f8f",
+		"_postman_id": "b7daecf2-89c3-4203-a003-2b69d9b68cab",
 		"name": "NodeNotes v1",
 		"description": "**NodeNotes E2E tests coverage snippets.**\n\n_Linear testing scenario, negatives and positives._\n\n_All endpoints coverage_",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27933519"
+		"_exporter_id": "27933519",
+		"_collection_link": "https://blue-trinity-780436.postman.co/workspace/My-Workspace~ad9419b7-fa53-4d0c-8bc5-91d56b7dcbdc/collection/27933519-b7daecf2-89c3-4203-a003-2b69d9b68cab?action=share&source=collection_link&creator=27933519"
 	},
 	"item": [
+		{
+			"name": "Healthcheck",
+			"item": [
+				{
+					"name": "Healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const result = pm.response.json()\r",
+									"pm.test(\"Database is accesible\", function () {\r",
+									"    pm.expect(result.databaseAccess).to.equal(true)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Cache is accesible\", function () {\r",
+									"    pm.expect(result.cacheAccess).to.equal(true)\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Uptimes are greater than 0\", function () {\r",
+									"    pm.expect(result.serverUptimeInSec).to.be.greaterThan(-1)\r",
+									"    pm.expect(result.databaseUptimeInSec).to.be.greaterThan(-1)\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/api/v1/healthcheck",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"v1",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Registration",
 			"item": [
@@ -3864,7 +3920,7 @@
 		},
 		{
 			"key": "port",
-			"value": "8080",
+			"value": "8000",
 			"type": "string"
 		},
 		{
