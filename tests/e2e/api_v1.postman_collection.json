@@ -3920,7 +3920,7 @@
 		},
 		{
 			"key": "port",
-			"value": "8000",
+			"value": "8080",
 			"type": "string"
 		},
 		{
