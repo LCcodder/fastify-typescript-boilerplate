@@ -3,3 +3,4 @@
 .env
 dump.rdb
 /coverage
+**/.DS_Store

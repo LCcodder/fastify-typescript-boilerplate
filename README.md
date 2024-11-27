@@ -48,11 +48,18 @@ To run all testsheets enter:
 npm test
 ```
 
+## **`Postman` e2e tests**
+
++ App covered with e2e tests
++ `100%` coverage, over 280 tests
+
+You can find testsheets in `tests/e2e/api_v1.postman_collection.json`
+
 ## **`pgAdmin` panel** 
 
 1. Go to the `http://localhost:5050`
 2. Log in with email: `admin@pgadmin.com` and password: `password`
-3. Run 
+3. Run
 ```
 docker ps -a 
 ```

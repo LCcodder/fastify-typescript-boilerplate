@@ -17,6 +17,7 @@ import { initSwaggerViewer } from './api/v1/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
 import Healthcheck from './api/v1/shared/utils/common/Healthcheck'
 import { CommonHandler } from './api/v1/handlers/CommonHandler'
+import helmet from '@fastify/helmet'
 
 const main = async () => {
     CONFIG.log()
@@ -27,6 +28,8 @@ const main = async () => {
             level: 'error',
         }
     })
+
+    server.register(helmet)
 
     await initSwaggerViewer(server)
     
@@ -40,11 +43,10 @@ const main = async () => {
         CONFIG.databasePassword,
         CONFIG.databaseName
     )
-    appDataSource.isInitialized
     const redis = await connectAndGetRedisInstance(
         CONFIG.redisConnectionString
     )
-    redis.PING()
+
     // services DI
     const usersService = new UsersService(
         appDataSource.getRepository(UserEntity.User)
