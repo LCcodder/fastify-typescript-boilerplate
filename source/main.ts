@@ -17,7 +17,6 @@ import { initSwaggerViewer } from './api/v1/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
 import Healthcheck from './api/v1/shared/utils/common/Healthcheck'
 import { CommonHandler } from './api/v1/handlers/CommonHandler'
-import helmet from '@fastify/helmet'
 
 const main = async () => {
     CONFIG.log()
@@ -29,7 +28,6 @@ const main = async () => {
         }
     })
 
-    server.register(helmet)
 
     await initSwaggerViewer(server)
     
