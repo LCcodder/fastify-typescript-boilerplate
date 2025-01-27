@@ -6,9 +6,9 @@ export const CONFIG: Config = {
 
     databaseHost: process.env.DATABASE_HOST || "localhost",
     databasePort: parseInt(process.env.DATABASE_PORT || "5432"),
-    databaseName: process.env.DATABASE_NAME || "postgres",
+    databaseName: process.env.DATABASE_NAME || "NodeNotes",
     databaseUser: process.env.DATABASE_USER || "postgres",
-    databasePassword: process.env.DATABASE_PASSWORD || "postgres",
+    databasePassword: process.env.DATABASE_PASSWORD || "Rrobocopid12",
 
     get databaseConnectionString(): string {
         return `postgres://${this.databaseUser}:${this.databasePassword}@${this.databaseHost}:${this.databasePort}/${this.databaseName}`

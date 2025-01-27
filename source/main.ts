@@ -1,13 +1,10 @@
 import fastify from 'fastify'
 import { CONFIG } from './api/v1/shared/config/ServerConfiguration'
 import { UsersService } from './api/v1/services/users/UsersService'
-import { UsersHandler } from './api/v1/handlers/UsersHandlers'
 import { AuthService } from './api/v1/services/auth/AuthService'
-import { AuthHandler } from './api/v1/handlers/AuthHandlers'
 import { logRequestMetadata } from './api/v1/api/hooks/onRequestLogger'
 import { logResponseMetadata } from './api/v1/api/hooks/onResponseLogger'
 import { authorizationPreHandlerFactory } from './api/v1/api/prehandlers/AuthPreHandler'
-import { NotesHandler } from './api/v1/handlers/NotesHandlers'
 import { NotesService } from './api/v1/services/notes/NotesService'
 import "reflect-metadata"
 import { User as UserEntity } from './api/v1/database/entities/User'
@@ -17,6 +14,9 @@ import { initSwaggerViewer } from './api/v1/api/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
 import Healthcheck from './api/v1/shared/utils/common/Healthcheck'
 import { CommonHandler } from './api/v1/api/handlers/common/CommonHandler'
+import { AuthHandler } from './api/v1/api/handlers/auth/AuthHandlers'
+import { NotesHandler } from './api/v1/api/handlers/notes/NotesHandlers'
+import { UsersHandler } from './api/v1/api/handlers/users/UsersHandlers'
 
 const main = async () => {
     CONFIG.log()

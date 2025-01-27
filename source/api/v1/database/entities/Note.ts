@@ -7,7 +7,7 @@ import {
     ManyToMany,
     JoinTable
 } from "typeorm";
-import {UserEntity} from "./User";
+import {User as UserEntity} from "./User";
 
 @Entity()
 export class Note {
@@ -34,9 +34,9 @@ export class Note {
     })
     public tags: string[];
 
-    @ManyToMany(() => UserEntity.User, null, {cascade: true})
+    @ManyToMany(() => UserEntity, null, {cascade: true})
     @JoinTable()
-    public collaborators: UserEntity.User[];
+    public collaborators: UserEntity[];
 
     @CreateDateColumn({
         type: "timestamp",

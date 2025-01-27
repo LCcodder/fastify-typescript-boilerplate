@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
-import { UserEntity }  from "./entities/User";
-import { NoteEntity }  from "./entities/Note";
+import { User as UserEntity }  from "./entities/User";
+import { Note as NoteEntity }  from "./entities/Note";
 import { withRetry } from "../shared/decorators/WithRetry";
 
 
@@ -17,7 +17,7 @@ export class DataSourceInitialiser {
     public async initAndGetDataSource(): Promise<DataSource> {
         const appDataSource = new DataSource({
             type: "postgres",
-            entities: [UserEntity.User, NoteEntity.Note],
+            entities: [UserEntity, NoteEntity],
             synchronize: true,
             logging: false,
             host: this.host,

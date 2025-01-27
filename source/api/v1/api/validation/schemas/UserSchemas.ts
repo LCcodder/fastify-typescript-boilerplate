@@ -1,7 +1,7 @@
 import { FastifySchema } from "../../../shared/utils/typing/FastifySchemaOverride";
 import { excludeProperties, pickProperties } from "typing-assets"
 import { BaseUserSchema } from "./base/User"
-import { USER_RESPONSES } from "../../../openapi/responses/UserResponses";
+import { USER_RESPONSES } from "../../openapi/responses/UserResponses";
 
 export const CreateUserSchema: FastifySchema = {
     body: {

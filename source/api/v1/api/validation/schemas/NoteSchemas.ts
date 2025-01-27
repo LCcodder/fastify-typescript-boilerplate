@@ -1,6 +1,6 @@
 import { excludeProperties, pickProperties } from "typing-assets"
 import { BaseNoteSchema, OperateNoteSchema } from "./base/Note"
-import { NOTE_RESPONSES } from "../../../openapi/responses/NoteResponses"
+import { NOTE_RESPONSES } from "../../openapi/responses/NoteResponses"
 import { FastifySchema } from "../../../shared/utils/typing/FastifySchemaOverride"
 
 export const CreateNoteSchema: FastifySchema = {
