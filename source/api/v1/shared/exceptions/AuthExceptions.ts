@@ -2,7 +2,7 @@ import { Exception } from "../utils/typing/Exception";
 
 
 const WRONG_CREDENTIALS: Exception = {
-    statusCode: 409,
+    statusCode: 400,
     message: "Wrong credentials"
 }
 
