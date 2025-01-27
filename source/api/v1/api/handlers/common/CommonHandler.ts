@@ -3,12 +3,13 @@ import Healthcheck, { SystemReport } from "../../../shared/utils/common/Healthch
 import { Handler } from "../Handler";
 import { isException } from "../../../shared/utils/guards/ExceptionGuard";
 
-export class CommonHandler extends Handler<Healthcheck> {
-    constructor(server: FastifyInstance, healthcheck: Healthcheck) {
-        super(server, undefined, healthcheck)
-    }
+export class CommonHandler implements Handler {
+    constructor(
+        private server: FastifyInstance, 
+        private healthcheck: Healthcheck
+    ) {}
 
-    public override handleRoutes(): void {
+    public handleRoutes(): void {
 
         this.server.get("/ping", async (_, reply) => {
             reply.code(200).send("pong")
@@ -20,7 +21,7 @@ export class CommonHandler extends Handler<Healthcheck> {
 
         this.server.get("/healthcheck", async (_, reply) => {
 
-            const result = await this.service.getFullSystemReport()
+            const result = await this.healthcheck.getFullSystemReport()
             if (isException(result)) {
                 // @ts-ignore
                 reply.code(result.statusCode).send(result)

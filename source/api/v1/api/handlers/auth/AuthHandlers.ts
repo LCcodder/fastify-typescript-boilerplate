@@ -8,16 +8,14 @@ import { isException } from "../../../shared/utils/guards/ExceptionGuard";
 import { Handler } from "../Handler";
 import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 
-export class AuthHandler extends Handler<IAuthService> {
+export class AuthHandler implements Handler {
     constructor(
-        server: FastifyInstance, 
-        authorizationPreHandler: AuthorizationPreHandler,
-        authService: IAuthService
-    ) {
-        super(server, authorizationPreHandler, authService)
-    }
+        private server: FastifyInstance, 
+        private authorizationPreHandler: AuthorizationPreHandler,
+        private authService: IAuthService
+    ) {}
 
-    public override handleRoutes(): void {
+    public handleRoutes(): void {
         this.server.post<{
             Body: UserCredentials,
         }>("/auth", {
@@ -25,7 +23,7 @@ export class AuthHandler extends Handler<IAuthService> {
         }, async (request, reply) => {
             const credentials: UserCredentials = request.body
             
-            const result = await this.service.authenticateAndGenerateToken(
+            const result = await this.authService.authenticateAndGenerateToken(
                 credentials.email, 
                 credentials.password
             )
@@ -42,14 +40,14 @@ export class AuthHandler extends Handler<IAuthService> {
             Body: { oldPassword: string, newPassword: string },
         }>("/auth/password", {
             schema: ChangePasswordSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const passwords = request.body
             const { login } = extractJwtPayload(
                 extractToken(request)
             )
     
-            const state = await this.service.changePassword(
+            const state = await this.authService.changePassword(
                 login,
                 passwords.oldPassword,
                 passwords.newPassword

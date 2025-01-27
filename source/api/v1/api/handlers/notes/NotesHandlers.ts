@@ -8,21 +8,19 @@ import { isException } from "../../../shared/utils/guards/ExceptionGuard";
 import { Handler } from "../Handler";
 import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 
-export class NotesHandler extends Handler<INotesService> {
+export class NotesHandler implements Handler {
     constructor(
-        server: FastifyInstance, 
-        authorizationPreHandler: AuthorizationPreHandler,
-        notesService: INotesService
-    ) {
-        super(server, authorizationPreHandler, notesService)
-    }
+        private server: FastifyInstance, 
+        private authorizationPreHandler: AuthorizationPreHandler,
+        private notesService: INotesService
+    ) {}
 
-    public override handleRoutes(): void {
+    public handleRoutes(): void {
         this.server.post<{
             Body: Omit<NoteWithoutMetadata, "author">,
         }>("/notes", {
             schema: CreateNoteSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const { login } = extractJwtPayload(
                 extractToken(request)
@@ -32,7 +30,7 @@ export class NotesHandler extends Handler<INotesService> {
                 ...request.body,
                 author: login
             }
-            const createdNote = await this.service.createNote(insertData)
+            const createdNote = await this.notesService.createNote(insertData)
             if (isException(createdNote)) {
                 reply.code(createdNote.statusCode).send(createdNote)
                 return
@@ -52,7 +50,7 @@ export class NotesHandler extends Handler<INotesService> {
         }>("/notes/my", 
             {
                 schema: GetNotesSchema, 
-                preHandler: this.authentificationPreHandler
+                preHandler: this.authorizationPreHandler
             }, 
         async (request, reply) => {
             const { login } = extractJwtPayload(
@@ -64,7 +62,7 @@ export class NotesHandler extends Handler<INotesService> {
             const sort = request.query.sort
             const tags = request.query.tags
     
-            const notes = await this.service.getMyNotes(login, {tags, limit, skip, sort})
+            const notes = await this.notesService.getMyNotes(login, {tags, limit, skip, sort})
             if (isException(notes)) {
                 reply.code(notes.statusCode).send(notes)
                 return
@@ -83,7 +81,7 @@ export class NotesHandler extends Handler<INotesService> {
             },
         }>("/notes/collaborated", {
             schema: GetNotesSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const { login } = extractJwtPayload(
                 extractToken(request)
@@ -94,7 +92,7 @@ export class NotesHandler extends Handler<INotesService> {
             const sort = request.query.sort
             const tags = request.query.tags
     
-            const notes = await this.service.getCollaboratedNotes(login, {tags, limit, skip, sort}) 
+            const notes = await this.notesService.getCollaboratedNotes(login, {tags, limit, skip, sort}) 
             if (isException(notes)) {
                 reply.code(notes.statusCode).send(notes)
                 return
@@ -107,7 +105,7 @@ export class NotesHandler extends Handler<INotesService> {
         }>("/notes/:id", 
             {
                 schema: GetNoteSchema,
-                preHandler: this.authentificationPreHandler 
+                preHandler: this.authorizationPreHandler 
             },
         async (request, reply) => {
             const { login } = extractJwtPayload(
@@ -116,7 +114,7 @@ export class NotesHandler extends Handler<INotesService> {
     
             const id = request.params.id
     
-            const foundNote = await this.service.getNote(id, login)
+            const foundNote = await this.notesService.getNote(id, login)
             if (isException(foundNote)) {
                 reply.code(foundNote.statusCode).send(foundNote)
                 return
@@ -130,7 +128,7 @@ export class NotesHandler extends Handler<INotesService> {
         }>("/notes/:id", 
             {
                 schema: DeleteNoteSchema,
-                preHandler: this.authentificationPreHandler
+                preHandler: this.authorizationPreHandler
             },
         async (request, reply) => {
             const { login } = extractJwtPayload(
@@ -139,7 +137,7 @@ export class NotesHandler extends Handler<INotesService> {
     
             const id = request.params.id
     
-            const state = await this.service.deleteNote(id, login)
+            const state = await this.notesService.deleteNote(id, login)
             if (isException(state)) {
                 reply.code(state.statusCode).send(state)
                 return
@@ -153,7 +151,7 @@ export class NotesHandler extends Handler<INotesService> {
             Body: NoteUpdate
         }>("/notes/:id", {
             schema: UpdateNoteSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const { login } = extractJwtPayload(
                 extractToken(request)
@@ -162,7 +160,7 @@ export class NotesHandler extends Handler<INotesService> {
             const id = request.params.id
             const updateData = request.body
     
-            const updatedNote = await this.service.updateNote(id, login, updateData)
+            const updatedNote = await this.notesService.updateNote(id, login, updateData)
             if (isException(updatedNote)) {
                 reply.code(updatedNote.statusCode).send(updatedNote)
                 return
@@ -176,7 +174,7 @@ export class NotesHandler extends Handler<INotesService> {
             Params: { id: string },
         }>("/notes/:id/collaborators", {
             schema: GetNoteCollaboratorsSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const { login } = extractJwtPayload(
                 extractToken(request)
@@ -184,7 +182,7 @@ export class NotesHandler extends Handler<INotesService> {
     
             const id = request.params.id
     
-            const collaborators = await this.service.getCollaborators(id, login)
+            const collaborators = await this.notesService.getCollaborators(id, login)
             if (isException(collaborators)) {
                 reply.code(collaborators.statusCode).send(collaborators)
                 return
@@ -200,7 +198,7 @@ export class NotesHandler extends Handler<INotesService> {
             },
         }>("/notes/:id/collaborators", {
             schema: AddCollaboratorSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const { login } = extractJwtPayload(
                 extractToken(request)
@@ -209,7 +207,7 @@ export class NotesHandler extends Handler<INotesService> {
             const id = request.params.id
             const collaboratorLogin = request.body.collaboratorLogin
     
-            const state = await this.service.addCollaborator(
+            const state = await this.notesService.addCollaborator(
                 id,
                 login,
                 collaboratorLogin
@@ -229,7 +227,7 @@ export class NotesHandler extends Handler<INotesService> {
             },
         }>("/notes/:id/collaborators", {
             schema: RemoveCollaboratorSchema,
-            preHandler: this.authentificationPreHandler
+            preHandler: this.authorizationPreHandler
         }, async (request, reply) => {
             const { login } = extractJwtPayload(
                 extractToken(request)
@@ -238,7 +236,7 @@ export class NotesHandler extends Handler<INotesService> {
             const id = request.params.id
             const collaboratorLogin = request.body.collaboratorLogin
     
-            const state = await this.service.removeCollaborator(
+            const state = await this.notesService.removeCollaborator(
                 id,
                 login,
                 collaboratorLogin
