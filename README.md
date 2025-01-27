@@ -26,7 +26,7 @@
 
 
 ## **How to launch**
-> To launch application tou need to install `Docker` and `Docker Compose` on your system
+> To launch application you need to install `Docker` and `Docker Compose` on your system
 
 1. Clone git repository and go to the directory
 ``` Shell
@@ -38,6 +38,17 @@ cd NodeNotes
 ```Shell
 docker compose up --build
 ```
+
+## **Environment variables**
+
+1. `DATABASE_HOST`
+2. `DATABASE_NAME`
+3. `DATABASE_USER`
+4. `DATABASE_PASSWORD`
+5. `REDIS_CONNECTION_STRING` (ex. `redis://127.0.0.1:6379/0`)
+6. `JWT_SECRET`
+7. `JWT_EXPIRATION` (ex. `24h`)
+8. `PORT` 
 
 ## **`Jest` unit tests**
 - App covered with `Jest` unit tests
