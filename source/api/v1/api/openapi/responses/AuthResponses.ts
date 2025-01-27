@@ -1,5 +1,7 @@
-import { AUTH_EXCEPTIONS } from "../../shared/exceptions/AuthExceptions";
-import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
+import { NEW_PASSWORD_IS_SAME, WRONG_CREDENTIALS } from "../../../shared/exceptions/AuthExceptions";
+import { SERVICE_UNAVAILABLE } from "../../../shared/exceptions/CommonException";
+import { USER_NOT_AUTHORIZED } from "../../../shared/exceptions/UserExceptions";
+
 
 export const AUTH_RESPONSES = {
     Authorize: {
@@ -14,14 +16,14 @@ export const AUTH_RESPONSES = {
             type: 'object',
             properties: { 
                 statusCode: { enum: [400] },
-                message: {enum: [AUTH_EXCEPTIONS.WrongCredentials.message]}
+                message: {enum: [WRONG_CREDENTIALS.message]}
             }
         },
         503: {
             type: 'object',
             properties: { 
                 statusCode: { enum: [503] },
-                message: {enum: [AUTH_EXCEPTIONS.ServiceUnavailable.message]}
+                message: {enum: [SERVICE_UNAVAILABLE.message]}
             }
         },
     },
@@ -36,21 +38,21 @@ export const AUTH_RESPONSES = {
             type: 'object',
             properties: { 
                 statusCode: { enum: [400] },
-                message: {enum: [AUTH_EXCEPTIONS.NewPasswordIsSame.message, AUTH_EXCEPTIONS.WrongCredentials.message, "body must have required property 'PROPERTY NAME'"]}
+                message: {enum: [NEW_PASSWORD_IS_SAME.message, WRONG_CREDENTIALS.message, "body must have required property 'PROPERTY NAME'"]}
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         },
         503: {
             type: 'object',
             properties: { 
                 statusCode: { enum: [503] },
-                message: {enum: [AUTH_EXCEPTIONS.ServiceUnavailable.message]}
+                message: {enum: [SERVICE_UNAVAILABLE.message]}
             }
         },
     }

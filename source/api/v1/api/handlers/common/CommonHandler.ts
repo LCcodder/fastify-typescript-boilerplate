@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-import Healthcheck, { SystemReport } from "../shared/utils/common/Healthcheck";
-import { Handler } from "./Handler";
-import { isException } from "../shared/utils/guards/ExceptionGuard";
+import Healthcheck, { SystemReport } from "../../../shared/utils/common/Healthcheck";
+import { Handler } from "../Handler";
+import { isException } from "../../../shared/utils/guards/ExceptionGuard";
 
 export class CommonHandler extends Handler<Healthcheck> {
     constructor(server: FastifyInstance, healthcheck: Healthcheck) {
@@ -18,11 +18,7 @@ export class CommonHandler extends Handler<Healthcheck> {
             reply.code(200).send()
         })
 
-        this.server.get<{
-            Reply: {
-                200: SystemReport
-            }
-        }>("/healthcheck", async (_, reply) => {
+        this.server.get("/healthcheck", async (_, reply) => {
 
             const result = await this.service.getFullSystemReport()
             if (isException(result)) {

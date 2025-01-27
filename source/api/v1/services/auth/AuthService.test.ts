@@ -31,7 +31,7 @@ describe("Auth service test", () => {
     describe("Authorization tests", () => {
         test("Should authorize, then generate and return token", async () => {
             usersService.getUser.mockResolvedValueOnce(user)
-            const result = await authService.authorizeAndGenerateToken("email@email.com", "12345678") as any
+            const result = await authService.authenticateAndGenerateToken("email@email.com", "12345678") as any
 
             expect(result).toBeDefined()
             expect(result.expiresIn).toBeDefined()
@@ -43,20 +43,20 @@ describe("Auth service test", () => {
                 message: "",
                 statusCode: 404
             })
-            const result = await authService.authorizeAndGenerateToken("email@email.com", "12345678") as any
+            const result = await authService.authenticateAndGenerateToken("email@email.com", "12345678") as any
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(400)
+            expect(result.statusCode).toEqual(409)
         })
         
         test("Should return wrong credentials error (wrong password)", async () => {
             usersService.getUser.mockResolvedValueOnce(user)
-            const result = await authService.authorizeAndGenerateToken("email@email.com", "123456789") as any
+            const result = await authService.authenticateAndGenerateToken("email@email.com", "123456789") as any
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(400)
+            expect(result.statusCode).toEqual(409)
         })
 
     });
@@ -79,7 +79,7 @@ describe("Auth service test", () => {
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(400)
+            expect(result.statusCode).toEqual(409)
         })
 
         test("Should return wrong credentials error (wrong old password)", async () => {
@@ -88,7 +88,7 @@ describe("Auth service test", () => {
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(400)
+            expect(result.statusCode).toEqual(409)
         })
 
         test("Should return passwords are same error", async () => {

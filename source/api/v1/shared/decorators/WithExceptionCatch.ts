@@ -1,3 +1,5 @@
+import { SERVICE_UNAVAILABLE } from "../exceptions/CommonException"
+
 export const withExceptionCatch = (_target: any, _key: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value
     
@@ -6,10 +8,7 @@ export const withExceptionCatch = (_target: any, _key: string, descriptor: Prope
             return await originalMethod.apply(this, args)
         } catch (error) {
             console.log(error)
-            return {
-                statusCode: 503,
-                message: "Service unavailable"
-            }
+            return SERVICE_UNAVAILABLE
         }
     }
 

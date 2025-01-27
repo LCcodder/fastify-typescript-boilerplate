@@ -1,7 +1,7 @@
 import { DeepOptional } from "typing-assets";
-import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../database/entities/Note";
-import { NOTE_EXCEPTIONS } from "../../shared/exceptions/NoteExceptions";
-import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
+import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../shared/dto/NoteDto";
+import { SERVICE_UNAVAILABLE } from "../../shared/exceptions/CommonException";
+import { NOTE_ACCESS_RESTRICTED, COLLABORATOR_ALREADY_IN_NOTE, COLLABORATOR_NOT_FOUND, NOTE_NOT_FOUND } from "../../shared/exceptions/NoteExceptions";
 
 export type NotesSearchOptions = DeepOptional<{
     tags: string[]
@@ -15,9 +15,8 @@ export interface INotesService {
         note: NoteWithoutMetadata
     ): Promise<
         | Note
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
-        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
-        | typeof USER_EXCEPTIONS.ServiceUnavailable
+        | typeof SERVICE_UNAVAILABLE
+        | typeof COLLABORATOR_NOT_FOUND
     >
 
     getNote(
@@ -25,8 +24,8 @@ export interface INotesService {
         login: string
     ): Promise<
         | Note
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
     >
 
     deleteNote(
@@ -34,8 +33,8 @@ export interface INotesService {
         login: string 
     ): Promise<
         | {success: true}
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
     >
 
     updateNote(
@@ -44,24 +43,24 @@ export interface INotesService {
         updateData: NoteUpdate
     ): Promise<
         | Note
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
     >
 
     getMyNotes(authorLogin: string, options: NotesSearchOptions): Promise<
         NotePreview[]
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof SERVICE_UNAVAILABLE
     >
 
     getCollaboratedNotes(login: string, options: NotesSearchOptions): Promise<
         NotePreview[]
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof SERVICE_UNAVAILABLE
     >
 
     getCollaborators(id: string, login: string): Promise<
         NoteCollaborators
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
+        | typeof NOTE_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
     >
 
     addCollaborator(
@@ -70,11 +69,11 @@ export interface INotesService {
         collaboratorLogin: string
     ): Promise<
         | { success: true }
-        | typeof NOTE_EXCEPTIONS.CollaboratorAlreadyInNote
-        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
-        | typeof NOTE_EXCEPTIONS.AcessRestricted
+        | typeof COLLABORATOR_ALREADY_IN_NOTE
+        | typeof COLLABORATOR_NOT_FOUND
+        | typeof NOTE_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
+        | typeof NOTE_ACCESS_RESTRICTED
     >
 
     removeCollaborator(
@@ -83,9 +82,9 @@ export interface INotesService {
         collaboratorLogin: string
     ): Promise<
         | { success: true }
-        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
-        | typeof NOTE_EXCEPTIONS.NoteNotFound
-        | typeof NOTE_EXCEPTIONS.ServiceUnavailable
-        | typeof NOTE_EXCEPTIONS.AcessRestricted
+        | typeof COLLABORATOR_NOT_FOUND
+        | typeof NOTE_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
+        | typeof NOTE_ACCESS_RESTRICTED
     >
 }

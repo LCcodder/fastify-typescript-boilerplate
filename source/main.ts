@@ -4,19 +4,19 @@ import { UsersService } from './api/v1/services/users/UsersService'
 import { UsersHandler } from './api/v1/handlers/UsersHandlers'
 import { AuthService } from './api/v1/services/auth/AuthService'
 import { AuthHandler } from './api/v1/handlers/AuthHandlers'
-import { logRequestMetadata } from './api/v1/hooks/onRequestLogger'
-import { logResponseMetadata } from './api/v1/hooks/onResponseLogger'
-import { authenticationFactory } from './api/v1/auth/AuthPreHandler'
+import { logRequestMetadata } from './api/v1/api/hooks/onRequestLogger'
+import { logResponseMetadata } from './api/v1/api/hooks/onResponseLogger'
+import { authorizationPreHandlerFactory } from './api/v1/api/prehandlers/AuthPreHandler'
 import { NotesHandler } from './api/v1/handlers/NotesHandlers'
 import { NotesService } from './api/v1/services/notes/NotesService'
 import "reflect-metadata"
-import { UserEntity } from './api/v1/database/entities/User'
-import { initAndGetDataSource } from './api/v1/database/InitDataSource'
-import { NoteEntity } from './api/v1/database/entities/Note'
-import { initSwaggerViewer } from './api/v1/openapi/swagger/InitSwagger'
+import { User as UserEntity } from './api/v1/database/entities/User'
+import { DataSourceInitialiser } from './api/v1/database/InitDataSource'
+import { Note as NoteEntity } from './api/v1/database/entities/Note'
+import { initSwaggerViewer } from './api/v1/api/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
 import Healthcheck from './api/v1/shared/utils/common/Healthcheck'
-import { CommonHandler } from './api/v1/handlers/CommonHandler'
+import { CommonHandler } from './api/v1/api/handlers/common/CommonHandler'
 
 const main = async () => {
     CONFIG.log()
@@ -34,24 +34,25 @@ const main = async () => {
     server.addHook('onRequest', logRequestMetadata)
     server.addHook('onResponse', logResponseMetadata)
     
-    const appDataSource = initAndGetDataSource(
+    const appDataSource = await new DataSourceInitialiser(
         CONFIG.databaseHost,
         CONFIG.databasePort,
         CONFIG.databaseUser,
         CONFIG.databasePassword,
         CONFIG.databaseName
-    )
+    ).initAndGetDataSource()
+
     const redis = await connectAndGetRedisInstance(
         CONFIG.redisConnectionString
     )
 
     // services DI
     const usersService = new UsersService(
-        appDataSource.getRepository(UserEntity.User)
+        appDataSource.getRepository(UserEntity)
     )
     const authService = new AuthService(usersService, redis)
-    const authentication = authenticationFactory(authService)
-    const notesService = new NotesService(appDataSource.getRepository(NoteEntity.Note), usersService)
+    const authentication = authorizationPreHandlerFactory(authService)
+    const notesService = new NotesService(appDataSource.getRepository(NoteEntity), usersService)
     const healthcheck = new Healthcheck(redis, appDataSource)
     
     // registering handlers with version prefix

@@ -1,7 +1,7 @@
 import {pickProperties} from "typing-assets";
 import {BaseUserSchema} from "./base/User";
-import {AUTH_RESPONSES} from "../../openapi/responses/AuthResponses";
-import {FastifySchema} from "../../shared/utils/typing/FastifySchemaOverride";
+import {FastifySchema} from "../../../shared/utils/typing/FastifySchemaOverride";
+import { AUTH_RESPONSES } from "../../openapi/responses/AuthResponses";
 
 export const AuthUserSchema: FastifySchema = {
     body: {

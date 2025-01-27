@@ -1,33 +1,27 @@
 import { FastifyInstance } from "fastify";
-import { IUsersService } from "../services/users/UsersServiceInterface";
-import { UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../database/entities/User";
-import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
-import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema } from "../validation/schemas/UserSchemas";
-import { UsersService } from "../services/users/UsersService";
-import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
-import { extractToken } from "../shared/utils/common/TokenExtractor";
-import { isException } from "../shared/utils/guards/ExceptionGuard";
-import { Handler } from "./Handler";
-import { AuthentificationPreHandler } from "../auth/AuthPreHandler";
+import { IUsersService } from "../../../services/users/UsersServiceInterface";
+import { UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../../shared/dto/UserDto";
+import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema } from "../../validation/schemas/UserSchemas";
+import { UsersService } from "../../../services/users/UsersService";
+import { extractJwtPayload } from "../../../shared/utils/jwt/PayloadExtractor";
+import { extractToken } from "../../../shared/utils/common/TokenExtractor";
+import { isException } from "../../../shared/utils/guards/ExceptionGuard";
+import { Handler } from "../Handler";
+import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 
 
 export class UsersHandler extends Handler<IUsersService> {
     constructor(
         server: FastifyInstance, 
-        authentificationPreHandler: AuthentificationPreHandler,
+        authorizationPreHandler: AuthorizationPreHandler,
         usersService: IUsersService
     ) {
-        super(server, authentificationPreHandler, usersService)
+        super(server, authorizationPreHandler, usersService)
     }
 
     public override handleRoutes(): void {
         this.server.post<{
             Body: UserWithoutMetadata,
-            Reply: {
-                201: UserWithoutSensetives,
-                400: typeof USER_EXCEPTIONS.AlreadyExists,
-                503: typeof USER_EXCEPTIONS.ServiceUnavailable
-            }
         }>("/users", { schema: CreateUserSchema }, async (request, reply) => {
     
             const insertData: UserWithoutMetadata = request.body
@@ -44,13 +38,7 @@ export class UsersHandler extends Handler<IUsersService> {
             
         })
     
-        this.server.get<{
-            Reply: {
-                200: UserWithoutSensetives,
-                404: typeof USER_EXCEPTIONS.NotFound,
-                503: typeof USER_EXCEPTIONS.ServiceUnavailable,
-            }
-        }>("/users/me", {
+        this.server.get("/users/me", {
             schema: GetMyProfileSchema,
             preHandler: this.authentificationPreHandler
         }, async (request, reply) => {
@@ -71,11 +59,6 @@ export class UsersHandler extends Handler<IUsersService> {
     
         this.server.patch<{
             Body: Omit<UserUpdate, "password" | "validToken">,
-            Reply: {
-                200: UserWithoutSensetives,
-                404: typeof USER_EXCEPTIONS.NotFound,
-                503: typeof USER_EXCEPTIONS.ServiceUnavailable
-            }
         }>("/users/me", {
             schema: UpdateUserSchema,
             preHandler: this.authentificationPreHandler
@@ -99,11 +82,6 @@ export class UsersHandler extends Handler<IUsersService> {
     
         this.server.get<{
             Params: { login: string },
-            Reply: {
-                200: UserWithoutSensetives,
-                404: typeof USER_EXCEPTIONS.NotFound,
-                503: typeof USER_EXCEPTIONS.ServiceUnavailable
-            }
         }>("/users/:login", {
             schema: GetUserSchema,
             preHandler: this.authentificationPreHandler

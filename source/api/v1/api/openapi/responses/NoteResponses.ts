@@ -1,8 +1,10 @@
 import { excludeProperties } from "typing-assets";
-import { NOTE_EXCEPTIONS } from "../../shared/exceptions/NoteExceptions";
-import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
+
 import { BaseNoteSchema } from "../../validation/schemas/base/Note";
 import { BaseUserSchema } from "../../validation/schemas/base/User";
+import { NOTE_ACCESS_RESTRICTED, COLLABORATOR_ALREADY_IN_NOTE, COLLABORATOR_NOT_FOUND, NOTE_NOT_FOUND } from "../../../shared/exceptions/NoteExceptions";
+import { SERVICE_UNAVAILABLE } from "../../../shared/exceptions/CommonException";
+import { USER_NOT_AUTHORIZED } from "../../../shared/exceptions/UserExceptions";
 
 export const NOTE_RESPONSES = {
     CreateNote: {
@@ -11,7 +13,7 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.CollaboratorNotFound.message] }
+                message: { enum: [COLLABORATOR_NOT_FOUND.message] }
             }
         },
         400: {
@@ -27,14 +29,14 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         }
     },
@@ -50,14 +52,14 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         }
     },
@@ -67,21 +69,21 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.NoteNotFound.message] }
+                message: { enum: [NOTE_NOT_FOUND.message] }
             }
         },
         503: {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         } 
     },
@@ -96,21 +98,21 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.NoteNotFound.message] }
+                message: { enum: [NOTE_NOT_FOUND.message] }
             }
         },
         503: {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         } 
     },
@@ -129,21 +131,21 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.NoteNotFound.message] }
+                message: { enum: [NOTE_NOT_FOUND.message] }
             }
         },
         503: {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         } 
     },
@@ -153,7 +155,7 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.CollaboratorNotFound.message] }
+                message: { enum: [COLLABORATOR_NOT_FOUND.message] }
             }
         },
         400: {
@@ -169,14 +171,14 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         }  
     },
@@ -191,35 +193,35 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [400] },
-                message: { enum: [NOTE_EXCEPTIONS.CollaboratorAlreadyInNote.message] }
+                message: { enum: [COLLABORATOR_ALREADY_IN_NOTE.message] }
             }
         },
         403: {
             type: 'object',
             properties: {
                 statusCode: { enum: [403] },
-                message: { enum: [NOTE_EXCEPTIONS.AcessRestricted.message] }
+                message: { enum: [NOTE_ACCESS_RESTRICTED.message] }
             }
         },
         404: {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.CollaboratorNotFound.message, NOTE_EXCEPTIONS.NoteNotFound.message] }
+                message: { enum: [COLLABORATOR_NOT_FOUND.message, NOTE_NOT_FOUND.message] }
             }
         },
         503: {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         }
     },
@@ -234,7 +236,7 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [403] },
-                message: { enum: [NOTE_EXCEPTIONS.AcessRestricted.message] }
+                message: { enum: [NOTE_ACCESS_RESTRICTED.message] }
             }
         },
         
@@ -242,21 +244,21 @@ export const NOTE_RESPONSES = {
             type: 'object',
             properties: {
                 statusCode: { enum: [404] },
-                message: { enum: [NOTE_EXCEPTIONS.CollaboratorNotFound.message, NOTE_EXCEPTIONS.NoteNotFound.message] }
+                message: { enum: [COLLABORATOR_NOT_FOUND.message, NOTE_NOT_FOUND.message] }
             }
         },
         503: {
             type: 'object',
             properties: {
                 statusCode: { enum: [503] },
-                message: { enum: [NOTE_EXCEPTIONS.ServiceUnavailable.message] }
+                message: { enum: [SERVICE_UNAVAILABLE.message] }
             }
         },
         401: {
             type: 'object',
             properties: {
                 statusCode: { enum: [401] },
-                message: { enum: [USER_EXCEPTIONS.NotAuthorized.message] }
+                message: { enum: [USER_NOT_AUTHORIZED.message] }
             }
         }
     }

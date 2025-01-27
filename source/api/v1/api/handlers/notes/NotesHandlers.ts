@@ -1,32 +1,25 @@
 import { FastifyInstance } from "fastify";
-import { INotesService } from "../services/notes/NotesServiceInterface";
-import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../database/entities/Note";
-import { NOTE_EXCEPTIONS } from "../shared/exceptions/NoteExceptions";
-import { extractJwtPayload } from "../auth/jwt/PayloadExtractor";
-import { extractToken } from "../shared/utils/common/TokenExtractor";
-import { AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../validation/schemas/NoteSchemas";
-import { isException } from "../shared/utils/guards/ExceptionGuard";
-import { USER_EXCEPTIONS } from "../shared/exceptions/UserExceptions";
-import { Handler } from "./Handler";
-import { AuthentificationPreHandler } from "../auth/AuthPreHandler";
+import { INotesService } from "../../../services/notes/NotesServiceInterface";
+import { Note, NoteCollaborators, NotePreview, NoteUpdate, NoteWithoutMetadata } from "../../../shared/dto/NoteDto";
+import { extractJwtPayload } from "../../../shared/utils/jwt/PayloadExtractor";
+import { extractToken } from "../../../shared/utils/common/TokenExtractor";
+import { AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../../validation/schemas/NoteSchemas";
+import { isException } from "../../../shared/utils/guards/ExceptionGuard";
+import { Handler } from "../Handler";
+import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 
 export class NotesHandler extends Handler<INotesService> {
     constructor(
         server: FastifyInstance, 
-        authentificationPreHandler: AuthentificationPreHandler,
+        authorizationPreHandler: AuthorizationPreHandler,
         notesService: INotesService
     ) {
-        super(server, authentificationPreHandler, notesService)
+        super(server, authorizationPreHandler, notesService)
     }
 
     public override handleRoutes(): void {
         this.server.post<{
             Body: Omit<NoteWithoutMetadata, "author">,
-            Reply: {
-                201: Note,
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable | typeof USER_EXCEPTIONS.ServiceUnavailable
-                404: typeof NOTE_EXCEPTIONS.CollaboratorNotFound
-            }
         }>("/notes", {
             schema: CreateNoteSchema,
             preHandler: this.authentificationPreHandler
@@ -56,10 +49,6 @@ export class NotesHandler extends Handler<INotesService> {
                 sort: "ASC" | "DESC",
                 tags: string[]
             },
-            Reply: {
-                200: NotePreview[],
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable  
-            }
         }>("/notes/my", 
             {
                 schema: GetNotesSchema, 
@@ -92,10 +81,6 @@ export class NotesHandler extends Handler<INotesService> {
                 sort: "ASC" | "DESC",
                 tags: string[]
             },
-            Reply: {
-                200: NotePreview[],
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable   
-            }
         }>("/notes/collaborated", {
             schema: GetNotesSchema,
             preHandler: this.authentificationPreHandler
@@ -119,11 +104,6 @@ export class NotesHandler extends Handler<INotesService> {
     
         this.server.get<{
             Params: { id: string },
-            Reply: {
-                200: Note,
-                404: typeof NOTE_EXCEPTIONS.NoteNotFound,
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-            }
         }>("/notes/:id", 
             {
                 schema: GetNoteSchema,
@@ -147,11 +127,6 @@ export class NotesHandler extends Handler<INotesService> {
     
         this.server.delete<{
             Params: { id: string },
-            Reply: {
-                200: { success: true },
-                404: typeof NOTE_EXCEPTIONS.NoteNotFound,
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-            }
         }>("/notes/:id", 
             {
                 schema: DeleteNoteSchema,
@@ -175,11 +150,6 @@ export class NotesHandler extends Handler<INotesService> {
     
         this.server.patch<{
             Params: { id: string },
-            Reply: {
-                200: Note,
-                404: typeof NOTE_EXCEPTIONS.NoteNotFound,
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-            },
             Body: NoteUpdate
         }>("/notes/:id", {
             schema: UpdateNoteSchema,
@@ -204,11 +174,6 @@ export class NotesHandler extends Handler<INotesService> {
     
         this.server.get<{
             Params: { id: string },
-            Reply: {
-                200: NoteCollaborators
-                404: typeof NOTE_EXCEPTIONS.NoteNotFound
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-            }
         }>("/notes/:id/collaborators", {
             schema: GetNoteCollaboratorsSchema,
             preHandler: this.authentificationPreHandler
@@ -233,13 +198,6 @@ export class NotesHandler extends Handler<INotesService> {
             Body: {
                 collaboratorLogin: string
             },
-            Reply: {
-                201: {success: true}
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable,
-                404: typeof NOTE_EXCEPTIONS.CollaboratorNotFound | typeof NOTE_EXCEPTIONS.NoteNotFound
-                400: typeof NOTE_EXCEPTIONS.CollaboratorAlreadyInNote
-                403: typeof NOTE_EXCEPTIONS.AcessRestricted
-            }
         }>("/notes/:id/collaborators", {
             schema: AddCollaboratorSchema,
             preHandler: this.authentificationPreHandler
@@ -269,12 +227,6 @@ export class NotesHandler extends Handler<INotesService> {
             Body: {
                 collaboratorLogin: string
             },
-            Reply: {
-                200: {success: true}
-                503: typeof NOTE_EXCEPTIONS.ServiceUnavailable
-                404: typeof NOTE_EXCEPTIONS.CollaboratorNotFound | typeof NOTE_EXCEPTIONS.NoteNotFound
-                403: typeof NOTE_EXCEPTIONS.AcessRestricted
-            }
         }>("/notes/:id/collaborators", {
             schema: RemoveCollaboratorSchema,
             preHandler: this.authentificationPreHandler

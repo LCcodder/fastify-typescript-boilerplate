@@ -1,10 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction } from "fastify";
-import { AuthentificationPreHandler } from "../auth/AuthPreHandler";
+import { AuthorizationPreHandler } from "../prehandlers/AuthPreHandler";
 
 export abstract class Handler<TService> {
     constructor(
         protected server: FastifyInstance,
-        protected authentificationPreHandler: AuthentificationPreHandler,
+        protected authentificationPreHandler: AuthorizationPreHandler,
         protected service: TService
     ) {}
 

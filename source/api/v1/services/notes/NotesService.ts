@@ -3,21 +3,25 @@ import {
     Note,
     NotePreview,
     NoteUpdate,
-    NoteEntity,
-} from "../../database/entities/Note";
-import {
-    User,
-    UserEntity,
-} from "../../database/entities/User";
+    NoteCollaborators
+} from "../../shared/dto/NoteDto";
+import {User as UserEntity} from "../../database/entities/User";
+import {Note as NoteEntity} from "../../database/entities/Note";
 import {IUsersService} from "../users/UsersServiceInterface";
 import {INotesService, NotesSearchOptions} from "./NotesServiceInterface";
-import {NOTE_EXCEPTIONS} from "../../shared/exceptions/NoteExceptions";
 import {Repository} from "typeorm";
 import {transformNoteCollaborators} from "../../shared/utils/common/TransformNoteCollaborators";
 import {excludeProperties} from "typing-assets";
 import {withExceptionCatch} from "../../shared/decorators/WithExceptionCatch";
 import {isException} from "../../shared/utils/guards/ExceptionGuard";
-import {USER_EXCEPTIONS} from "../../shared/exceptions/UserExceptions";
+import {
+    NOTE_ACCESS_RESTRICTED,
+    COLLABORATOR_ALREADY_IN_NOTE,
+    COLLABORATOR_NOT_FOUND,
+    NOTE_NOT_FOUND
+} from "../../shared/exceptions/NoteExceptions";
+import {SERVICE_UNAVAILABLE} from "../../shared/exceptions/CommonException";
+import {User} from "../../shared/dto/UserDto";
 
 export class NotesService implements INotesService {
     private static generateNoteId(): string {
@@ -29,20 +33,23 @@ export class NotesService implements INotesService {
         return id;
     }
 
-    private static isInCollaborators(login: string, note: NoteEntity.Note): boolean {
+    private static isInCollaborators(login: string, note: NoteEntity): boolean {
         return Boolean(note.collaborators.find((c) => c.login === login));
     }
 
-    private static isNoteAuthor(login: string, note: NoteEntity.Note): boolean {
+    private static isNoteAuthor(login: string, note: NoteEntity): boolean {
         return login === note.author;
     }
 
-    private static canAccessNote(login: string, note: NoteEntity.Note): boolean {
-        return NotesService.isNoteAuthor(login, note) || NotesService.isInCollaborators(login, note)
+    private static canAccessNote(login: string, note: NoteEntity): boolean {
+        return (
+            NotesService.isNoteAuthor(login, note) ||
+            NotesService.isInCollaborators(login, note)
+        );
     }
 
     constructor(
-        private noteRepository: Repository<NoteEntity.Note>,
+        private noteRepository: Repository<NoteEntity>,
         private usersService: IUsersService
     ) {}
 
@@ -50,9 +57,9 @@ export class NotesService implements INotesService {
     private async createCollaboratorsRelationArray(
         collaboratorsLogins: string[]
     ): Promise<
-        | UserEntity.User[]
-        | typeof NOTE_EXCEPTIONS.CollaboratorNotFound
-        | typeof USER_EXCEPTIONS.ServiceUnavailable
+        | UserEntity[]
+        | typeof COLLABORATOR_NOT_FOUND
+        | typeof SERVICE_UNAVAILABLE
     > {
         const collaboratorsRelationArray = [];
 
@@ -64,12 +71,12 @@ export class NotesService implements INotesService {
             );
             if (isException(collaborator)) {
                 if (collaborator.statusCode === 404) {
-                    return NOTE_EXCEPTIONS.CollaboratorNotFound;
+                    return COLLABORATOR_NOT_FOUND;
                 }
                 return collaborator;
             }
             if (!collaborator.isCollaborating) {
-                return NOTE_EXCEPTIONS.CollaboratorNotFound;
+                return COLLABORATOR_NOT_FOUND;
             }
 
             collaboratorsRelationArray.push(collaborator as User);
@@ -108,7 +115,7 @@ export class NotesService implements INotesService {
         });
 
         if (!foundNote || !NotesService.canAccessNote(login, foundNote)) {
-            return NOTE_EXCEPTIONS.NoteNotFound;
+            return NOTE_NOT_FOUND;
         }
 
         return transformNoteCollaborators(foundNote) as unknown as Note;
@@ -121,7 +128,7 @@ export class NotesService implements INotesService {
             relations: {collaborators: true}
         });
         if (!foundNote) {
-            return NOTE_EXCEPTIONS.NoteNotFound;
+            return NOTE_NOT_FOUND;
         }
 
         if (NotesService.isNoteAuthor(login, foundNote)) {
@@ -150,7 +157,7 @@ export class NotesService implements INotesService {
         });
 
         if (!foundNote || !NotesService.canAccessNote(login, foundNote)) {
-            return NOTE_EXCEPTIONS.NoteNotFound;
+            return NOTE_NOT_FOUND;
         }
 
         foundNote = Object.assign(foundNote, updateData);
@@ -160,10 +167,7 @@ export class NotesService implements INotesService {
     }
 
     @withExceptionCatch
-    public async getMyNotes(
-        authorLogin: string,
-        options: NotesSearchOptions
-    ) {
+    public async getMyNotes(authorLogin: string, options: NotesSearchOptions) {
         const query = this.noteRepository
             .createQueryBuilder("note")
             .select([
@@ -178,7 +182,7 @@ export class NotesService implements INotesService {
             .skip(options?.skip)
             .orderBy("note.updatedAt", options?.sort);
 
-        const tags = options?.tags
+        const tags = options?.tags;
         if (tags && tags.length) {
             query.where("note.tags && :tags", {tags});
         }
@@ -210,8 +214,8 @@ export class NotesService implements INotesService {
             .limit(options?.limit)
             .skip(options?.skip)
             .orderBy("note.updatedAt", options?.sort);
-        
-        const tags = options?.tags
+
+        const tags = options?.tags;
         if (tags && tags.length) {
             query.where("note.tags && :tags", {tags});
         }
@@ -232,12 +236,13 @@ export class NotesService implements INotesService {
         });
 
         if (!foundNote || !NotesService.canAccessNote(login, foundNote)) {
-            return NOTE_EXCEPTIONS.NoteNotFound;
+            return NOTE_NOT_FOUND;
         }
 
         const collaborators = foundNote.collaborators.map((c) =>
             excludeProperties(c, "password")
-        );
+        ) as NoteCollaborators
+        
         return collaborators;
     }
 
@@ -253,15 +258,15 @@ export class NotesService implements INotesService {
         });
 
         if (!foundNote) {
-            return NOTE_EXCEPTIONS.NoteNotFound;
+            return NOTE_NOT_FOUND;
         }
         if (!NotesService.isNoteAuthor(authorLogin, foundNote)) {
-            return NOTE_EXCEPTIONS.AcessRestricted;
+            return NOTE_ACCESS_RESTRICTED;
         }
 
         // obviously, author can't add himself to note
         if (authorLogin === collaboratorLogin) {
-            return NOTE_EXCEPTIONS.CollaboratorNotFound;
+            return COLLABORATOR_NOT_FOUND;
         }
 
         const foundCollaborator = await this.usersService.getUser(
@@ -270,17 +275,17 @@ export class NotesService implements INotesService {
         );
         if (isException(foundCollaborator)) {
             if (foundCollaborator.statusCode === 404) {
-                return NOTE_EXCEPTIONS.CollaboratorNotFound;
+                return COLLABORATOR_NOT_FOUND;
             }
-            return NOTE_EXCEPTIONS.ServiceUnavailable;
+            return SERVICE_UNAVAILABLE;
         }
 
         if (!foundCollaborator.isCollaborating) {
-            return NOTE_EXCEPTIONS.CollaboratorNotFound;
+            return COLLABORATOR_NOT_FOUND;
         }
 
         if (NotesService.isInCollaborators(collaboratorLogin, foundNote)) {
-            return NOTE_EXCEPTIONS.CollaboratorAlreadyInNote;
+            return COLLABORATOR_ALREADY_IN_NOTE;
         }
 
         foundNote.collaborators.push(foundCollaborator);
@@ -301,19 +306,19 @@ export class NotesService implements INotesService {
         });
 
         if (!foundNote) {
-            return NOTE_EXCEPTIONS.NoteNotFound;
+            return NOTE_NOT_FOUND;
         }
         if (!NotesService.isNoteAuthor(authorLogin, foundNote)) {
-            return NOTE_EXCEPTIONS.AcessRestricted;
+            return NOTE_ACCESS_RESTRICTED;
         }
 
         // again, author can't remove himself from note
         if (authorLogin === collaboratorLogin) {
-            return NOTE_EXCEPTIONS.CollaboratorNotFound;
+            return COLLABORATOR_NOT_FOUND;
         }
 
         if (!NotesService.isInCollaborators(collaboratorLogin, foundNote)) {
-            return NOTE_EXCEPTIONS.CollaboratorNotFound;
+            return COLLABORATOR_NOT_FOUND;
         }
 
         // excluding collaborator from note

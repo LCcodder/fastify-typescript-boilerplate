@@ -1,6 +1,6 @@
 import {describe, expect, test} from "@jest/globals";
 import {NotesService} from "./NotesService";
-import {NoteWithoutMetadata} from "../../database/entities/Note";
+import {NoteWithoutMetadata} from "../../shared/dto/NoteDto";
 
 const mockGetUser = jest.fn();
 const mockFindOneBy = jest.fn();

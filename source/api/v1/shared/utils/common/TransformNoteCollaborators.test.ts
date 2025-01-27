@@ -1,6 +1,6 @@
 import {describe, expect, test} from "@jest/globals";
 import { transformNoteCollaborators } from "./TransformNoteCollaborators";
-import { NoteEntity } from "../../../database/entities/Note";
+import { Note as NoteEntity } from "../../../database/entities/Note";
 
 describe("Note collaborators transformer tests", () => {
     test("Collaborators field transforms", () => {
@@ -16,7 +16,7 @@ describe("Note collaborators transformer tests", () => {
             ]
         } as any
 
-        note = transformNoteCollaborators(note as NoteEntity.Note)
+        note = transformNoteCollaborators(note as NoteEntity)
 
         expect(
             note.collaborators[0]

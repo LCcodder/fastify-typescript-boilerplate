@@ -1,13 +1,13 @@
-import { generateToken } from "../../auth/jwt/TokenGenerator";
-import { AUTH_EXCEPTIONS } from "../../shared/exceptions/AuthExceptions";
+import { NEW_PASSWORD_IS_SAME, WRONG_CREDENTIALS } from "../../shared/exceptions/AuthExceptions";
 import { IAuthService } from "./AuthServiceInterface";
 import { CONFIG } from "../../shared/config/ServerConfiguration";
 import bcrypt from 'bcrypt'
-import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 import { RedisClientType } from "redis";
 import { withExceptionCatch } from "../../shared/decorators/WithExceptionCatch";
 import { isException } from "../../shared/utils/guards/ExceptionGuard";
 import { IUsersService } from "../users/UsersServiceInterface";
+import { generateToken } from "../../shared/utils/jwt/TokenGenerator";
+import { USER_NOT_AUTHORIZED } from "../../shared/exceptions/UserExceptions";
 
 export class AuthService implements IAuthService {
     constructor(
@@ -16,19 +16,20 @@ export class AuthService implements IAuthService {
     ) {}
 
     @withExceptionCatch
-    public async authorizeAndGenerateToken(email: string, password: string) {
+    public async authenticateAndGenerateToken(email: string, password: string) {
         
         const foundUser = await this.usersService.getUser("email", email)
+        // error transformation
         if (isException(foundUser)) {
             if (foundUser.statusCode === 404) {
-                return AUTH_EXCEPTIONS.WrongCredentials
+                return WRONG_CREDENTIALS
             }
             return foundUser
         }
 
         const passwordIsValid = await bcrypt.compare(password, foundUser.password)
         if (!passwordIsValid) {
-            return AUTH_EXCEPTIONS.WrongCredentials
+            return WRONG_CREDENTIALS
         }
 
         const token = generateToken(foundUser.login)
@@ -47,7 +48,7 @@ export class AuthService implements IAuthService {
         
         const foundToken = await this.redis.GET(login)
         if (!foundToken || foundToken !== transmittedToken) {
-            return USER_EXCEPTIONS.NotAuthorized
+            return USER_NOT_AUTHORIZED
         }
         
         return 
@@ -59,17 +60,17 @@ export class AuthService implements IAuthService {
         const foundUser = await this.usersService.getUser("login", login)
         if (isException(foundUser)) {
             if (foundUser.statusCode === 404) {
-                return AUTH_EXCEPTIONS.WrongCredentials
+                return WRONG_CREDENTIALS
             }
             return foundUser
         }
         
         const passwordIsValid = await bcrypt.compare(oldPassword, foundUser.password)
         if (!passwordIsValid) {
-            return AUTH_EXCEPTIONS.WrongCredentials
+            return WRONG_CREDENTIALS
         }
         if (oldPassword === newPassword) {
-            return AUTH_EXCEPTIONS.NewPasswordIsSame
+            return NEW_PASSWORD_IS_SAME
         }
 
         const newHashedPassword = await bcrypt.hash(newPassword, 4)

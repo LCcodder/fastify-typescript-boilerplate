@@ -1,9 +1,9 @@
-import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../database/entities/User";
+import { User, UserUpdate, UserWithoutMetadata, UserWithoutSensetives } from "../../shared/dto/UserDto";
 import { IUsersService } from "./UsersServiceInterface";
-import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
 import bcrypt from 'bcrypt'
 import { Repository } from "typeorm";
 import { withExceptionCatch } from "../../shared/decorators/WithExceptionCatch";
+import { USER_ALREADY_EXISTS, USER_NOT_FOUND } from "../../shared/exceptions/UserExceptions";
 
 export class UsersService implements IUsersService {
     /**
@@ -15,7 +15,7 @@ export class UsersService implements IUsersService {
         try {
             user.password = undefined
             return user
-        } catch(_) {
+        } catch {
             return user
         }
     }
@@ -37,7 +37,7 @@ export class UsersService implements IUsersService {
     public async createUser(user: UserWithoutMetadata) {
         
         if (await this.isUserExist(user.email, user.password)) {
-            return USER_EXCEPTIONS.AlreadyExists
+            return USER_ALREADY_EXISTS
         }
 
         let creationData: UserWithoutMetadata = {
@@ -57,7 +57,7 @@ export class UsersService implements IUsersService {
         query[key] = value
 
         const user = await this.userRepository.findOneBy(query)
-        if (!user) return USER_EXCEPTIONS.NotFound
+        if (!user) return USER_NOT_FOUND
 
         return user as unknown as User
        
@@ -69,7 +69,7 @@ export class UsersService implements IUsersService {
         const state = await this.userRepository.update({ login }, updateData)
         // found user check
         if (!state.affected) {
-            return USER_EXCEPTIONS.NotFound
+            return USER_NOT_FOUND
         }
 
         const updatedUser = await this.userRepository.findOneBy({ login })

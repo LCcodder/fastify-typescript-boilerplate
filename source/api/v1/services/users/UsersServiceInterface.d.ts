@@ -1,11 +1,12 @@
-import { User, UserUpdate, UserWithoutMetadata } from "../../database/entities/User";
-import { USER_EXCEPTIONS } from "../../shared/exceptions/UserExceptions";
+import { User, UserUpdate, UserWithoutMetadata } from "../../shared/dto/UserDto";
+import { SERVICE_UNAVAILABLE } from "../../shared/exceptions/CommonException";
+import { USER_ALREADY_EXISTS } from "../../shared/exceptions/UserExceptions";
 
 export declare interface IUsersService {
     createUser(user: UserWithoutMetadata): Promise<
         | User
-        | typeof USER_EXCEPTIONS.AlreadyExists
-        | typeof USER_EXCEPTIONS.ServiceUnavailable
+        | typeof USER_ALREADY_EXISTS
+        | typeof SERVICE_UNAVAILABLE
     >;
 
     getUser<TKey extends keyof UserWithoutMetadata>(
@@ -13,13 +14,13 @@ export declare interface IUsersService {
         value: UserWithoutMetadata[TKey]
     ): Promise<
         | User
-        | typeof USER_EXCEPTIONS.ServiceUnavailable
-        | typeof USER_EXCEPTIONS.NotFound  
+        | typeof SERVICE_UNAVAILABLE
+        | typeof SERVICE_UNAVAILABLE
     >
 
     updateUserByLogin(login: string, updateData: UserUpdate): Promise<
         | User
-        | typeof USER_EXCEPTIONS.ServiceUnavailable
-        | typeof USER_EXCEPTIONS.NotFound  
+        | typeof SERVICE_UNAVAILABLE
+        | typeof SERVICE_UNAVAILABLE
     >
 }

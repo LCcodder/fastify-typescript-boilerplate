@@ -1,4 +1,4 @@
-import { UserWithoutMetadata } from "../../database/entities/User"
+import { UserWithoutMetadata } from "../../shared/dto/UserDto"
 import { UsersService } from "./UsersService"
 import {describe, expect, test} from "@jest/globals"
 
