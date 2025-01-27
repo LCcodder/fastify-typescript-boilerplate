@@ -47,7 +47,7 @@ describe("Auth service test", () => {
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(409)
+            expect(result.statusCode).toEqual(400)
         })
         
         test("Should return wrong credentials error (wrong password)", async () => {
@@ -56,7 +56,7 @@ describe("Auth service test", () => {
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(409)
+            expect(result.statusCode).toEqual(400)
         })
 
     });
@@ -79,7 +79,7 @@ describe("Auth service test", () => {
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(409)
+            expect(result.statusCode).toEqual(400)
         })
 
         test("Should return wrong credentials error (wrong old password)", async () => {
@@ -88,7 +88,7 @@ describe("Auth service test", () => {
 
             expect(result).toBeDefined()
             expect(result.message).toBeDefined()
-            expect(result.statusCode).toEqual(409)
+            expect(result.statusCode).toEqual(400)
         })
 
         test("Should return passwords are same error", async () => {
