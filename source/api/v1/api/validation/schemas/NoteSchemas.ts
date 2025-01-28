@@ -32,7 +32,7 @@ export const GetNotesSchema: FastifySchema = {
         properties: {
             limit: { type: 'integer', minimum: 0 },
             offset: { type: 'integer', minimum: 0 },
-            sort: { type: "string", enum: ["ASC", "DESC"] },
+            date_sort: { type: "string", enum: ["ASC", "DESC"] },
             tags: { type: 'array', items: { type: 'string' }, maxItems: 20 }
         }   
     },

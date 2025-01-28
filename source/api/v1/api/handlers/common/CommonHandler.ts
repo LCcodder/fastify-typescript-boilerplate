@@ -23,7 +23,6 @@ export class CommonHandler implements Handler {
 
             const result = await this.healthcheck.getFullSystemReport()
             if (isException(result)) {
-                // @ts-ignore
                 reply.code(result.statusCode).send(result)
                 return
             }

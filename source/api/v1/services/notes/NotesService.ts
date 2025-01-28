@@ -179,8 +179,8 @@ export class NotesService implements INotesService {
             ])
             .where("note.author = :login", {login: authorLogin})
             .limit(options?.limit)
-            .skip(options?.skip)
-            .orderBy("note.updatedAt", options?.sort);
+            .skip(options?.offset)
+            .orderBy("note.updatedAt", options?.date_sort);
 
         const tags = options?.tags;
         if (tags && tags.length) {
@@ -212,8 +212,8 @@ export class NotesService implements INotesService {
                 "note.updatedAt"
             ])
             .limit(options?.limit)
-            .skip(options?.skip)
-            .orderBy("note.updatedAt", options?.sort);
+            .skip(options?.offset)
+            .orderBy("note.updatedAt", options?.date_sort);
 
         const tags = options?.tags;
         if (tags && tags.length) {

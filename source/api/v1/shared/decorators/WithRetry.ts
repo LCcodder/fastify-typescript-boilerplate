@@ -1,3 +1,5 @@
+import { LOGGER } from "../utils/common/Logger"
+
 export const withRetry = (_target: any, _key: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value
   
@@ -5,7 +7,7 @@ export const withRetry = (_target: any, _key: string, descriptor: PropertyDescri
         try {
             return await originalMethod.apply(this, args)
         } catch (error) {
-            console.log(error)
+            LOGGER.error(error)
             return await originalMethod.apply(this, args)
         }
     }

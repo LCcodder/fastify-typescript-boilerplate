@@ -6,8 +6,8 @@ import { NOTE_ACCESS_RESTRICTED, COLLABORATOR_ALREADY_IN_NOTE, COLLABORATOR_NOT_
 export type NotesSearchOptions = DeepOptional<{
     tags: string[]
     limit: number
-    skip: number
-    sort: "ASC" | "DESC"
+    offset: number
+    date_sort: "ASC" | "DESC"
 }>
 
 export interface INotesService {

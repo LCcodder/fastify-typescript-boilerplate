@@ -17,6 +17,7 @@ import { CommonHandler } from './api/v1/api/handlers/common/CommonHandler'
 import { AuthHandler } from './api/v1/api/handlers/auth/AuthHandlers'
 import { NotesHandler } from './api/v1/api/handlers/notes/NotesHandlers'
 import { UsersHandler } from './api/v1/api/handlers/users/UsersHandlers'
+import { LOGGER } from './api/v1/shared/utils/common/Logger'
 
 const main = async () => {
     CONFIG.log()
@@ -80,11 +81,11 @@ const main = async () => {
     }, (error: Error, address: string) => {
         
         if (error) {
-            console.log(error)
+            LOGGER.error(error)
             process.exit(1)
         }
     
-        console.log(`[INFO] Listening at address ${address}\n`)
+        LOGGER.info(`Listening at address ${address}\n`)
     })
     
 }

@@ -2,6 +2,7 @@ import { DataSource } from "typeorm";
 import { User as UserEntity }  from "./entities/User";
 import { Note as NoteEntity }  from "./entities/Note";
 import { withRetry } from "../shared/decorators/WithRetry";
+import { LOGGER } from "../shared/utils/common/Logger";
 
 
 export class DataSourceInitialiser {
@@ -28,7 +29,7 @@ export class DataSourceInitialiser {
         })
         
         await appDataSource.initialize()
-        console.log(`[INFO] Connected to database "${this.database}" at host ${this.host}:${this.port} as ${this.username}, ready to use\n`)    
+        LOGGER.log('info', `Connected to database "${this.database}" at host ${this.host}:${this.port} as ${this.username}, ready to use\n`)    
         
     
         return appDataSource

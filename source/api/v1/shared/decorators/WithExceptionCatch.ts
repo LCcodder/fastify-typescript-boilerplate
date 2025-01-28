@@ -1,4 +1,5 @@
 import { SERVICE_UNAVAILABLE } from "../exceptions/CommonException"
+import { LOGGER } from "../utils/common/Logger"
 
 export const withExceptionCatch = (_target: any, _key: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value
@@ -7,7 +8,7 @@ export const withExceptionCatch = (_target: any, _key: string, descriptor: Prope
         try {
             return await originalMethod.apply(this, args)
         } catch (error) {
-            console.log(error)
+            LOGGER.error(error)
             return SERVICE_UNAVAILABLE
         }
     }

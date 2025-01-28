@@ -1,3 +1,4 @@
+import { LOGGER } from "../utils/common/Logger";
 import { Config } from "./Config";
 require('dotenv').config()
 
@@ -20,6 +21,6 @@ export const CONFIG: Config = {
     jwtExpiration: process.env.JWT_EXPIRATION || "24h",
 
     log: function (): void {
-        console.log(`[INFO] Webapp loaded with config:\nPORT: ${this.appPort}\nDATABASE CONNECTION: ${this.databaseConnectionString}\nJWT SECRET: ${this.jwtSecret}\nJWT EXPIRATION: ${this.jwtExpiration}\n`)
+        LOGGER.info(`Webapp loaded with config:\nPORT: ${this.appPort}\nDATABASE CONNECTION: ${this.databaseConnectionString}\nJWT SECRET: ${this.jwtSecret}\nJWT EXPIRATION: ${this.jwtExpiration}\n`)
     }
 }
