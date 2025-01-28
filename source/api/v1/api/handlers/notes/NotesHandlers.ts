@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { INotesService } from "../../../services/notes/NotesServiceInterface";
+import { INotesService, NotesSearchOptions } from "../../../services/notes/NotesServiceInterface";
 import { NoteUpdate, NoteWithoutMetadata } from "../../../shared/dto/NoteDto";
 import { extractJwtPayload } from "../../../shared/utils/jwt/PayloadExtractor";
 import { extractToken } from "../../../shared/utils/common/TokenExtractor";
@@ -41,12 +41,7 @@ export class NotesHandler implements Handler {
         })
     
         this.server.get<{
-            Querystring: {
-                limit: number,
-                offset: number,
-                date_sort: "ASC" | "DESC",
-                tags: string[]
-            },
+            Querystring: NotesSearchOptions,
         }>("/notes/my", 
             {
                 schema: GetNotesSchema, 
@@ -70,12 +65,7 @@ export class NotesHandler implements Handler {
         })
     
         this.server.get<{
-            Querystring: {
-                limit: number,
-                offset: number,
-                sort: "ASC" | "DESC",
-                tags: string[]
-            },
+            Querystring: NotesSearchOptions,
         }>("/notes/collaborated", {
             schema: GetNotesSchema,
             preHandler: this.authorizationPreHandler
@@ -84,12 +74,9 @@ export class NotesHandler implements Handler {
                 extractToken(request)
             )
     
-            const limit = request.query.limit
-            const skip = request.query.offset
-            const sort = request.query.sort
-            const tags = request.query.tags
+            const {limit, offset, date_sort, tags} = request.query
     
-            const notes = await this.notesService.getCollaboratedNotes(login, {tags, limit, offset: skip, date_sort: sort}) 
+            const notes = await this.notesService.getCollaboratedNotes(login, {tags, limit, offset, date_sort}) 
             if (isException(notes)) {
                 reply.code(notes.statusCode).send(notes)
                 return
