@@ -180,7 +180,7 @@ export class NotesService implements INotesService {
             .where("note.author = :login", {login: authorLogin})
             .limit(options?.limit)
             .skip(options?.offset)
-            .orderBy("note.updatedAt", options?.date_sort);
+            .orderBy("note.updatedAt", options?.sort);
 
         const tags = options?.tags;
         if (tags && tags.length) {
@@ -213,7 +213,7 @@ export class NotesService implements INotesService {
             ])
             .limit(options?.limit)
             .skip(options?.offset)
-            .orderBy("note.updatedAt", options?.date_sort);
+            .orderBy("note.updatedAt", options?.sort);
 
         const tags = options?.tags;
         if (tags && tags.length) {

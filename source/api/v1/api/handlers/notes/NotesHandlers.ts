@@ -52,9 +52,9 @@ export class NotesHandler implements Handler {
                 extractToken(request)
             )
     
-            const {limit, offset, date_sort, tags} = request.query
+            const {limit, offset, sort: date_sort, tags} = request.query
     
-            const notes = await this.notesService.getMyNotes(login, {tags, limit, offset, date_sort})
+            const notes = await this.notesService.getMyNotes(login, {tags, limit, offset, sort: date_sort})
             if (isException(notes)) {
                 reply.code(notes.statusCode).send(notes)
                 return
@@ -74,9 +74,9 @@ export class NotesHandler implements Handler {
                 extractToken(request)
             )
     
-            const {limit, offset, date_sort, tags} = request.query
+            const {limit, offset, sort: date_sort, tags} = request.query
     
-            const notes = await this.notesService.getCollaboratedNotes(login, {tags, limit, offset, date_sort}) 
+            const notes = await this.notesService.getCollaboratedNotes(login, {tags, limit, offset, sort: date_sort}) 
             if (isException(notes)) {
                 reply.code(notes.statusCode).send(notes)
                 return

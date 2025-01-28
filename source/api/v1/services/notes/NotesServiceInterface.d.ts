@@ -7,7 +7,7 @@ export type NotesSearchOptions = DeepOptional<{
     tags: string[]
     limit: number
     offset: number
-    date_sort: "ASC" | "DESC"
+    sort: "ASC" | "DESC"
 }>
 
 export interface INotesService {
