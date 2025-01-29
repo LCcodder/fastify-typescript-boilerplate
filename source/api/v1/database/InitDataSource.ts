@@ -14,7 +14,7 @@ export class DataSourceInitialiser {
         private readonly database: string
     ) {}
 
-    @withRetry
+    @withRetry()
     public async initAndGetDataSource(): Promise<DataSource> {
         const appDataSource = new DataSource({
             type: "postgres",
