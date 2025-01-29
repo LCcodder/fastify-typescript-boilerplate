@@ -1,3 +1,3 @@
-export interface Handler {
+export interface IHandlers {
     handleRoutes(): void
 }

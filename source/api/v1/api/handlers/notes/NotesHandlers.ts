@@ -5,10 +5,10 @@ import { extractJwtPayload } from "../../../shared/utils/jwt/PayloadExtractor";
 import { extractToken } from "../../../shared/utils/common/TokenExtractor";
 import { AddCollaboratorSchema, CreateNoteSchema, DeleteNoteSchema, GetNoteCollaboratorsSchema, GetNoteSchema, GetNotesSchema, RemoveCollaboratorSchema, UpdateNoteSchema } from "../../validation/schemas/NoteSchemas";
 import { isException } from "../../../shared/utils/guards/ExceptionGuard";
-import { Handler } from "../Handler";
+import { IHandlers } from "../Handler";
 import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 
-export class NotesHandler implements Handler {
+export class NotesHandlers implements IHandlers {
     constructor(
         private server: FastifyInstance, 
         private authorizationPreHandler: AuthorizationPreHandler,

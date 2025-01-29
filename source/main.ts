@@ -13,10 +13,10 @@ import { Note as NoteEntity } from './api/v1/database/entities/Note'
 import { initSwaggerViewer } from './api/v1/api/openapi/swagger/InitSwagger'
 import { connectAndGetRedisInstance } from './api/v1/cache/InitRedisInstance'
 import Healthcheck from './api/v1/shared/utils/common/Healthcheck'
-import { CommonHandler } from './api/v1/api/handlers/common/CommonHandler'
-import { AuthHandler } from './api/v1/api/handlers/auth/AuthHandlers'
-import { NotesHandler } from './api/v1/api/handlers/notes/NotesHandlers'
-import { UsersHandler } from './api/v1/api/handlers/users/UsersHandlers'
+import { CommonHandlers } from './api/v1/api/handlers/common/CommonHandlers'
+import { AuthHandlers } from './api/v1/api/handlers/auth/AuthHandlers'
+import { NotesHandlers } from './api/v1/api/handlers/notes/NotesHandlers'
+import { UsersHandlers } from './api/v1/api/handlers/users/UsersHandlers'
 import { LOGGER } from './api/v1/shared/utils/common/Logger'
 
 const main = async () => {
@@ -58,10 +58,10 @@ const main = async () => {
     
     // registering handlers with version prefix
     server.register((server, _, done) => {
-        const usersHandler = new UsersHandler(server, authentication, usersService)
-        const notesHandler = new NotesHandler(server, authentication, notesService)
-        const authHandler = new AuthHandler(server, authentication, authService)
-        const commonHandler = new CommonHandler(server, healthcheck)
+        const usersHandler = new UsersHandlers(server, authentication, usersService)
+        const notesHandler = new NotesHandlers(server, authentication, notesService)
+        const authHandler = new AuthHandlers(server, authentication, authService)
+        const commonHandler = new CommonHandlers(server, healthcheck)
 
         usersHandler.handleRoutes()
         notesHandler.handleRoutes()

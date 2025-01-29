@@ -1,9 +1,9 @@
 import { FastifyInstance } from "fastify";
 import Healthcheck, { SystemReport } from "../../../shared/utils/common/Healthcheck";
-import { Handler } from "../Handler";
+import { IHandlers } from "../Handler";
 import { isException } from "../../../shared/utils/guards/ExceptionGuard";
 
-export class CommonHandler implements Handler {
+export class CommonHandlers implements IHandlers {
     constructor(
         private server: FastifyInstance, 
         private healthcheck: Healthcheck

@@ -5,10 +5,10 @@ import { AuthUserSchema, ChangePasswordSchema } from "../../validation/schemas/A
 import { extractJwtPayload } from "../../../shared/utils/jwt/PayloadExtractor"; 
 import { extractToken } from "../../../shared/utils/common/TokenExtractor";
 import { isException } from "../../../shared/utils/guards/ExceptionGuard";
-import { Handler } from "../Handler";
+import { IHandlers } from "../Handler";
 import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 
-export class AuthHandler implements Handler {
+export class AuthHandlers implements IHandlers {
     constructor(
         private server: FastifyInstance, 
         private authorizationPreHandler: AuthorizationPreHandler,

@@ -4,13 +4,13 @@ import { CreateUserSchema, GetMyProfileSchema, GetUserSchema, UpdateUserSchema }
 import { extractJwtPayload } from "../../../shared/utils/jwt/PayloadExtractor";
 import { extractToken } from "../../../shared/utils/common/TokenExtractor";
 import { isException } from "../../../shared/utils/guards/ExceptionGuard";
-import { Handler } from "../Handler";
+import { IHandlers } from "../Handler";
 import { AuthorizationPreHandler } from "../../prehandlers/AuthPreHandler";
 import { IUsersService } from "../../../services/users/UsersServiceInterface";
 import { UsersService } from "../../../services/users/UsersService";
 
 
-export class UsersHandler implements Handler {
+export class UsersHandlers implements IHandlers {
     constructor (
         private server: FastifyInstance, 
         private authorizationPreHandler: AuthorizationPreHandler,
